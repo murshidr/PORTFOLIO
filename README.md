@@ -31,5 +31,5 @@ Built for the modern web with a focus on high-DPI awareness and mobile performan
    ```
 
 ## 📄 License & Credits
-Developed by **Murshid R**. MIT License. Experience the cinematic journey at [Deployment Link Comin Soon].
+Developed by **Murshid R**. MIT License. Experience the cinematic journey at [http://murshid-r.vercel.app](http://murshid-r.vercel.app).
 
