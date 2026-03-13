@@ -19,12 +19,22 @@ app.post("/api/contact", async (req, res) => {
     const { name, email, subject, message } = req.body;
 
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_APP_PASS
       }
     });
+
+    // Verify connection configuration
+    try {
+      await transporter.verify();
+    } catch (verifyError) {
+      console.error("SMTP VERIFICATION ERROR:", verifyError);
+      throw verifyError;
+    }
 
     const mailOptions = {
       from: process.env.GMAIL_USER,
@@ -34,12 +44,16 @@ app.post("/api/contact", async (req, res) => {
       replyTo: email
     };
 
-    await transporter.sendMail(mailOptions);
-    console.log("Email sent successfully!");
+    console.log("Attempting to send email...");
+    const info = await transporter.sendMail(mailOptions);
+    console.log("Email sent successfully! Message ID:", info.messageId);
     res.json({ success: true, message: "Message sent successfully!" });
   } catch (error) {
-    console.error("FULL NODE MAILER ERROR:", error);
-    res.status(500).json({ success: false, error: "Failed to send message." });
+    console.error("FULL NODE MAILER ERROR STACK:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: error instanceof Error ? error.message : "Failed to send message." 
+    });
   }
 });
 
