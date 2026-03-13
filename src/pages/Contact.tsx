@@ -5,10 +5,13 @@ import React, { useState } from 'react';
 export default function Contact() {
   const [formData, setFormData] = useState({ name: '', email: '', subject: 'Internship Opportunity', message: '' });
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus('loading');
+    setErrorMessage('');
+    
     try {
       const res = await fetch('/api/contact', {
         method: 'POST',
@@ -21,9 +24,11 @@ export default function Contact() {
         setFormData({ name: '', email: '', subject: 'Internship Opportunity', message: '' });
       } else {
         setStatus('error');
+        setErrorMessage(data.error || 'Unknown error occurred');
       }
     } catch (err) {
       setStatus('error');
+      setErrorMessage('Network error or server unreachable');
     }
   };
   return (
@@ -93,7 +98,7 @@ export default function Contact() {
           )}
           {status === 'error' && (
             <div className="bg-red-500/20 border border-red-500/50 text-red-400 p-4 rounded-xl mb-6">
-              Failed to send message. Please reach out via email directly.
+              Error: {errorMessage}. Please reach out via email directly.
             </div>
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
