@@ -2,7 +2,7 @@
 
 An advanced, cinematic 3D portfolio experience showcasing the intersection of Data Science, AI, and Aerospace technology. Inspired by the vibrant energy of Chennai and the iconic Marina Beach.
 
-![Immersive Scene Preview](https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6)
+![Immersive Scene Preview](public/avatar_banner.png)
 
 ## 🎓 Identity: Student & AI Enthusiast
 This portfolio reflects my journey as a **B.Tech CSE (Data Science & AI)** student, focusing on translating complex research into production-grade systems. From real-time telemetry dashboards to deep learning for rocket propulsion, this is a hub for my technical experiments.
