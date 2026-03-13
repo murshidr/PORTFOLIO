@@ -1,6 +1,6 @@
 import PageLayout from '../components/PageLayout';
 import { motion } from 'framer-motion';
-import { Code, Palette, Terminal, Cpu, GraduationCap, BookOpen } from 'lucide-react';
+import { Code, Palette, Terminal, Cpu, GraduationCap, BookOpen, Download } from 'lucide-react';
 
 export default function About() {
   const skills = [
@@ -44,6 +44,18 @@ export default function About() {
                 <span className="text-green-400">Student</span>
               </div>
             </div>
+
+            <motion.a 
+              href="/resume/resume.pdf" 
+              download="Murshid_R_Resume.pdf"
+              target="_blank"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="mt-8 w-full py-4 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white font-bold flex items-center justify-center gap-3 transition-colors shadow-lg shadow-blue-500/20"
+            >
+              <Download size={20} />
+              Download Resume
+            </motion.a>
           </div>
         </div>
 
@@ -55,13 +67,13 @@ export default function About() {
               Professional Profile
             </h2>
             <p className="text-lg text-gray-300 leading-relaxed mb-6">
-              I am a dedicated student specializing in Computer Science with a deep-rooted passion for Data Science and Artificial Intelligence. My work bridges the gap between complex research and impactful, real-world applications.
+              I am a high-performing **B.Tech Computer Science (Data Science & AI)** student with a specialized focus on **Deep Learning for Aerospace Applications**, Real-Time Systems, and Predictive Analytics.
             </p>
             <p className="text-gray-400 leading-relaxed mb-4">
-              From developing real-time predictive models for aerospace systems to building automated enterprise pipelines, I thrive on solving intricate problems with clean code and innovative data strategies.
+              Currently, I am conducting research at the **Dr. M.G.R ACS Space Technology Centre** on combustion instability prediction using Temporal Convolutional Networks (TCNs) for hybrid rocket engines—achieving 92% accuracy in real-time environments.
             </p>
             <p className="text-gray-400 leading-relaxed">
-              Beyond the classroom, I am a continuous learner, constantly exploring the evolving frontiers of Deep Learning and Space Technology, always eager to translate theoretical insights into production-ready solutions.
+              My technical journey is driven by a desire to bridge the gap between abstract AI research and production-grade engineering. Whether it's building automated data pipelines or high-frequency telemetry dashboards, I focus on creating systems that are both robust and impactful.
             </p>
           </section>
 

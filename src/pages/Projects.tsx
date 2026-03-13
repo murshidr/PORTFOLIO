@@ -1,9 +1,18 @@
 import PageLayout from '../components/PageLayout';
 import { motion } from 'framer-motion';
-import { ExternalLink, Github, Rocket, Brain, Leaf, Activity } from 'lucide-react';
+import { ExternalLink, Github, Rocket, Brain, Leaf, Activity, ShieldCheck } from 'lucide-react';
 
 export default function Projects() {
   const projects = [
+    {
+      title: "Sentinel",
+      description: "Execution Intelligence Platform. Passes Slack/Gmail threads through Llama 3.3 70B to extract commitments, scores them with a 4-factor risk engine, and alerts owners before deadlines slip. Features a live dependency graph.",
+      tags: ["React 19", "FastAPI", "Groq AI", "Supabase", "Llama 3.3"],
+      image: "/project_sentinel.png",
+      link: "#",
+      github: "#",
+      icon: ShieldCheck
+    },
     {
       title: "Smart Attendance System",
       description: "A robust desktop application built with Python and CustomTkinter. Features a dual-mode architecture (Admin/Terminal), automated late arrival calculations, and local SQLite data security. Replaces paper logs with a premium dark-mode interface.",
