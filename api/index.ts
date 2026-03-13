@@ -1,6 +1,4 @@
 import express from "express";
-import { createServer as createViteServer } from "vite";
-import os from 'os';
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -48,11 +46,11 @@ app.post("/api/contact", async (req, res) => {
     const info = await transporter.sendMail(mailOptions);
     console.log("Email sent successfully! Message ID:", info.messageId);
     res.json({ success: true, message: "Message sent successfully!" });
-  } catch (error) {
+  } catch (error: any) {
     console.error("FULL NODE MAILER ERROR STACK:", error);
     res.status(500).json({ 
       success: false, 
-      error: error instanceof Error ? error.message : "Failed to send message." 
+      error: error.message || "Failed to send message." 
     });
   }
 });
@@ -60,17 +58,22 @@ app.post("/api/contact", async (req, res) => {
 async function init() {
   // Vite middleware for development
   if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
-    
-    const PORT = 3005;
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`\n  🚀 Cinematic Chennai is running!`);
-      console.log(`  ➜  Local:   http://localhost:${PORT}`);
-    });
+    try {
+      const { createServer: createViteServer } = await import("vite");
+      const vite = await createViteServer({
+        server: { middlewareMode: true },
+        appType: "spa",
+      });
+      app.use(vite.middlewares);
+      
+      const PORT = 3005;
+      app.listen(PORT, "0.0.0.0", () => {
+        console.log(`\n  🚀 Cinematic Chennai is running!`);
+        console.log(`  ➜  Local:   http://localhost:${PORT}`);
+      });
+    } catch (e) {
+      console.error("Vite failed to load:", e);
+    }
   }
 }
 
