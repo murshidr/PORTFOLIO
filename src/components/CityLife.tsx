@@ -537,10 +537,10 @@ const Bird = ({ initialZ, speed, initialX, initialY, paused, isMobile }: any) =>
 };
 
 export default function CityLife({ paused, isMobile }: { paused: boolean, isMobile?: boolean }) {
-  const vehiclesCount = isMobile ? 14 : 20;
-  const pedsCount = isMobile ? 25 : 40;
-  const birdsCount = isMobile ? 10 : 15;
-  const cyclistsCount = isMobile ? 5 : 8;
+  const vehiclesCount = isMobile ? 10 : 12; // optimized downward for both
+  const pedsCount = isMobile ? 15 : 20; // optimized downward
+  const birdsCount = isMobile ? 8 : 10;
+  const cyclistsCount = isMobile ? 4 : 5;
 
   const vehicles = useMemo(() => {
     return Array.from({ length: vehiclesCount }).map((_, i) => {

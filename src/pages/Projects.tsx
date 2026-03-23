@@ -5,6 +5,15 @@ import { ExternalLink, Github, Rocket, Brain, Leaf, Activity, ShieldCheck } from
 export default function Projects() {
   const projects = [
     {
+      title: "Vynta",
+      description: "AI-powered task scheduler that uses natural language to schedule tasks based on energy levels. Built with Jetpack Compose, MVVM, Room, and Groq (Llama 3) for the AI engine, with Google Calendar sync.",
+      tags: ["Jetpack Compose", "Llama 3", "MVVM", "Android"],
+      image: "/project_crop_1773207382747.png", // Placeholder image
+      link: "#",
+      github: "#",
+      icon: Brain
+    },
+    {
       title: "Sentinel",
       description: "Execution Intelligence Platform. Passes Slack/Gmail threads through Llama 3.3 70B to extract commitments, scores them with a 4-factor risk engine, and alerts owners before deadlines slip. Features a live dependency graph.",
       tags: ["React 19", "FastAPI", "Groq AI", "Supabase", "Llama 3.3"],

@@ -212,7 +212,7 @@ export default function Scene() {
 
       <Canvas 
         shadows="basic" // Keep basic shadows on mobile for better visuals
-        dpr={isMobile ? [1, 1.5] : [1, 2]} // Cap DPR on mobile to save pixels
+        dpr={isMobile ? [1, 1] : [1, 1.2]} // Cap DPR to save pixels on Desktop too
         gl={{ antialias: true, powerPreference: "high-performance" }} // Antialias on for quality
         camera={{ position: [0, 50, 50], fov: 45 }}
       >
