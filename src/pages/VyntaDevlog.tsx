@@ -40,87 +40,90 @@ export default function VyntaDevlog() {
 
   return (
     <PageLayout title="Vynta Devlog">
-      {/* Reader Settings Floating Button */}
-      <div className="fixed bottom-10 right-10 z-[100]">
-        <motion.button 
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-          onClick={() => setShowSettings(!showSettings)}
-          className="w-14 h-14 bg-blue-600 text-white rounded-full shadow-2xl flex items-center justify-center hover:bg-blue-500 transition-colors"
-        >
-          <Settings size={24} className={showSettings ? 'rotate-90' : ''} />
-        </motion.button>
-
-        <AnimatePresence>
-          {showSettings && (
-            <motion.div 
-              initial={{ opacity: 0, y: 20, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.9 }}
-              className="absolute bottom-16 right-0 w-64 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-3xl p-6 shadow-3xl text-white"
-            >
-              <h4 className="text-xs uppercase tracking-[0.2em] text-gray-400 font-black mb-4">Reading Settings</h4>
-              
-              {/* Font Size Row */}
-              <div className="mb-6">
-                <span className="text-[10px] uppercase tracking-widest text-gray-500 block mb-2">Text Size</span>
-                <div className="flex bg-black/20 rounded-xl p-1 gap-1">
-                  {(['base', 'lg', 'xl'] as FontSize[]).map(size => (
-                    <button 
-                      key={size}
-                      onClick={() => setFontSize(size)}
-                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all ${fontSize === size ? 'bg-blue-600 text-white' : 'hover:bg-white/5'}`}
-                    >
-                      {size === 'base' ? 'S' : size === 'lg' ? 'M' : 'L'}
-                    </button>
-                  ))}
+      {/* Reader Settings Floating Button - Truly Fixed to Viewport */}
+      <div className="fixed bottom-10 right-10 z-[100] pointer-events-none">
+        <div className="pointer-events-auto flex flex-col items-end">
+          <AnimatePresence>
+            {showSettings && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                className="mb-4 w-72 bg-white/10 backdrop-blur-3xl border border-white/20 rounded-[2.5rem] p-8 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] text-white"
+              >
+                <h4 className="text-[10px] uppercase tracking-[0.3em] text-gray-400 font-black mb-6">Display Settings</h4>
+                
+                {/* Font Size Row */}
+                <div className="mb-8">
+                  <span className="text-[10px] uppercase tracking-widest text-gray-500 block mb-3 font-bold">Text Size</span>
+                  <div className="flex bg-black/40 rounded-2xl p-1.5 gap-1">
+                    {(['base', 'lg', 'xl'] as FontSize[]).map(size => (
+                      <button 
+                        key={size}
+                        onClick={() => setFontSize(size)}
+                        className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${fontSize === size ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-white/5 text-gray-400'}`}
+                      >
+                        {size === 'base' ? 'S' : size === 'lg' ? 'M' : 'L'}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Theme Row */}
-              <div className="mb-6">
-                <span className="text-[10px] uppercase tracking-widest text-gray-500 block mb-2">Theme</span>
-                <div className="flex bg-black/20 rounded-xl p-1 gap-1">
-                  {(['dark', 'sepia', 'black'] as Theme[]).map(t => (
-                    <button 
-                      key={t}
-                      onClick={() => setTheme(t)}
-                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all capitalize ${theme === t ? 'bg-blue-600 text-white' : 'hover:bg-white/5'}`}
-                    >
-                      {t}
-                    </button>
-                  ))}
+                {/* Theme Row */}
+                <div className="mb-8">
+                  <span className="text-[10px] uppercase tracking-widest text-gray-500 block mb-3 font-bold">Theme</span>
+                  <div className="flex bg-black/40 rounded-2xl p-1.5 gap-1">
+                    {(['dark', 'sepia', 'black'] as Theme[]).map(t => (
+                      <button 
+                        key={t}
+                        onClick={() => setTheme(t)}
+                        className={`flex-1 py-2 rounded-xl text-xs font-black transition-all capitalize ${theme === t ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-white/5 text-gray-400'}`}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              {/* Font Style Row */}
-              <div>
-                <span className="text-[10px] uppercase tracking-widest text-gray-500 block mb-2">Typeface</span>
-                <div className="flex bg-black/20 rounded-xl p-1 gap-1">
-                  {(['sans', 'mono', 'serif'] as FontStyle[]).map(f => (
-                    <button 
-                      key={f}
-                      onClick={() => setFontStyle(f)}
-                      className={`flex-1 py-1.5 rounded-lg text-xs font-bold transition-all capitalize ${fontStyle === f ? 'bg-blue-600 text-white' : 'hover:bg-white/5'}`}
-                    >
-                      {f}
-                    </button>
-                  ))}
+                {/* Font Style Row */}
+                <div>
+                  <span className="text-[10px] uppercase tracking-widest text-gray-500 block mb-3 font-bold">Typeface</span>
+                  <div className="flex bg-black/40 rounded-2xl p-1.5 gap-1">
+                    {(['sans', 'mono', 'serif'] as FontStyle[]).map(f => (
+                      <button 
+                        key={f}
+                        onClick={() => setFontStyle(f)}
+                        className={`flex-1 py-2 rounded-xl text-xs font-black transition-all capitalize ${fontStyle === f ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-white/5 text-gray-400'}`}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowSettings(!showSettings)}
+            className="w-16 h-16 bg-blue-600 text-white rounded-2xl shadow-[0_20px_50px_rgba(37,99,235,0.3)] flex items-center justify-center hover:bg-blue-500 transition-all border border-white/10"
+          >
+            <span className="text-xl font-serif font-bold tracking-tighter">aA</span>
+          </motion.button>
+        </div>
       </div>
 
-      <div className={`transition-colors duration-500 min-h-screen ${getThemeClasses()}`}>
-        <article className={`max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-32 transition-all duration-300 ${getFontClasses()}`}>
+      {/* Full-Page Theme Background Wrapper */}
+      <div className={`transition-colors duration-700 min-h-screen ${getThemeClasses()}`}>
+        <article className={`max-w-4xl mx-auto px-6 sm:px-10 lg:px-12 pb-48 pt-20 transition-all duration-500 ${getFontClasses()}`}>
           {/* Back Navigation */}
           <Link 
             to="/devlogs" 
-            className={`inline-flex items-center gap-2 transition-colors mb-16 group text-sm font-medium ${theme === 'sepia' ? 'text-brown-800' : 'text-blue-400/80 hover:text-blue-400'}`}
+            className={`inline-flex items-center gap-2 mb-20 group text-sm font-bold transition-all ${theme === 'sepia' ? 'text-[#5b4636] hover:translate-x-[-4px]' : 'text-blue-400/80 hover:text-blue-400 hover:translate-x-[-4px]'}`}
           >
-            <ArrowLeft size={16} className="transform group-hover:-translate-x-1 transition-transform" />
+            <ArrowLeft size={18} />
             Back to Journal
           </Link>
 
