@@ -160,9 +160,9 @@ export default function VyntaDevlog() {
 
           {/* Conclusion */}
           <section className="max-w-2xl mx-auto pt-20 border-t border-white/5 text-center">
-            <h2 className="text-4xl font-bold text-white mb-6 tracking-tighter">The Outcome</h2>
+            <h2 className="text-3xl font-bold text-white mb-6 tracking-tighter">Want to help me test it?</h2>
             <p className="text-gray-400 text-lg leading-relaxed mb-12">
-              Final project shipped with full AI scheduling, Calendar sync, and a premium Jetpack Compose dark UI. It's Currently being tested by 50+ beta users.
+              Vynta is still a project in progress. Since it's built during my holidays, there are definitely bugs to squash. If you're interested in productivity tools, I'd love for you to try the beta and give me some feedback.
             </p>
             
             <a 
@@ -171,7 +171,7 @@ export default function VyntaDevlog() {
               rel="noopener noreferrer"
               className="inline-flex items-center gap-3 px-10 py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold transition-all transform hover:-translate-y-1 shadow-2xl shadow-blue-600/20"
             >
-              Check Repository <ChevronRight size={20} />
+              Join the Beta Testing <ChevronRight size={20} />
             </a>
           </section>
 
