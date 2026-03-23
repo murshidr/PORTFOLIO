@@ -40,84 +40,83 @@ export default function VyntaDevlog() {
 
   return (
     <PageLayout title="Vynta Devlog">
+      {/* Reader Settings Floating Button - FIXED TO VIEWPORT */}
+      <div className="fixed bottom-10 right-10 z-[100] pointer-events-none">
+        <div className="pointer-events-auto flex flex-col items-end">
+          <AnimatePresence>
+            {showSettings && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 20, scale: 0.95 }}
+                className="mb-4 w-72 bg-white/10 backdrop-blur-3xl border border-white/20 rounded-[2.5rem] p-8 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] text-white"
+              >
+                <h4 className="text-[10px] uppercase tracking-[0.3em] text-gray-400 font-black mb-6">Display Settings</h4>
+                
+                {/* Font Size Row */}
+                <div className="mb-8">
+                  <span className="text-[10px] uppercase tracking-widest text-gray-500 block mb-3 font-bold">Text Size</span>
+                  <div className="flex bg-black/40 rounded-2xl p-1.5 gap-1">
+                    {(['base', 'lg', 'xl'] as FontSize[]).map(size => (
+                      <button 
+                        key={size}
+                        onClick={() => setFontSize(size)}
+                        className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${fontSize === size ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-white/5 text-gray-400'}`}
+                      >
+                        {size === 'base' ? 'S' : size === 'lg' ? 'M' : 'L'}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Theme Row */}
+                <div className="mb-8">
+                  <span className="text-[10px] uppercase tracking-widest text-gray-500 block mb-3 font-bold">Theme</span>
+                  <div className="flex bg-black/40 rounded-2xl p-1.5 gap-1">
+                    {(['dark', 'sepia', 'black'] as Theme[]).map(t => (
+                      <button 
+                        key={t}
+                        onClick={() => setTheme(t)}
+                        className={`flex-1 py-2 rounded-xl text-xs font-black transition-all capitalize ${theme === t ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-white/5 text-gray-400'}`}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Font Style Row */}
+                <div>
+                  <span className="text-[10px] uppercase tracking-widest text-gray-500 block mb-3 font-bold">Typeface</span>
+                  <div className="flex bg-black/40 rounded-2xl p-1.5 gap-1">
+                    {(['sans', 'mono', 'serif'] as FontStyle[]).map(f => (
+                      <button 
+                        key={f}
+                        onClick={() => setFontStyle(f)}
+                        className={`flex-1 py-2 rounded-xl text-xs font-black transition-all capitalize ${fontStyle === f ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-white/5 text-gray-400'}`}
+                      >
+                        {f}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setShowSettings(!showSettings)}
+            className="w-16 h-16 bg-blue-600 text-white rounded-2xl shadow-[0_20px_50px_rgba(37,99,235,0.3)] flex items-center justify-center hover:bg-blue-500 transition-all border border-white/10"
+          >
+            <span className="text-xl font-serif font-bold tracking-tighter">aA</span>
+          </motion.button>
+        </div>
+      </div>
+
       {/* Full-Page Theme Background Wrapper */}
       <div className={`transition-colors duration-700 min-h-screen relative overflow-hidden ${getThemeClasses()}`}>
-        
-        {/* Reader Settings Button - Now Absolute so it scrolls with content */}
-        <div className="absolute top-20 right-4 sm:right-10 lg:right-20 z-[100] pointer-events-none">
-          <div className="pointer-events-auto flex flex-col items-end sticky top-10">
-            <AnimatePresence>
-              {showSettings && (
-                <motion.div 
-                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 20, scale: 0.95 }}
-                  className="mb-4 w-72 bg-white/10 backdrop-blur-3xl border border-white/20 rounded-[2.5rem] p-8 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.5)] text-white"
-                >
-                  <h4 className="text-[10px] uppercase tracking-[0.3em] text-gray-400 font-black mb-6">Display Settings</h4>
-                  
-                  {/* Font Size Row */}
-                  <div className="mb-8">
-                    <span className="text-[10px] uppercase tracking-widest text-gray-500 block mb-3 font-bold">Text Size</span>
-                    <div className="flex bg-black/40 rounded-2xl p-1.5 gap-1">
-                      {(['base', 'lg', 'xl'] as FontSize[]).map(size => (
-                        <button 
-                          key={size}
-                          onClick={() => setFontSize(size)}
-                          className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${fontSize === size ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-white/5 text-gray-400'}`}
-                        >
-                          {size === 'base' ? 'S' : size === 'lg' ? 'M' : 'L'}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Theme Row */}
-                  <div className="mb-8">
-                    <span className="text-[10px] uppercase tracking-widest text-gray-500 block mb-3 font-bold">Theme</span>
-                    <div className="flex bg-black/40 rounded-2xl p-1.5 gap-1">
-                      {(['dark', 'sepia', 'black'] as Theme[]).map(t => (
-                        <button 
-                          key={t}
-                          onClick={() => setTheme(t)}
-                          className={`flex-1 py-2 rounded-xl text-xs font-black transition-all capitalize ${theme === t ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-white/5 text-gray-400'}`}
-                        >
-                          {t}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Font Style Row */}
-                  <div>
-                    <span className="text-[10px] uppercase tracking-widest text-gray-500 block mb-3 font-bold">Typeface</span>
-                    <div className="flex bg-black/40 rounded-2xl p-1.5 gap-1">
-                      {(['sans', 'mono', 'serif'] as FontStyle[]).map(f => (
-                        <button 
-                          key={f}
-                          onClick={() => setFontStyle(f)}
-                          className={`flex-1 py-2 rounded-xl text-xs font-black transition-all capitalize ${fontStyle === f ? 'bg-blue-600 text-white shadow-lg' : 'hover:bg-white/5 text-gray-400'}`}
-                        >
-                          {f}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            <motion.button 
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setShowSettings(!showSettings)}
-              className="w-16 h-16 bg-blue-600 text-white rounded-2xl shadow-[0_20px_50px_rgba(37,99,235,0.3)] flex items-center justify-center hover:bg-blue-500 transition-all border border-white/10"
-            >
-              <span className="text-xl font-serif font-bold tracking-tighter">aA</span>
-            </motion.button>
-          </div>
-        </div>
-
         <article className={`max-w-4xl mx-auto px-6 sm:px-10 lg:px-12 pb-48 pt-20 transition-all duration-500 ${getFontClasses()}`}>
           {/* Back Navigation */}
           <Link 
