@@ -168,7 +168,7 @@ export default function VyntaDevlog() {
                Home screen widgets, a streak system for habits, and smarter AI suggestions based on past patterns.
              </p>
              <a 
-              href="https://linkedin.com/in/murshid-r-37088b272"
+              href="https://github.com/quantumstack-labs/Vynta"
               target="_blank"
               rel="noopener noreferrer"
               className="px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-full font-bold transition-all transform hover:scale-105 inline-block shadow-lg shadow-blue-500/20"

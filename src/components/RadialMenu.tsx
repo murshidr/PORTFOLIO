@@ -14,6 +14,7 @@ const menuItemsLeft = [
 ];
 
 const menuItemsRight = [
+  { label: 'Devlogs', icon: FileText, path: '/devlogs', color: 'text-emerald-500' },
   { label: 'View Awards', icon: Award, path: '/awards', color: 'text-orange-500' },
   { label: 'Open GitHub Repository', icon: Github, path: '/github', color: 'text-gray-700' },
   { label: 'Contact Me Directly', icon: Mail, path: '/contact', color: 'text-red-500' },
