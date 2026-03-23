@@ -1,12 +1,36 @@
 import PageLayout from '../components/PageLayout';
-import { motion } from 'framer-motion';
-import { ArrowLeft, Calendar, Brain, Code2, Rocket, Bug, Clock } from 'lucide-react';
+import { motion, useScroll, useSpring, useTransform } from 'framer-motion';
+import { ArrowLeft, Calendar, Brain, Code2, Rocket, Bug, Clock, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useRef, ReactNode } from 'react';
 
 export default function VyntaDevlog() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start start", "end end"]
+  });
+
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
   return (
     <PageLayout title="Vynta Devlog">
-      <div className="max-w-6xl mx-auto px-4 md:px-8">
+      {/* Sticky Progress Bar (Desktop) */}
+      <div className="fixed left-8 top-1/2 -translate-y-1/2 h-64 w-px bg-white/10 hidden lg:block z-50">
+        <motion.div 
+          className="w-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]"
+          style={{ height: useTransform(scrollYProgress, [0, 1], ["0%", "100%"]) }}
+        />
+        <div className="absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-mono text-gray-500 vertical-text uppercase tracking-widest">
+          Progress
+        </div>
+      </div>
+
+      <div ref={containerRef} className="max-w-6xl mx-auto px-4 md:px-8 relative">
         {/* Back Link */}
         <Link 
           to="/devlogs" 
@@ -18,165 +42,185 @@ export default function VyntaDevlog() {
 
         {/* Header Section */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-20 text-center lg:text-left max-w-4xl lg:max-w-none"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.8 }}
+          className="mb-32 text-center lg:text-left relative"
         >
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight bg-gradient-to-r from-blue-400 via-purple-400 to-blue-400 bg-clip-text text-transparent">
-            Building an AI Task Scheduler <br className="hidden lg:block" /> in My Semester Holiday
+          <div className="absolute -top-20 -left-20 w-64 h-64 bg-blue-500/10 rounded-full blur-[100px] -z-10 animate-pulse" />
+          <h1 className="text-5xl md:text-8xl font-black mb-8 leading-[1.1] bg-gradient-to-r from-blue-400 via-purple-400 to-blue-500 bg-clip-text text-transparent tracking-tighter">
+            Vynta Devlog: <br /> The Story of AI Scheduling
           </h1>
-          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-6 text-gray-400 font-mono text-sm">
-            <span className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/10">
-              <Calendar size={14} className="text-blue-400" /> March 2026
+          <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4">
+            <span className="flex items-center gap-2 bg-white/5 backdrop-blur-md px-5 py-2.5 rounded-2xl border border-white/10 text-gray-300 text-sm font-medium">
+              <Calendar size={16} className="text-blue-400" /> March 2026
             </span>
-            <span className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/10">
-              <Brain size={14} className="text-purple-400" /> Murshid R
-            </span>
-            <span className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full border border-white/10">
-              <Clock size={14} className="text-emerald-400" /> 8 Min Read
+            <span className="flex items-center gap-2 bg-white/5 backdrop-blur-md px-5 py-2.5 rounded-2xl border border-white/10 text-gray-300 text-sm font-medium">
+              <Brain size={16} className="text-purple-400" /> Murshid R
             </span>
           </div>
         </motion.div>
 
-        {/* Intro */}
-        <div className="mb-24 max-w-4xl lg:max-w-none">
-          <div className="grid lg:grid-cols-12 gap-12 items-center">
-            <div className="lg:col-span-12">
-              <p className="text-xl md:text-2xl text-gray-300 leading-relaxed font-light italic">
-                "My semester holiday started and I had zero plans. Tasks piling up in my head, notes scattered across apps — I needed something smarter."
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Sections staggered */}
-        <div className="space-y-32 mb-32">
+        {/* Story Content with Glass Containers */}
+        <div className="space-y-40 mb-40">
           
-          {/* What I wanted to build */}
-          <section className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="order-2 lg:order-1">
-              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
-                <Rocket className="text-blue-400" w-8 h-8 /> What I wanted to build
-              </h2>
-              <p className="text-gray-400 leading-relaxed space-y-4">
-                The idea was simple. An Android app where you describe your task in plain English and AI handles the scheduling. No date pickers. No dropdowns. Just type "submit the ML assignment by Thursday" and it figures out the task name, the deadline, the priority — and puts it in your calendar.
-              </p>
-              <p className="mt-6 text-gray-400">
-                I also wanted to add an energy level system. Scheduling a deep focus coding session when you're already tired doesn't make sense. Low, Medium, and High energy tasks would get slotted into the right parts of your day automatically.
-              </p>
-            </div>
-            <div className="order-1 lg:order-2 group">
-              <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl transform transition-transform group-hover:scale-[1.02] duration-500">
-                <div className="absolute inset-0 bg-blue-500/10 group-hover:bg-transparent transition-colors z-10" />
-                <img src="/projects/vynta/home.png" alt="Vynta Home Screen" className="w-full h-auto" />
+          {/* Section: The Problem */}
+          <GlassSection>
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <Badge text="The Beginning" color="bg-blue-500/20 text-blue-400" />
+                <h2 className="text-4xl font-bold text-white mt-4 mb-6 leading-tight">Zero plans and a <br /> cluttered mind.</h2>
+                <div className="space-y-4 text-gray-400 text-lg leading-relaxed font-light">
+                  <p>Holiday started, and tasks started piling up. Todoist, TickTick, Google Tasks — none felt right. By the time I picked a date and priority, I could've just done the task.</p>
+                  <p className="border-l-2 border-blue-500/40 pl-6 italic text-blue-300/80">"Why can't I just tell it what I need to do and have it figure out the rest?"</p>
+                </div>
+              </div>
+              <div className="relative group">
+                <ParallaxImage src="/projects/vynta/home.png" alt="Vynta Home" />
               </div>
             </div>
-          </section>
+          </GlassSection>
 
-          {/* Core Pipeline Week 1 */}
-          <section className="grid lg:grid-cols-2 gap-16 items-center">
-             <div className="group">
-              <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl p-6 bg-white/5 transform transition-transform group-hover:scale-[1.02] duration-500">
-                <img src="/projects/vynta/input.png" alt="AI Input Pipeline" className="w-full h-auto rounded-2xl" />
+          {/* Section: Week 1 */}
+          <GlassSection delay={0.2}>
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+               <div className="lg:order-2">
+                <Badge text="Week 1" color="bg-purple-500/20 text-purple-400" />
+                <h2 className="text-4xl font-bold text-white mt-4 mb-6 leading-tight">Engineering the <br /> AI Engine</h2>
+                <p className="text-gray-400 text-lg leading-relaxed mb-6">
+                  The heart of Vynta is the AI input pipeline. It's not just a wrapper; it's a smart agent that parses fuzzy dates and energy levels into structured data.
+                </p>
+                <div className="grid grid-cols-2 gap-4">
+                  {["Llama 3 (Groq)", "Kotlin Coroutines", "Retrofit", "JSON Parsing"].map(item => (
+                    <div key={item} className="flex items-center gap-2 text-sm text-gray-300 bg-white/5 p-3 rounded-xl border border-white/5">
+                      <CheckCircle2 size={16} className="text-blue-500" /> {item}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="lg:order-1">
+                <ParallaxImage src="/projects/vynta/input.png" alt="AI Input" offset={20} />
               </div>
             </div>
-            <div>
-              <h2 className="text-3xl font-bold text-white mb-6">Week 1 — The AI Pipeline</h2>
-              <p className="text-gray-400 leading-relaxed">
-                The AI input pipeline was the heart of the app. User types a task description → Retrofit sends it to Groq → Llama 3 parses the natural language and returns structured JSON with task name, date, time, priority, and energy level.
-              </p>
-              <p className="mt-6 text-gray-400">
-                Getting the prompt right took longer than expected. I had to iterate on the system prompt several times before it started making smart assumptions, like defaulting to the next available slot in your working hours if no specific time is given.
-              </p>
-              <div className="mt-8 flex flex-wrap gap-3">
-                {["Llama 3", "Groq API", "Structured JSON", "System Prompts"].map(tag => (
-                  <span key={tag} className="px-3 py-1 bg-blue-500/10 text-blue-300 text-xs font-mono rounded-full border border-blue-500/20">
-                    {tag}
-                  </span>
+          </GlassSection>
+
+          {/* Section: Week 2 */}
+          <GlassSection>
+            <div className="grid lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <Badge text="Week 2" color="bg-emerald-500/20 text-emerald-400" />
+                <h2 className="text-4xl font-bold text-white mt-4 mb-6">Jetpack Compose <br /> Magic</h2>
+                <p className="text-gray-400 text-lg leading-relaxed mb-6">
+                  Everything is built with Material 3 and Jetpack Compose. I designed a custom Pill-Dock navigation for the best one-handed speed when inputting tasks.
+                </p>
+                <div className="space-y-4">
+                  <div className="p-5 bg-white/5 rounded-2xl border border-white/10 group-hover:border-blue-500/20 transition-colors">
+                    <h4 className="text-white font-bold mb-1">Productivity Score</h4>
+                    <p className="text-sm text-gray-500">A dynamic score in the History screen that gamifies task completion.</p>
+                  </div>
+                </div>
+              </div>
+              <div className="relative">
+                <ParallaxImage src="/projects/vynta/history.png" alt="History Screen" />
+              </div>
+            </div>
+          </GlassSection>
+
+          {/* Section: Reflections */}
+          <div className="grid lg:grid-cols-2 gap-8">
+            <motion.div 
+              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 30 }}
+              viewport={{ once: true }}
+              className="p-10 bg-white/5 backdrop-blur-xl border border-white/10 rounded-[3rem] shadow-2xl"
+            >
+              <h3 className="text-2xl font-bold text-white mb-8">Lessons Learned</h3>
+              <ul className="space-y-6">
+                {[
+                  { t: "Start UI Earlier", d: "Spending too long on the backend delayed critical layout testing." },
+                  { t: "Fuzzy Logic", d: "Prompt engineering is 80% of the UX in AI products." },
+                  { t: "Sync is Hard", d: "Google Calendar token refresh is a masterclass in state management." }
+                ].map((item, i) => (
+                  <li key={i} className="flex gap-4">
+                    <div className="w-2 h-2 rounded-full bg-blue-500 mt-2 shrink-0" />
+                    <div>
+                      <h5 className="text-white font-bold">{item.t}</h5>
+                      <p className="text-sm text-gray-400">{item.d}</p>
+                    </div>
+                  </li>
                 ))}
-              </div>
-            </div>
-          </section>
-
-          {/* Building Screens Week 2 */}
-          <section className="grid lg:grid-cols-2 gap-16 items-center">
-            <div className="order-2 lg:order-1">
-              <h2 className="text-3xl font-bold text-white mb-6">Week 2 — Crafting the Experience</h2>
-              <div className="space-y-6 text-gray-400">
-                <p>
-                  <strong className="text-white block mb-1">Home screen</strong> Straightforward layout with daily progress, focus cards, and an upcoming task strip.
-                </p>
-                <p>
-                  <strong className="text-white block mb-1">History screen</strong> Full log with a productivity score showing the percentage of tasks finished.
-                </p>
-                <p>
-                  <strong className="text-white block mb-1">Pill Dock Navigation</strong> Minimal two-button dock designed for one-handed use.
-                </p>
-              </div>
-            </div>
-            <div className="order-1 lg:order-2 group">
-              <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl transform transition-transform group-hover:scale-[1.02] duration-500">
-                <img src="/projects/vynta/history.png" alt="History Screen" className="w-full h-auto" />
-              </div>
-            </div>
-          </section>
-
-          {/* Reality Check Week 3 */}
-          <section className="grid lg:grid-cols-2 gap-16 items-center">
-             <div className="group">
-              <div className="relative rounded-3xl overflow-hidden border border-white/10 shadow-2xl transform transition-transform group-hover:scale-[1.02] duration-500">
-                <img src="/projects/vynta/settings.png" alt="Settings Screen" className="w-full h-auto" />
-              </div>
-            </div>
-            <div>
-              <h2 className="text-3xl font-bold text-white mb-6 flex items-center gap-3">
-                <Bug className="text-red-400" /> Week 3 — Reality Checks
-              </h2>
-              <ul className="space-y-6 text-gray-400 list-none">
-                <li className="flex gap-4">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-red-400/20 border border-red-400/30 flex items-center justify-center text-[10px] text-red-400">01</div>
-                  <p>Calendar sync lagging for new accounts due to token refresh timing.</p>
-                </li>
-                <li className="flex gap-4">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-red-400/20 border border-red-400/30 flex items-center justify-center text-[10px] text-red-400">02</div>
-                  <p>Voice input cutting off on slow connections — still debugging.</p>
-                </li>
-                <li className="flex gap-4">
-                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-red-400/20 border border-red-400/30 flex items-center justify-center text-[10px] text-red-400">03</div>
-                  <p>AI misreading fuzzy dates like "before the weekend".</p>
-                </li>
               </ul>
-            </div>
-          </section>
+            </motion.div>
 
-        </div>
+            <motion.div 
+              whileInView={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 30 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="p-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-[3rem] shadow-2xl flex flex-col items-center justify-center text-center text-white relative overflow-hidden group"
+            >
+              <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl group-hover:scale-150 transition-transform duration-700" />
+              <Rocket size={48} className="mb-6 animate-bounce" />
+              <h3 className="text-3xl font-black mb-4">Want to try Vynta?</h3>
+              <p className="text-blue-100 mb-10 max-w-xs text-lg">
+                The beta is currently open. Check out the repository for the latest build.
+              </p>
+              <a 
+                href="https://github.com/quantumstack-labs/Vynta"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-5 bg-white text-blue-600 rounded-2xl font-black uppercase tracking-widest hover:bg-blue-50 transition-colors shadow-xl"
+              >
+                GitHub Repository
+              </a>
+            </motion.div>
+          </div>
 
-        {/* Final Reflections */}
-        <div className="grid lg:grid-cols-2 gap-8 mb-32">
-          <div className="p-10 bg-white/5 border border-white/10 rounded-3xl">
-            <h3 className="text-2xl font-bold text-white mb-6">What I'd do differently</h3>
-            <ul className="space-y-4 text-gray-400 list-disc list-inside">
-              <li>Start the UI earlier — backend took too long.</li>
-              <li>Build onboarding flow from the start.</li>
-              <li>Focus more on prompt engineering in Week 1.</li>
-            </ul>
-          </div>
-          <div className="p-10 border border-blue-500/20 bg-blue-500/5 rounded-3xl flex flex-col justify-center items-center text-center">
-             <h3 className="text-2xl font-bold text-white mb-4">The Result</h3>
-             <p className="text-gray-400 mb-8 max-w-sm">
-               Final project shipped with full AI scheduling, Calendar sync, and a premium Jetpack Compose dark UI.
-             </p>
-             <a 
-              href="https://github.com/quantumstack-labs/Vynta"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-10 py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full font-bold transition-all transform hover:scale-105 shadow-xl shadow-blue-500/20"
-             >
-               Try the Beta
-             </a>
-          </div>
         </div>
       </div>
     </PageLayout>
+  );
+}
+
+function GlassSection({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
+  return (
+    <motion.section 
+      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 40 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.8, delay }}
+      className="relative p-8 md:p-12 bg-white/5 backdrop-blur-2xl border border-white/10 rounded-[4rem] shadow-2xl hover:bg-white/[0.07] transition-colors group"
+    >
+      {children}
+    </motion.section>
+  );
+}
+
+function Badge({ text, color }: { text: string; color: string }) {
+  return (
+    <span className={`inline-block px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest mb-6 ${color}`}>
+      {text}
+    </span>
+  );
+}
+
+function ParallaxImage({ src, alt, offset = 40 }: { src: string; alt: string, offset?: number }) {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"]
+  });
+  const y = useTransform(scrollYProgress, [0, 1], [offset, -offset]);
+
+  return (
+    <div ref={ref} className="relative rounded-2xl overflow-hidden shadow-2xl perspective-1000">
+      <motion.img 
+        style={{ y }}
+        src={src} 
+        alt={alt} 
+        className="w-full h-auto scale-110" 
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+    </div>
   );
 }
