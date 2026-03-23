@@ -10,6 +10,7 @@ import Awards from './pages/Awards';
 import Blog from './pages/Blog';
 import Contact from './pages/Contact';
 import Github from './pages/Github';
+import VyntaDevlog from './pages/VyntaDevlog';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -20,6 +21,7 @@ function AnimatedRoutes() {
         <Route path="/" element={<div />} /> {/* Home is just the scene */}
         <Route path="/about" element={<About />} />
         <Route path="/projects" element={<Projects />} />
+        <Route path="/devlog/vynta" element={<VyntaDevlog />} />
         <Route path="/achievements" element={<Achievements />} />
         <Route path="/awards" element={<Awards />} />
         <Route path="/blog" element={<Blog />} />

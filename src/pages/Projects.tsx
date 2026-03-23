@@ -1,5 +1,6 @@
 import PageLayout from '../components/PageLayout';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { ExternalLink, Github, Rocket, Brain, Leaf, Activity, ShieldCheck } from 'lucide-react';
 
 export default function Projects() {
@@ -165,7 +166,17 @@ export default function Projects() {
 
             {/* Content */}
             <div className="p-6 relative z-20">
-              <h3 className="text-2xl font-bold mb-3 group-hover:text-blue-400 transition-colors">{project.title}</h3>
+              <div className="flex justify-between items-start mb-3">
+                <h3 className="text-2xl font-bold group-hover:text-blue-400 transition-colors">{project.title}</h3>
+                {project.title === "Vynta" && (
+                   <Link 
+                    to="/devlog/vynta" 
+                    className="flex items-center gap-1.5 text-xs font-mono px-3 py-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 rounded-lg transition-all"
+                   >
+                     View Devlog
+                   </Link>
+                )}
+              </div>
               <p className="text-gray-400 mb-6 text-sm leading-relaxed line-clamp-3 group-hover:line-clamp-none transition-all">
                 {project.description}
               </p>
