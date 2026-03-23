@@ -10,3 +10,18 @@ html, body, #root {
   margin: 0;
   overflow: hidden;
 }
+
+@keyframes scroll-images {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scroll-images {
+  display: flex;
+  width: max-content;
+  animation: scroll-images 12s linear infinite;
+}
+
+.pause {
+  animation-play-state: paused;
+}

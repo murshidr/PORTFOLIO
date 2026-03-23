@@ -8,7 +8,13 @@ export default function Projects() {
       title: "Vynta",
       description: "AI-powered task scheduler that uses natural language to schedule tasks based on energy levels. Built with Jetpack Compose, MVVM, Room, and Groq (Llama 3) for the AI engine, with Google Calendar sync.",
       tags: ["Jetpack Compose", "Llama 3", "MVVM", "Android"],
-      image: "/project_crop_1773207382747.png", // Placeholder image
+      image: "/projects/vynta/home.png",
+      images: [
+        "/projects/vynta/home.png",
+        "/projects/vynta/input.png",
+        "/projects/vynta/history.png",
+        "/projects/vynta/settings.png"
+      ],
       link: "#",
       github: "#",
       icon: Brain
@@ -35,7 +41,7 @@ export default function Projects() {
       title: "Enterprise Data Automation Pipeline",
       description: "A fully automated self-service pipeline that transforms fragmented CSV exports into production-ready analytical dashboards. Features automated validation, vectorized cleaning with Pandas, and interactive Streamlit BI visualizations.",
       tags: ["Python", "Pandas", "Streamlit", "Plotly"],
-      image: "/project_crop_1773207382747.png", // Using an existing image as placeholder for now due to quota
+      image: "/project_crop_1773207382747.png",
       link: "#",
       github: "#",
       icon: Rocket
@@ -108,14 +114,40 @@ export default function Projects() {
             className="group relative bg-white/5 hover:bg-white/10 transition-all duration-500 rounded-3xl overflow-hidden border border-white/10 hover:border-white/30"
           >
             {/* Image Container */}
-            <div className="h-48 overflow-hidden relative">
+            <div className="h-64 overflow-hidden relative">
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
-              <img
-                src={project.image}
-                alt={project.title}
-                className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-                referrerPolicy="no-referrer"
-              />
+              
+              {project.images ? (
+                <div className="flex h-full animate-scroll-images group-hover:pause">
+                  {project.images.map((img, i) => (
+                    <img
+                      key={i}
+                      src={img}
+                      alt={`${project.title} ${i + 1}`}
+                      className="w-full h-full object-cover flex-shrink-0"
+                      referrerPolicy="no-referrer"
+                    />
+                  ))}
+                  {/* Duplicate for seamless scroll */}
+                   {project.images.map((img, i) => (
+                    <img
+                      key={`dup-${i}`}
+                      src={img}
+                      alt={`${project.title} dup ${i + 1}`}
+                      className="w-full h-full object-cover flex-shrink-0"
+                      referrerPolicy="no-referrer"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                  referrerPolicy="no-referrer"
+                />
+              )}
+
               <div className="absolute top-4 right-4 z-20 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-2 group-hover:translate-y-0">
                 <a href={project.github} className="p-2 bg-black/50 backdrop-blur-md rounded-full hover:bg-white hover:text-black transition-colors">
                   <Github size={18} />
