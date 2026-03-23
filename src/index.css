@@ -19,9 +19,9 @@ html, body, #root {
 .animate-scroll-images {
   display: flex;
   width: max-content;
-  animation: scroll-images 12s linear infinite;
+  animation: scroll-images 15s linear infinite;
 }
 
-.pause {
+.group:hover .animate-scroll-images {
   animation-play-state: paused;
 }
