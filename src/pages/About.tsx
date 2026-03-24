@@ -46,8 +46,8 @@ export default function About() {
             </div>
 
             <motion.a 
-              href="/resume/resume.pdf" 
-              download="Murshid_R_Resume.pdf"
+              href="/resume/Murshid_Resume.docx" 
+              download="Murshid_Resume.docx"
               target="_blank"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
