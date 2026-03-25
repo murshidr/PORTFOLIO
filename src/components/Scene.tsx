@@ -200,18 +200,6 @@ export default function Scene() {
 
   return (
     <div className="fixed inset-0 w-full h-full z-0 font-sans">
-      {/* Weather UI Toggle */}
-      {cameraLanded && location.pathname === '/' && (
-        <div className="absolute top-6 right-6 z-40">
-          <button 
-            onClick={() => setIsRaining(!isRaining)}
-            className="bg-black/40 text-white px-5 py-2.5 rounded-full backdrop-blur-md border border-white/20 text-xs font-bold hover:bg-white/20 hover:scale-105 transition-all shadow-lg flex items-center gap-2"
-          >
-            {isRaining ? '☀️ Stop Rain' : '🌧️ Start Rain'}
-          </button>
-        </div>
-      )}
-
       <Canvas 
         shadows="basic" // Keep basic shadows on mobile for better visuals
         dpr={isMobile ? [1, 1] : [1, 1.2]} // Cap DPR to save pixels on Desktop too
@@ -273,6 +261,18 @@ export default function Scene() {
           showInitially={showOnboarding} 
           onStart={() => setShowOnboarding(false)} 
         />
+      )}
+
+      {/* Weather UI Toggle - Moved here for better rendering precedence */}
+      {cameraLanded && location.pathname === '/' && (
+        <div className="absolute top-6 right-6 z-50">
+          <button 
+            onClick={() => setIsRaining(!isRaining)}
+            className="bg-black/40 text-white px-5 py-2.5 rounded-full backdrop-blur-md border border-white/20 text-xs font-bold hover:bg-white/20 hover:scale-105 transition-all shadow-lg flex items-center gap-2"
+          >
+            {isRaining ? '☀️ Stop Rain' : '🌧️ Start Rain'}
+          </button>
+        </div>
       )}
     </div>
 
