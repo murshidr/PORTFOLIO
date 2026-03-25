@@ -40,20 +40,20 @@ export default function OnboardingOverlay({ showInitially }: OnboardingOverlayPr
 
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-md bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
-                  <Move className="text-white/60" size={12} />
+                <div className="w-6 h-6 rounded-md bg-white/10 flex items-center justify-center border border-white/20 shrink-0">
+                  <Move className="text-white" size={12} />
                 </div>
-                <p className="text-[10px] text-gray-400 font-medium leading-tight">
-                  <span className="text-white">Drag</span> to explore environment
+                <p className="text-[11px] text-gray-200 font-medium leading-tight">
+                  <span className="text-blue-400 font-bold">Drag</span> to explore environment
                 </p>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-md bg-white/5 flex items-center justify-center border border-white/10 shrink-0">
-                  <MousePointer2 className="text-white/60" size={12} />
+                <div className="w-6 h-6 rounded-md bg-white/10 flex items-center justify-center border border-white/20 shrink-0">
+                  <MousePointer2 className="text-white" size={12} />
                 </div>
-                <p className="text-[10px] text-gray-400 font-medium leading-tight">
-                  <span className="text-white">Click</span> character to interact
+                <p className="text-[11px] text-gray-200 font-medium leading-tight">
+                  <span className="text-blue-400 font-bold">Click</span> character to interact
                 </p>
               </div>
             </div>
