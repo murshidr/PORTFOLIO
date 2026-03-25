@@ -1,6 +1,7 @@
 import { useRef, useState, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useCursor, Html } from '@react-three/drei';
+import { motion } from 'framer-motion';
 import * as THREE from 'three';
 import RadialMenu from './RadialMenu';
 
@@ -160,6 +161,16 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu }: Characte
       }
     }
   });
+
+  // Material for the pulsing hint
+  const hintMaterial = useMemo(() => new THREE.MeshStandardMaterial({ 
+    color: "#60a5fa", 
+    emissive: "#3b82f6", 
+    emissiveIntensity: 2,
+    transparent: true,
+    opacity: 0.8
+  }), []);
+
 
   // Materials
   const skinMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#ffdbac", roughness: 0.5 }), []);
@@ -327,14 +338,41 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu }: Characte
         </mesh>
       </group>
 
+
+      {/* Persistent Pulsing Hint (Visible before first interaction) */}
+      {!isMenuOpen && (
+        <group position={[0, 2.8, 0]}>
+          <Html center>
+            <motion.div 
+              animate={{ 
+                y: [0, -10, 0],
+                opacity: [0.4, 1, 0.4]
+              }}
+              transition={{ 
+                duration: 2, 
+                repeat: Infinity,
+                ease: "easeInOut" 
+              }}
+              className="flex flex-col items-center pointer-events-none"
+            >
+               <div className="bg-blue-500/80 text-white text-[10px] px-3 py-1 rounded-full font-bold uppercase tracking-widest border border-white/20 backdrop-blur-sm shadow-lg mb-2">
+                Click to Explore
+              </div>
+              <div className="w-1 h-4 bg-gradient-to-b from-blue-400 to-transparent rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+            </motion.div>
+          </Html>
+        </group>
+      )}
+
       {/* Hover Label */}
       {hovered && !isMenuOpen && (
         <Html position={[0, 2.5, 0]} center>
-          <div className="bg-black/80 text-white px-3 py-1 rounded-full text-xs font-mono whitespace-nowrap border border-white/20 backdrop-blur-sm animate-bounce">
-            Click Me
+          <div className="bg-black/90 text-white px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap border border-blue-500/50 backdrop-blur-md shadow-[0_0_15px_rgba(59,130,246,0.3)] animate-in fade-in zoom-in duration-200 uppercase tracking-tighter">
+            Interaction Available
           </div>
         </Html>
       )}
     </group>
+
   );
 }

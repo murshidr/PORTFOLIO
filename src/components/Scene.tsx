@@ -7,6 +7,7 @@ import CameraFlyIn from './CameraFlyIn';
 import RadialMenu from './RadialMenu';
 import World from './World';
 import CityLife from './CityLife';
+import OnboardingOverlay from './OnboardingOverlay';
 import { useLocation } from 'react-router-dom';
 
 // --- WEATHER SYSTEM ---
@@ -151,6 +152,7 @@ export default function Scene() {
   const [cameraLanded, setCameraLanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isRaining, setIsRaining] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(true);
   const location = useLocation();
 
   useEffect(() => {
@@ -264,6 +266,15 @@ export default function Scene() {
           INITIALIZING ENVIRONMENT...
         </div>
       )}
+
+      {/* Onboarding / Help Overlay */}
+      {location.pathname === '/' && (
+        <OnboardingOverlay 
+          showInitially={showOnboarding} 
+          onStart={() => setShowOnboarding(false)} 
+        />
+      )}
     </div>
+
   );
 }
