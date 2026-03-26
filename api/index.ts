@@ -28,41 +28,72 @@ app.get("/api/stats/visitor-count", (req, res) => {
 // Vynta Tester Signup API
 app.post("/api/testers/signup", async (req, res) => {
   const { email } = req.body;
+  console.log("Signup attempt for:", email);
+
   if (!email || !email.includes('@')) {
-    return res.status(400).json({ success: false, error: "Invalid email" });
+    return res.status(400).json({ success: false, error: "Please enter a valid Gmail address." });
   }
 
   try {
+    // 1. Save to Database
     const stmt = db.prepare("INSERT INTO testers (email) VALUES (?)");
     stmt.run(email);
+    console.log("Saved to DB:", email);
 
-    // Notify user via email
+    // 2. Setup Transporter
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 465,
-      secure: true,
+      secure: true, // Use SSL
       auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_APP_PASS
       }
     });
 
-    const mailOptions = {
+    // 3. Verify Connection
+    try {
+      await transporter.verify();
+      console.log("SMTP connection verified");
+    } catch (vErr) {
+      console.error("SMTP Verification Failed:", vErr);
+      throw new Error("Email service is temporarily unavailable.");
+    }
+
+    // 4. Mail to Admin (Murshid)
+    const adminMail = {
       from: process.env.GMAIL_USER,
       to: process.env.GMAIL_USER,
-      subject: `New Vynta Tester: ${email}`,
-      text: `A new person has signed up to test Vynta: ${email}`,
+      subject: `🚀 New Vynta Tester Joined: ${email}`,
+      text: `Hello Murshid,\n\nA new person has signed up to be a tester for Vynta: ${email}\n\nYou should add them to the beta list soon.`,
     };
 
-    await transporter.sendMail(mailOptions);
+    // 5. Mail to Tester (User)
+    const testerMail = {
+      from: process.env.GMAIL_USER,
+      to: email,
+      subject: `Welcome to Vynta Beta Testing!`,
+      text: `Hello!\n\nThanks for signing up to test Vynta. I'll be adding you as a Tester soon.\n\nPlease keep an eye on your inbox for a follow-up email with the formal invitation and confirmation to become a tester.\n\nBest,\nMurshid R`,
+    };
 
-    res.json({ success: true, message: "Signed up successfully!" });
+    console.log("Sending notifications...");
+    await Promise.all([
+      transporter.sendMail(adminMail),
+      transporter.sendMail(testerMail)
+    ]);
+    console.log("All notifications sent successfully");
+
+    res.json({ success: true, message: "Welcome to the team! Check your mail for confirmation soon." });
   } catch (error: any) {
     if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-      return res.status(400).json({ success: false, error: "Already signed up!" });
+      console.log("Already signed up:", email);
+      return res.status(400).json({ success: false, error: "You're already on the list! Check your mail for updates." });
     }
-    console.error("Signup error:", error);
-    res.status(500).json({ success: false, error: "Internal server error" });
+    console.error("CRITICAL SIGNUP ERROR:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: error.message || "Something went wrong. Please try again later." 
+    });
   }
 });
 
