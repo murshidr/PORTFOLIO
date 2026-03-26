@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Calendar, Brain, Rocket, Bug, Terminal, ChevronRight, Settings, Type, Sun, Moon, Maximize2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import VyntaSignupForm from '../components/VyntaSignupForm';
 
 type Theme = 'dark' | 'sepia' | 'black';
 type FontSize = 'base' | 'lg' | 'xl';
@@ -260,21 +261,28 @@ export default function VyntaDevlog() {
               </div>
             </section>
 
-            {/* Conclusion */}
+            {/* Conclusion & Signup */}
             <section className="max-w-3xl mx-auto pt-20 border-t border-black/5 text-center px-4">
               <h2 className={`text-3xl font-bold mb-6 tracking-tighter ${theme === 'sepia' ? 'text-[#3d2f24]' : 'text-white'}`}>Want to help me test it?</h2>
               <p className="opacity-80 leading-relaxed mb-12">
                 Vynta is still a project in progress. Since it's built during my holidays, there are definitely bugs to squash. If you're interested in productivity tools, I'd love for you to try the beta and give me some feedback.
               </p>
               
-              <a 
-                href="https://github.com/quantumstack-labs/Vynta"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 px-10 py-5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold transition-all transform hover:-translate-y-1 shadow-2xl shadow-blue-600/20"
-              >
-                Join the Beta Testing <ChevronRight size={20} />
-              </a>
+              <div className="mb-12">
+                <VyntaSignupForm />
+              </div>
+
+              <div className="flex flex-col items-center gap-4">
+                <p className="text-sm text-gray-500 font-mono uppercase tracking-widest">Or explore the source</p>
+                <a 
+                  href="https://github.com/quantumstack-labs/Vynta"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-3 px-8 py-4 bg-white/5 hover:bg-white/10 text-white rounded-2xl font-bold transition-all border border-white/10"
+                >
+                  View on GitHub <ChevronRight size={20} />
+                </a>
+              </div>
             </section>
 
           </div>

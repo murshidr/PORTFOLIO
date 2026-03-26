@@ -1,6 +1,7 @@
 import PageLayout from '../components/PageLayout';
 import { motion } from 'framer-motion';
 import { Github as GithubIcon, Star, GitFork, Circle } from 'lucide-react';
+import { GitHubCalendar } from 'react-github-calendar';
 
 export default function Github() {
   const repos = [
@@ -45,33 +46,24 @@ export default function Github() {
 
         {/* Content */}
         <div className="lg:col-span-2 space-y-12">
-          {/* Contribution Graph Simulation */}
+          {/* Contribution Graph - LIVE */}
           <section>
             <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
               <span className="w-2 h-2 bg-green-500 rounded-full" />
-              Contribution Activity
+              Live Contribution Activity
             </h3>
-            <div className="bg-black/40 p-6 rounded-2xl border border-white/10 overflow-x-auto">
-              <div className="flex gap-1 min-w-max">
-                {Array.from({ length: 52 }).map((_, week) => (
-                  <div key={week} className="flex flex-col gap-1">
-                    {Array.from({ length: 7 }).map((_, day) => {
-                      const level = Math.random();
-                      let color = "bg-white/5";
-                      if (level > 0.9) color = "bg-green-500";
-                      else if (level > 0.7) color = "bg-green-500/70";
-                      else if (level > 0.4) color = "bg-green-500/40";
-
-                      return (
-                        <div
-                          key={day}
-                          className={`w-3 h-3 rounded-sm ${color}`}
-                          title={`${Math.floor(level * 10)} contributions`}
-                        />
-                      );
-                    })}
-                  </div>
-                ))}
+            <div className="bg-white/5 p-8 rounded-3xl border border-white/10 overflow-hidden flex justify-center">
+              <div className="w-full max-w-full overflow-x-auto py-4 px-2 text-center">
+                <GitHubCalendar 
+                  username="murshidr" 
+                  blockSize={12}
+                  blockMargin={4}
+                  fontSize={12}
+                  theme={{
+                    light: ['#1e1e1e', '#0e4429', '#006d32', '#26a641', '#39d353'],
+                    dark: ['#1e1e1e', '#0e4429', '#006d32', '#26a641', '#39d353'],
+                  }}
+                />
               </div>
             </div>
           </section>

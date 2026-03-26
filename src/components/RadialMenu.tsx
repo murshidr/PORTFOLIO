@@ -16,7 +16,7 @@ const menuItemsLeft = [
 const menuItemsRight = [
   { label: 'Devlogs', icon: FileText, path: '/devlogs', color: 'text-emerald-500' },
   { label: 'View Awards', icon: Award, path: '/awards', color: 'text-orange-500' },
-  { label: 'Open GitHub Repository', icon: Github, path: '/github', color: 'text-gray-700' },
+  { label: 'GitHub Activity', icon: Github, path: '/github', color: 'text-gray-700', isLive: true },
   { label: 'Contact Me Directly', icon: Mail, path: '/contact', color: 'text-red-500' },
 ];
 
@@ -80,9 +80,15 @@ export default function RadialMenu({ isOpen, onClose }: InteractionMenuProps) {
                     onClose();
                   }}
                 >
-                  <div className="bg-white/95 backdrop-blur-md text-gray-800 px-3 py-1.5 md:px-4 md:py-2 rounded-full shadow-lg flex items-center gap-1.5 md:gap-2 hover:bg-white hover:scale-105 transition-all border border-black/5 whitespace-nowrap">
+                  <div className="bg-white/95 backdrop-blur-md text-gray-800 px-3 py-1.5 md:px-4 md:py-2 rounded-full shadow-lg flex items-center gap-1.5 md:gap-2 hover:bg-white hover:scale-105 transition-all border border-black/5 whitespace-nowrap overflow-hidden relative group/btn">
                     <item.icon size={14} className={`md:w-4 md:h-4 ${item.color}`} />
                     <span className="font-semibold text-[11px] md:text-[13px]">{item.label}</span>
+                    {(item as any).isLive && (
+                      <span className="flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-green-500/10 text-[8px] font-black text-green-600 uppercase tracking-tighter border border-green-500/20">
+                        <span className="w-1 h-1 bg-green-500 rounded-full animate-pulse" />
+                        Live
+                      </span>
+                    )}
                   </div>
                   {/* Branch Line */}
                   <div className="w-6 md:w-12 h-px bg-blue-300/60 shadow-[0_0_5px_rgba(59,130,246,0.5)] group-hover:bg-blue-400/80 transition-colors" />

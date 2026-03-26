@@ -12,6 +12,7 @@ import Contact from './pages/Contact';
 import Github from './pages/Github';
 import VyntaDevlog from './pages/VyntaDevlog';
 import Devlogs from './pages/Devlogs';
+import VisitorCounter from './components/VisitorCounter';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -48,6 +49,7 @@ export default function App() {
           <>
             <Scene />
             <AnimatedRoutes />
+            <VisitorCounter />
           </>
         )}
       </div>
