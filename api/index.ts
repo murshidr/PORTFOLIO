@@ -170,9 +170,9 @@ async function init() {
       app.use(vite.middlewares);
       
       const PORT = 3005;
-      app.listen(PORT, "0.0.0.0", () => {
+      app.listen(PORT, "127.0.0.1", () => {
         console.log(`\n  🚀 Cinematic Chennai is running!`);
-        console.log(`  ➜  Local:   http://localhost:${PORT}`);
+        console.log(`  ➜  Local:   http://127.0.0.1:${PORT}`);
       });
     } catch (e) {
       console.error("Vite failed to load:", e);
