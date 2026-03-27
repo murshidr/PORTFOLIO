@@ -1,7 +1,7 @@
 import express from "express";
 import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
-import db from './db';
+import { supabase } from './supabase';
 dotenv.config();
 
 const app = express();
@@ -30,15 +30,32 @@ app.get("/api/health", (req, res) => {
 });
 
 // Visitor Counter API
-app.get("/api/stats/visitor-count", (req, res) => {
+app.get("/api/stats/visitor-count", async (req, res) => {
   try {
-    const stmt = db.prepare("UPDATE stats SET value = value + 1 WHERE key = 'visitor_count' RETURNING value");
-    const result = stmt.get() as { value: number };
-    res.json({ success: true, count: result.value });
+    // 1. Get current count
+    const { data, error: getError } = await supabase
+      .from('stats')
+      .select('value')
+      .eq('key', 'visitor_count')
+      .single();
+
+    if (getError && getError.code !== 'PGRST116') throw getError;
+
+    const currentCount = data?.value || 0;
+    const newCount = currentCount + 1;
+
+    // 2. Increment and Update
+    const { error: updateError } = await supabase
+      .from('stats')
+      .update({ value: newCount })
+      .eq('key', 'visitor_count');
+
+    if (updateError) throw updateError;
+
+    res.json({ success: true, count: newCount });
   } catch (error: any) {
     console.error("Visitor count error:", error);
-    // Fallback if update fails (e.g. table doesn't exist yet)
-    res.json({ success: false, count: 0 });
+    res.status(500).json({ success: false, error: "Failed to update counter" });
   }
 });
 
@@ -52,32 +69,33 @@ app.post("/api/testers/signup", async (req, res) => {
   }
 
   try {
-    // 1. Save to Database
-    const stmt = db.prepare("INSERT INTO testers (email) VALUES (?)");
-    stmt.run(email);
-    console.log("Saved to DB:", email);
+    // 1. Save to Supabase
+    const { error: dbError } = await supabase
+      .from('testers')
+      .insert([{ email }]);
+
+    if (dbError) {
+      if (dbError.code === '23505') { // Unique constraint violation in Postgres
+        console.log("Already signed up:", email);
+        return res.status(400).json({ success: false, error: "You're already on the list! Check your mail for updates." });
+      }
+      throw dbError;
+    }
+    
+    console.log("Saved to Supabase:", email);
 
     // 2. Setup Transporter
     const transporter = nodemailer.createTransport({
       host: 'smtp.gmail.com',
       port: 465,
-      secure: true, // Use SSL
+      secure: true,
       auth: {
         user: process.env.GMAIL_USER,
         pass: process.env.GMAIL_APP_PASS
       }
     });
 
-    // 3. Verify Connection
-    try {
-      await transporter.verify();
-      console.log("SMTP connection verified");
-    } catch (vErr) {
-      console.error("SMTP Verification Failed:", vErr);
-      throw new Error("Email service is temporarily unavailable.");
-    }
-
-    // 4. Mail to Admin (Murshid)
+    // 3. Mail to Admin (Murshid)
     const adminMail = {
       from: process.env.GMAIL_USER,
       to: process.env.GMAIL_USER,
@@ -85,7 +103,7 @@ app.post("/api/testers/signup", async (req, res) => {
       text: `Hello Murshid,\n\nA new person has signed up to be a tester for Vynta: ${email}\n\nYou should add them to the beta list soon.`,
     };
 
-    // 5. Mail to Tester (User)
+    // 4. Mail to Tester (User)
     const testerMail = {
       from: process.env.GMAIL_USER,
       to: email,
@@ -95,17 +113,12 @@ app.post("/api/testers/signup", async (req, res) => {
 
     console.log("Sending notifications...");
     await Promise.all([
-      transporter.sendMail(adminMail),
-      transporter.sendMail(testerMail)
+      transporter.sendMail(adminMail).catch(e => console.error("Admin mail failed:", e)),
+      transporter.sendMail(testerMail).catch(e => console.error("Tester mail failed:", e))
     ]);
-    console.log("All notifications sent successfully");
 
     res.json({ success: true, message: "Welcome to the team! Check your mail for confirmation soon." });
   } catch (error: any) {
-    if (error.code === 'SQLITE_CONSTRAINT_UNIQUE') {
-      console.log("Already signed up:", email);
-      return res.status(400).json({ success: false, error: "You're already on the list! Check your mail for updates." });
-    }
     console.error("CRITICAL SIGNUP ERROR:", error);
     res.status(500).json({ 
       success: false, 
@@ -168,18 +181,20 @@ async function init() {
         appType: "spa",
       });
       app.use(vite.middlewares);
-      
-      const PORT = 3005;
-      app.listen(PORT, "127.0.0.1", () => {
-        console.log(`\n  🚀 Cinematic Chennai is running!`);
-        console.log(`  ➜  Local:   http://127.0.0.1:${PORT}`);
-      });
     } catch (e) {
       console.error("Vite failed to load:", e);
     }
   }
 }
 
-init();
-
+// Export the app for Vercel serverless execution
 export default app;
+
+// Only listen when running locally, not on Vercel
+if (process.env.NODE_ENV !== 'production' && !process.env.VERCEL) {
+  const PORT = 3005;
+  app.listen(PORT, "127.0.0.1", () => {
+    console.log(`\n  🚀 Cinematic Chennai is running!`);
+    console.log(`  ➜  Local (API + Vite): http://127.0.0.1:${PORT}`);
+  });
+}
