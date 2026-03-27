@@ -50,13 +50,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     await Promise.all([
-      transporter.sendMail(adminMail).catch(e => console.error("Admin mail failed:", e)),
-      transporter.sendMail(testerMail).catch(e => console.error("Tester mail failed:", e))
+      transporter.sendMail(adminMail).catch(e => {
+        console.error("Admin mail failed:", e);
+        return null;
+      }),
+      transporter.sendMail(testerMail).catch(e => {
+        console.error("Tester mail failed:", e);
+        return null;
+      })
     ]);
 
-    res.status(200).json({ success: true, message: "Welcome! Check your mail soon." });
+    return res.status(200).json({ success: true, message: "Welcome! Check your mail soon." });
   } catch (error: any) {
     console.error("Signup error:", error);
-    res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({ 
+      success: false, 
+      error: error.message || "Internal server error",
+      details: error.code || "UNKNOWN"
+    });
   }
 }
