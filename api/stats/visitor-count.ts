@@ -25,9 +25,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     if (updateError) throw updateError;
 
-    res.status(200).json({ success: true, count: newCount });
+    return res.status(200).json({ success: true, count: newCount });
   } catch (error: any) {
     console.error("Visitor count error:", error);
-    res.status(500).json({ success: false, error: "Failed to update counter" });
+    return res.status(500).json({ 
+      success: false, 
+      error: error.message || "Internal server error",
+      details: error.code || "UNKNOWN"
+    });
   }
 }
