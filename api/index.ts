@@ -1,8 +1,6 @@
 import express from "express";
 import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
 import { supabase } from './supabase';
-dotenv.config();
 
 const app = express();
 app.use(express.json());
@@ -199,6 +197,9 @@ async function init() {
   }
 }
 
+init().catch(err => {
+  console.error("Init failure:", err);
+});
 // Export the app for Vercel serverless execution
 export default app;
 
