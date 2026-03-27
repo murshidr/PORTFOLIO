@@ -45,8 +45,50 @@ export default async function handler(req: any, res: any) {
     const testerMail = {
       from: process.env.GMAIL_USER,
       to: email,
-      subject: `Welcome to Vynta Beta Testing!`,
-      text: `Thanks for signing up! I'll be adding you soon.`,
+      subject: `Welcome to the Vynta Inner Circle! 🌌`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { margin: 0; padding: 0; background-color: #050505; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #ffffff; }
+                .container { max-width: 600px; margin: 40px auto; background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+                .header { background: linear-gradient(135deg, #00f2ff, #0066ff); padding: 40px 20px; text-align: center; }
+                .header h1 { margin: 0; font-size: 28px; letter-spacing: 2px; text-transform: uppercase; color: #000; }
+                .content { padding: 40px; line-height: 1.6; }
+                .content h2 { color: #00f2ff; margin-top: 0; }
+                .step { background: #111; padding: 20px; border-left: 4px solid #00f2ff; margin: 20px 0; border-radius: 4px; }
+                .footer { padding: 20px; text-align: center; font-size: 12px; color: #666; border-top: 1px solid #1a1a1a; }
+                .btn { display: inline-block; padding: 12px 24px; background: #00f2ff; color: #000; text-decoration: none; border-radius: 6px; font-weight: bold; margin-top: 20px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>VYNTA BETA</h1>
+                </div>
+                <div class="content">
+                    <h2>You're on the list!</h2>
+                    <p>Hello tester,</p>
+                    <p>Thank you for joining the Vynta Inner Circle. We're thrilled to have you help us shape the future of cinematic digital experiences.</p>
+                    
+                    <div class="step">
+                        <strong>What's Next?</strong><br>
+                        I'm currently reviewing your request. You'll receive a formal invitation and access instructions in your inbox very soon.
+                    </div>
+
+                    <p>In the meantime, feel free to explore more of my work or follow the journey on GitHub.</p>
+                    
+                    <a href="https://murshid-r.vercel.app" class="btn">Explore Portfolio</a>
+                </div>
+                <div class="footer">
+                    &copy; 2026 Murshid R | Cinematic Chennai<br>
+                    Sent from Vynta Automation Engine
+                </div>
+            </div>
+        </body>
+        </html>
+      `
     };
 
     await Promise.all([
