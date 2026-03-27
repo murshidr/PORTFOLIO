@@ -4,6 +4,13 @@ import { supabase } from '../_lib/supabase';
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'GET') return res.status(405).end();
 
+  if (!supabase) {
+    return res.status(500).json({ 
+      success: false, 
+      error: "Supabase credentials missing on server. Please add SUPABASE_URL and SUPABASE_ANON_KEY to Vercel Settings." 
+    });
+  }
+
   try {
     // 1. Get current count
     const { data, error: getError } = await supabase

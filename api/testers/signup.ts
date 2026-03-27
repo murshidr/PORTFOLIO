@@ -5,6 +5,13 @@ import nodemailer from 'nodemailer';
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).end();
 
+  if (!supabase) {
+    return res.status(500).json({ 
+      success: false, 
+      error: "Supabase configuration missing on server." 
+    });
+  }
+
   const { email } = req.body;
   if (!email || !email.includes('@')) {
     return res.status(400).json({ success: false, error: "Please enter a valid Gmail address." });
