@@ -1,18 +1,11 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabase } from '../_lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   if (req.method !== 'GET') return res.status(405).end();
 
-  if (!supabase) {
-    return res.status(500).json({ 
-      success: false, 
-      error: "Supabase credentials missing on server. Please add SUPABASE_URL and SUPABASE_ANON_KEY to Vercel Settings." 
-    });
-  }
-
   try {
-    // 1. Get current count
+    const supabase = createClient(process.env.SUPABASE_URL || '', process.env.SUPABASE_ANON_KEY || '');
+    
     const { data, error: getError } = await supabase
       .from('stats')
       .select('value')
@@ -24,7 +17,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const currentCount = data?.value || 0;
     const newCount = currentCount + 1;
 
-    // 2. Increment and Update
     const { error: updateError } = await supabase
       .from('stats')
       .update({ value: newCount })
@@ -35,10 +27,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(200).json({ success: true, count: newCount });
   } catch (error: any) {
     console.error("Visitor count error:", error);
-    return res.status(500).json({ 
-      success: false, 
-      error: error.message || "Internal server error",
-      details: error.code || "UNKNOWN"
-    });
+    return res.status(500).json({ success: false, error: error.message || "Failed to update counter" });
   }
 }

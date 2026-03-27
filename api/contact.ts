@@ -1,8 +1,7 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
 import nodemailer from 'nodemailer';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') return res.status(405).end();
+export default async function handler(req: any, res: any) {
+  if (req.method !== 'POST') return res.status(405).json({ error: "Method not allowed" });
 
   const { name, email, subject, message } = req.body;
 
@@ -26,9 +25,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     await transporter.sendMail(mailOptions);
-    res.status(200).json({ success: true, message: "Message sent!" });
+    return res.status(200).json({ success: true, message: "Message sent!" });
   } catch (error: any) {
     console.error("Contact form error:", error);
-    res.status(500).json({ success: false, error: error.message });
+    return res.status(500).json({ success: false, error: error.message });
   }
 }

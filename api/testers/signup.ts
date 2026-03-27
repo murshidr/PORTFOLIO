@@ -1,16 +1,8 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabase } from '../_lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-  if (req.method !== 'POST') return res.status(405).end();
-
-  if (!supabase) {
-    return res.status(500).json({ 
-      success: false, 
-      error: "Supabase configuration missing on server." 
-    });
-  }
+export default async function handler(req: any, res: any) {
+  if (req.method !== 'POST') return res.status(405).json({ error: "Method not allowed" });
 
   const { email } = req.body;
   if (!email || !email.includes('@')) {
@@ -18,6 +10,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   try {
+    const supabase = createClient(process.env.SUPABASE_URL || '', process.env.SUPABASE_ANON_KEY || '');
+    
     // 1. Save to Supabase
     const { error: dbError } = await supabase
       .from('testers')
@@ -41,7 +35,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       }
     });
 
-    // 3. Emails
     const adminMail = {
       from: process.env.GMAIL_USER,
       to: process.env.GMAIL_USER,
@@ -57,23 +50,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     await Promise.all([
-      transporter.sendMail(adminMail).catch(e => {
-        console.error("Admin mail failed:", e);
-        return null;
-      }),
-      transporter.sendMail(testerMail).catch(e => {
-        console.error("Tester mail failed:", e);
-        return null;
-      })
+      transporter.sendMail(adminMail).catch(e => console.error("Admin mail failed:", e)),
+      transporter.sendMail(testerMail).catch(e => console.error("Tester mail failed:", e))
     ]);
 
     return res.status(200).json({ success: true, message: "Welcome! Check your mail soon." });
   } catch (error: any) {
     console.error("Signup error:", error);
-    return res.status(500).json({ 
-      success: false, 
-      error: error.message || "Internal server error",
-      details: error.code || "UNKNOWN"
-    });
+    return res.status(500).json({ success: false, error: error.message });
   }
 }
