@@ -24,9 +24,21 @@ app.use((req, res, next) => {
   next();
 });
 
-// API routes FIRST
+// Health Check
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok" });
+  res.json({ status: "ok", time: new Date().toISOString() });
+});
+
+// Test Supabase Connection
+app.get("/api/test-db", async (req, res) => {
+  try {
+    const { data, error } = await supabase.from('stats').select('count').limit(1);
+    if (error) throw error;
+    res.json({ success: true, message: "Supabase connected successfully!", data });
+  } catch (error: any) {
+    console.error("Supabase Test Error:", error);
+    res.status(500).json({ success: false, error: error.message || "Failed to connect to Supabase" });
+  }
 });
 
 // Visitor Counter API

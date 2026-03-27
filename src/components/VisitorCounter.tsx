@@ -10,14 +10,14 @@ export default function VisitorCounter() {
     const fetchCount = async () => {
       try {
         const res = await fetch('/api/stats/visitor-count');
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         if (data.success) {
           setCount(data.count);
-          // Show after a small delay for dramatic effect
-          setTimeout(() => setIsVisible(true), 2000);
+          setIsVisible(true);
         }
       } catch (err) {
-        console.error('Failed to fetch visitor count', err);
+        console.error('Failed to fetch visitor count:', err);
       }
     };
 

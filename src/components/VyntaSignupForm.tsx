@@ -20,17 +20,18 @@ export default function VyntaSignupForm() {
       });
       const data = await res.json();
       
-      if (data.success) {
+      if (res.ok) {
         setStatus('success');
         setMessage(data.message);
         setEmail('');
       } else {
         setStatus('error');
-        setMessage(data.error || 'Something went wrong');
+        setMessage(data.error || `Server error: ${res.status}`);
       }
-    } catch (err) {
+    } catch (err: any) {
+      console.error("Signup fetch error:", err);
       setStatus('error');
-      setMessage('Failed to connect to server');
+      setMessage(err.message || 'Failed to connect to server');
     }
   };
 
