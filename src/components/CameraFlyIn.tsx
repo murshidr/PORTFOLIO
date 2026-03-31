@@ -1,5 +1,6 @@
 import { useThree, useFrame } from '@react-three/fiber';
 import { useEffect, useRef, useState } from 'react';
+import { Html } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
 
@@ -75,13 +76,15 @@ export default function CameraFlyIn({ onLanded }: CameraFlyInProps) {
   return (
     <>
       {isSeaSkim && (
-        <div className="fixed inset-0 pointer-events-none z-[100] overflow-hidden">
-          {/* Subtle Lens Moisture / Droplets */}
-          <div className="absolute inset-0 bg-white/5 backdrop-blur-[2px] animate-pulse" />
-          <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-white/20 rounded-full blur-[4px]" />
-          <div className="absolute top-1/2 left-2/3 w-3 h-3 bg-white/10 rounded-full blur-[6px]" />
-          <div className="absolute top-2/3 left-1/4 w-1.5 h-1.5 bg-white/20 rounded-full blur-[3px]" />
-        </div>
+        <Html fullscreen style={{ pointerEvents: 'none', zIndex: 100 }}>
+          <div className="fixed inset-0 pointer-events-none overflow-hidden">
+            {/* Subtle Lens Moisture / Droplets */}
+            <div className="absolute inset-0 bg-white/5 backdrop-blur-[2px] animate-pulse" />
+            <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-white/20 rounded-full blur-[4px]" />
+            <div className="absolute top-1/2 left-2/3 w-3 h-3 bg-white/10 rounded-full blur-[6px]" />
+            <div className="absolute top-2/3 left-1/4 w-1.5 h-1.5 bg-white/20 rounded-full blur-[3px]" />
+          </div>
+        </Html>
       )}
     </>
   );
