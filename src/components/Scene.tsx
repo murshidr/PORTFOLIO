@@ -77,11 +77,11 @@ const EnvironmentManager = ({ weather, timeSpeed = 0.005 }: { weather: WeatherSt
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeOfDay(prev => {
-        const next = prev + 0.005; 
-        if (next > 18.5) return 18.16; // Reset at 6:30 PM
+        const next = prev + 0.01; // Cycle speed
+        if (next > 24) return 0; 
         return next;
       });
-    }, 1000);
+    }, 500); 
 
     // Cloud Pass (Simulate cloud covering sun)
     const cloudTimer = setInterval(() => {
@@ -96,27 +96,34 @@ const EnvironmentManager = ({ weather, timeSpeed = 0.005 }: { weather: WeatherSt
   }, []);
 
   useFrame((state, delta) => {
+    // Solar trajectory (Simplified 24h)
     const angle = ((timeOfDay - 6) / 24) * Math.PI * 2;
-    const sunX = Math.cos(angle) * 100;
-    const sunY = Math.sin(angle) * 100;
+    const sunX = Math.cos(angle) * 150;
+    const sunY = Math.sin(angle) * 150;
+    const sunZ = Math.sin(angle * 0.5) * 50;
 
     if (lightRef.current) {
-      lightRef.current.position.set(sunX, sunY, Math.sin(angle) * 50);
+      lightRef.current.position.set(sunX, sunY, sunZ);
       const intensity = Math.max(0, Math.sin(angle)) * 1.5 * cloudDimmness;
       lightRef.current.intensity = THREE.MathUtils.lerp(lightRef.current.intensity, intensity, 0.05);
     }
 
-    // Chennai Golden Hour Colors
-    let targetSky = '#f43f5e'; // Mauve
-    let targetLight = '#fb923c'; // Amber
-
-    if (timeOfDay > 18.3) { // Getting darker
-       targetSky = '#020617';
-       targetLight = '#334155';
+    // Dynamic 24h Atmosphere Mapping
+    let targetSky, targetLight;
+    if (timeOfDay >= 5 && timeOfDay < 7) { // Sunrise
+        targetSky = '#fca5a5'; targetLight = '#fdba74';
+    } else if (timeOfDay >= 7 && timeOfDay < 17) { // Noon
+        targetSky = '#38bdf8'; targetLight = '#ffffff';
+    } else if (timeOfDay >= 17 && timeOfDay < 19) { // Golden Hour
+        targetSky = '#f43f5e'; targetLight = '#fb923c';
+    } else if (timeOfDay >= 19 && timeOfDay < 21) { // Dusk/Blue Hour
+        targetSky = '#1e3a8a'; targetLight = '#475569';
+    } else { // Night
+        targetSky = '#020617'; targetLight = '#1e293b';
     }
 
     scene.background = colorObj.set(targetSky).clone();
-    scene.fog = new THREE.FogExp2(targetSky, 0.01);
+    scene.fog = new THREE.FogExp2(targetSky, 0.012);
     
     if (lightRef.current) lightRef.current.color.lerp(colorObj.set(targetLight), 0.05);
   });

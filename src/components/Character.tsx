@@ -1,4 +1,4 @@
-import { useRef, useState, useMemo } from 'react';
+import React, { useRef, useState, useMemo } from 'react';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useCursor, Html } from '@react-three/drei';
 import { motion } from 'framer-motion';
@@ -11,7 +11,7 @@ interface CharacterProps {
   onCloseMenu: () => void;
 }
 
-export default function Character({ onClick, isMenuOpen, onCloseMenu }: CharacterProps) {
+export default function Character({ onClick, isMenuOpen, onCloseMenu }: CharacterProps): React.ReactElement {
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   const { camera } = useThree();
@@ -142,17 +142,22 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu }: Characte
 
       // --- 3rd Person Camera Follow (Walking) ---
       const targetX = 17.5;
-      
-      const lerpFactor = 0.1; // Smoother stabilization
+      const lerpFactor = 0.1;
       const controls = state.controls as any;
+
       if (controls) {
+        // --- Tethered Follow Logic (v1.3) ---
+        const idealZ = group.current.position.z + 5; // Fixed 5 unit offset behind
+        const idealY = 1.8; // Head level focus
+        
         // Move the target to the character's new position
         controls.target.z = THREE.MathUtils.lerp(controls.target.z, group.current.position.z, lerpFactor); 
         controls.target.x = THREE.MathUtils.lerp(controls.target.x, targetX, lerpFactor);
-        controls.target.y = THREE.MathUtils.lerp(controls.target.y, 1.6, lerpFactor); // Head level
+        controls.target.y = THREE.MathUtils.lerp(controls.target.y, 1.6, lerpFactor); 
         
-        // Move the camera by the SAME amount but with slightly staggered lerp to eliminate "micro-jitter"
-        camera.position.z = THREE.MathUtils.lerp(camera.position.z, camera.position.z - (walkSpeed * delta), 0.5);
+        // Move the camera to the tethered ideal position (Smooth lerp)
+        camera.position.z = THREE.MathUtils.lerp(camera.position.z, idealZ, 0.1);
+        camera.position.y = THREE.MathUtils.lerp(camera.position.y, idealY, 0.1);
         
         controls.update(); 
       }

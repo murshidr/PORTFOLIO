@@ -534,68 +534,145 @@ const Bird = ({ initialZ, speed, initialX, initialY, paused, isMobile }: any) =>
 
 // --- GPU INSTANCED ACTOR SYSTEM (Extreme Optimization) ---
 const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused }: any) => {
-  const bodyRef = useRef<THREE.InstancedMesh>(null);
+  const torsoRef = useRef<THREE.InstancedMesh>(null);
   const headRef = useRef<THREE.InstancedMesh>(null);
+  const leftArmRef = useRef<THREE.InstancedMesh>(null);
+  const rightArmRef = useRef<THREE.InstancedMesh>(null);
+  const leftLegRef = useRef<THREE.InstancedMesh>(null);
+  const rightLegRef = useRef<THREE.InstancedMesh>(null);
+  const faceRef = useRef<THREE.InstancedMesh>(null);
   
   const data = useMemo(() => Array.from({ length: count }).map(() => ({
     z: (Math.random() - 0.5) * 300,
     x: initialLaneX + (Math.random() - 0.5) * laneWidth,
     speed: (1 + Math.random() * 2) * (Math.random() > 0.5 ? 1 : -1),
     offset: Math.random() * 100,
-    skinTone: ['#ffdbac', '#f1c27d', '#e0ac69', '#8d5524', '#c68642'][Math.floor(Math.random() * 5)]
+    skinColor: new THREE.Color(['#ffdbac', '#f1c27d', '#e0ac69', '#8d5524', '#c68642'][Math.floor(Math.random() * 5)]),
+    shirtColor: new THREE.Color(['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#6b7280', '#ffffff'][Math.floor(Math.random() * 6)])
   })), [count, initialLaneX, laneWidth]);
 
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
+  // Initialize colors
+  useEffect(() => {
+    data.forEach((p, i) => {
+      torsoRef.current?.setColorAt(i, p.shirtColor);
+      headRef.current?.setColorAt(i, p.skinColor);
+      leftArmRef.current?.setColorAt(i, p.skinColor);
+      rightArmRef.current?.setColorAt(i, p.skinColor);
+      leftLegRef.current?.setColorAt(i, p.shirtColor); // Pants same as shirt for simplicity or different
+      rightLegRef.current?.setColorAt(i, p.shirtColor);
+    });
+  }, [data]);
+
   useFrame((state, delta) => {
-    if (!bodyRef.current || !headRef.current || paused) return;
+    if (!torsoRef.current || !headRef.current || paused) return;
     
     const playerPos = { x: 17.5, z: 0 };
+    const t = state.clock.elapsedTime;
 
     data.forEach((p, i) => {
       // Basic Movement
       p.z += p.speed * delta;
       if (Math.abs(p.z) > 150) p.z = -150 * (p.speed > 0 ? 1 : -1);
 
-      // --- Intelligence: Proximity Avoidance ---
+      // Avoidance
       if (Math.abs(p.z - playerPos.z) < 15) {
-        const dx = Math.abs(p.x - playerPos.x);
-        const dz = Math.abs(p.z - playerPos.z);
-        if (dx < 1.5 && dz < 3) {
-          p.x += (p.x > playerPos.x ? 0.05 : -0.05);
-        }
+        if (Math.abs(p.x - playerPos.x) < 1.5) p.x += (p.x > playerPos.x ? 0.05 : -0.05);
       }
 
-      // Walking bounce/bob
-      const bounce = Math.abs(Math.sin(state.clock.elapsedTime * 8 + p.offset)) * 0.08;
-      
-      // Update Body
-      dummy.position.set(p.x, 0.7 + bounce, p.z);
-      dummy.rotation.y = p.speed > 0 ? 0 : Math.PI;
+      const stride = 8;
+      const walkCycle = Math.sin(t * stride + p.offset);
+      const walkCycleLegs = Math.sin(t * stride + p.offset);
+      const direction = p.speed > 0 ? 0 : Math.PI;
+
+      // --- TORSO ---
+      dummy.position.set(p.x, 1.0, p.z);
+      dummy.rotation.y = direction;
       dummy.scale.set(1, 1, 1);
       dummy.updateMatrix();
-      bodyRef.current!.setMatrixAt(i, dummy.matrix);
+      torsoRef.current!.setMatrixAt(i, dummy.matrix);
 
-      // Update Head (Relative to body)
-      dummy.position.set(p.x, 1.5 + bounce * 1.2, p.z + (p.speed > 0 ? 0.05 : -0.05));
-      dummy.scale.set(0.4, 0.4, 0.4); // Scale down the head
+      // --- HEAD ---
+      dummy.position.set(p.x, 1.45 + Math.abs(walkCycle) * 0.05, p.z);
+      dummy.scale.set(0.3, 0.35, 0.3);
       dummy.updateMatrix();
       headRef.current!.setMatrixAt(i, dummy.matrix);
+
+      // --- FACE (Orientation marker) ---
+      dummy.position.set(p.x, 1.45 + Math.abs(walkCycle) * 0.05, p.z + (p.speed > 0 ? 0.16 : -0.16));
+      dummy.scale.set(0.15, 0.05, 0.02);
+      dummy.updateMatrix();
+      faceRef.current!.setMatrixAt(i, dummy.matrix);
+
+      // --- ARMS ---
+      // Left Arm
+      dummy.position.set(p.x + 0.35, 1.3, p.z);
+      dummy.rotation.x = walkCycle * 0.5;
+      dummy.scale.set(0.12, 0.6, 0.12);
+      dummy.updateMatrix();
+      leftArmRef.current!.setMatrixAt(i, dummy.matrix);
+
+      // Right Arm
+      dummy.position.set(p.x - 0.35, 1.3, p.z);
+      dummy.rotation.x = -walkCycle * 0.5;
+      dummy.updateMatrix();
+      rightArmRef.current!.setMatrixAt(i, dummy.matrix);
+
+      // --- LEGS ---
+      dummy.rotation.x = walkCycleLegs * 0.6;
+      dummy.scale.set(0.18, 0.8, 0.18);
+      
+      // Left Leg
+      dummy.position.set(p.x + 0.15, 0.5, p.z);
+      dummy.updateMatrix();
+      leftLegRef.current!.setMatrixAt(i, dummy.matrix);
+
+      // Right Leg
+      dummy.position.set(p.x - 0.15, 0.5, p.z);
+      dummy.rotation.x = -walkCycleLegs * 0.6;
+      dummy.updateMatrix();
+      rightLegRef.current!.setMatrixAt(i, dummy.matrix);
     });
     
-    bodyRef.current.instanceMatrix.needsUpdate = true;
+    torsoRef.current.instanceMatrix.needsUpdate = true;
     headRef.current.instanceMatrix.needsUpdate = true;
+    leftArmRef.current.instanceMatrix.needsUpdate = true;
+    rightArmRef.current.instanceMatrix.needsUpdate = true;
+    leftLegRef.current.instanceMatrix.needsUpdate = true;
+    rightLegRef.current.instanceMatrix.needsUpdate = true;
+    faceRef.current.instanceMatrix.needsUpdate = true;
   });
 
   return (
     <group>
-      <instancedMesh ref={bodyRef} args={[undefined, undefined, count]} castShadow>
-        <capsuleGeometry args={[0.2, 1.0, 4, 8]} />
-        <meshStandardMaterial color={color} />
+      <instancedMesh ref={torsoRef} args={[undefined, undefined, count]} castShadow>
+        <boxGeometry args={[0.5, 0.8, 0.3]} />
+        <meshStandardMaterial />
       </instancedMesh>
       <instancedMesh ref={headRef} args={[undefined, undefined, count]} castShadow>
         <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="#8d5524" /> {/* Generalized skin tone for heads */}
+        <meshStandardMaterial /> 
+      </instancedMesh>
+      <instancedMesh ref={leftArmRef} args={[undefined, undefined, count]} castShadow>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial />
+      </instancedMesh>
+      <instancedMesh ref={rightArmRef} args={[undefined, undefined, count]} castShadow>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial />
+      </instancedMesh>
+      <instancedMesh ref={leftLegRef} args={[undefined, undefined, count]} castShadow>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial />
+      </instancedMesh>
+      <instancedMesh ref={rightLegRef} args={[undefined, undefined, count]} castShadow>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial />
+      </instancedMesh>
+      <instancedMesh ref={faceRef} args={[undefined, undefined, count]}>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshBasicMaterial color="#000000" />
       </instancedMesh>
     </group>
   );
