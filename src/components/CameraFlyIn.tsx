@@ -21,7 +21,7 @@ export default function CameraFlyIn({ onLanded }: CameraFlyInProps) {
     
     // Initial position: 100m above the city/road
     camera.position.set(40, 100, -30);
-    camera.lookAt(7.5, 0, 0);
+    camera.lookAt(17.5, 0, 0);
 
     timeline.current = gsap.timeline({
       onComplete: () => {
@@ -40,19 +40,19 @@ export default function CameraFlyIn({ onLanded }: CameraFlyInProps) {
       duration: 2.5,
       ease: "power2.inOut",
       onUpdate: () => {
-         camera.lookAt(7.5, 0, 10);
+         camera.lookAt(17.5, 0, 10);
       }
     });
 
     // 2.5 - 5.0s: Level out and settle behind character
     timeline.current.to(camera.position, {
-      x: 7.5, 
+      x: 17.5, 
       y: 1.8, 
       z: -6,
       duration: 2.5,
       ease: "power3.out",
       onUpdate: () => {
-        camera.lookAt(7.5, 1.8, 20);
+        camera.lookAt(17.5, 1.8, 20);
       }
     });
 
