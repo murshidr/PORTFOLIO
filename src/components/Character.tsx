@@ -63,7 +63,7 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu }: Characte
         // When menu is open, the camera swings to the FRONT to look at the character
         const frontZ = group.current.position.z - 5; 
         const frontY = 2; // slightly elevated
-        const frontX = 7.5; 
+        const frontX = 17.5; 
 
         camera.position.z = THREE.MathUtils.lerp(camera.position.z, frontZ, 0.05);
         camera.position.y = THREE.MathUtils.lerp(camera.position.y, frontY, 0.05);
@@ -74,7 +74,7 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu }: Characte
             // Look straight at character head level
             controls.target.z = THREE.MathUtils.lerp(controls.target.z, group.current.position.z, 0.1);
             controls.target.y = THREE.MathUtils.lerp(controls.target.y, 1.5, 0.1);
-            controls.target.x = THREE.MathUtils.lerp(controls.target.x, 7.5, 0.1);
+            controls.target.x = THREE.MathUtils.lerp(controls.target.x, 17.5, 0.1);
             controls.update();
         }
 
