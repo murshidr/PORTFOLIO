@@ -130,7 +130,7 @@ const EnvironmentManager = ({ weather, timeSpeed = 0.005 }: { weather: WeatherSt
       <directionalLight
         ref={lightRef}
         castShadow
-        shadow-mapSize={isMobile ? [512, 512] : [2048, 2048]}
+        shadow-mapSize={isMobile ? [512, 512] : [1024, 1024]}
         shadow-camera-near={1}
         shadow-camera-far={300}
         shadow-camera-left={-150}

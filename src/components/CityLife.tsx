@@ -28,7 +28,7 @@ const AutoRickshaw = ({ initialZ, speed, laneX, paused, isMobile }: any) => {
       {/* Body (Yellow Top) */}
       <mesh castShadow={!isMobile} position={[0, 0.8, -0.2]}>
         <boxGeometry args={[1.4, 0.8, 1.8]} />
-        <meshStandardMaterial color="#fbbf24" roughness={0.4} /> {/* Chennai Auto Yellow */}
+        <meshStandardMaterial color="#fbbf24" roughness={0.4} />
       </mesh>
       {/* Lower Body (Black) */}
       <mesh castShadow={!isMobile} position={[0, 0.3, 0]}>
@@ -124,7 +124,7 @@ const MTCBus = ({ initialZ, speed, laneX, paused, isMobile }: any) => {
       {/* Main Body (Red/White MTC style) */}
       <mesh castShadow={!isMobile} position={[0, 0, 0]}>
         <boxGeometry args={[2.8, 2.5, 8]} />
-        <meshStandardMaterial color="#ef4444" /> {/* Red */}
+        <meshStandardMaterial color="#ef4444" />
       </mesh>
       {/* White Stripe */}
       <mesh position={[0, 0, 0]}>
