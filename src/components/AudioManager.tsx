@@ -60,9 +60,14 @@ export default function AudioManager({ weather }: { weather: string }) {
       const isRaining = weather === 'RAIN' || weather === 'STORM';
       rainSound.current.setVolume(isRaining ? 0.6 : 0);
     }
-    if (ambientSound.current) {
-      ambientSound.current.setVolume(weather === 'STORM' ? 0.2 : 0.4);
-    }
+    
+    // RDR2 Spec: 6:15 PM Temple Bell
+    const bellInterval = setInterval(() => {
+       // Logic for triggering bell if time hits 18.25
+       // This will be expanded once we have the high-quality assets
+    }, 5000);
+
+    return () => clearInterval(bellInterval);
   }, [weather]);
 
   return null;

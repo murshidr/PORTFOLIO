@@ -24,27 +24,16 @@ const Signboard = ({ position, width, isMobile }: { position: [number, number, n
         <boxGeometry args={[width - 0.5, 1, 0.2]} />
         <meshStandardMaterial color="#1e1e1e" />
       </mesh>
-      {/* English Text */}
+      {/* English Text only - simpler for WebGL */}
       <Text
-        position={[0, 0.2, 0.11]}
-        fontSize={0.3}
+        position={[0, 0, 0.11]}
+        fontSize={0.4}
         color={shop.color}
         anchorX="center"
         anchorY="middle"
       >
         {shop.en}
       </Text>
-      {!isMobile && (
-        <Text
-          position={[0, -0.2, 0.11]}
-          fontSize={0.25}
-          color="white"
-          anchorX="center"
-          anchorY="middle"
-        >
-          {shop.ta}
-        </Text>
-      )}
     </group>
   );
 };

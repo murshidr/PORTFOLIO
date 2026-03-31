@@ -1,4 +1,4 @@
-import { useRef, useMemo, useState } from 'react';
+import { useRef, useMemo, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
@@ -530,104 +530,109 @@ const Bird = ({ initialZ, speed, initialX, initialY, paused, isMobile }: any) =>
   );
 };
 
-export default function CityLife({ paused, isMobile, weather }: { paused: boolean, isMobile?: boolean, weather?: string }) {
-  const vehiclesCount = isMobile ? 15 : 30; // Increased density
-  const pedsCount = isMobile ? 25 : 50; 
-  const birdsCount = isMobile ? 12 : 25;
-  const cyclistsCount = isMobile ? 6 : 12;
+// --- GPU INSTANCED ACTOR SYSTEM (Extreme Optimization) ---
+const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused }: any) => {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const data = useMemo(() => Array.from({ length: count }).map(() => ({
+    z: (Math.random() - 0.5) * 300,
+    x: initialLaneX + (Math.random() - 0.5) * laneWidth,
+    speed: (1 + Math.random() * 2) * (Math.random() > 0.5 ? 1 : -1),
+    offset: Math.random() * 100
+  })), [count, initialLaneX, laneWidth]);
 
-  const vehicles = useMemo(() => {
-    return Array.from({ length: vehiclesCount }).map((_, i) => {
-      const type = Math.random();
-      const isRightLane = Math.random() > 0.5;
-      const laneX = isRightLane ? 2.5 : -2.5;
-      const baseSpeed = 15 + Math.random() * 10;
-      const speed = isRightLane ? baseSpeed : -baseSpeed;
-      const initialZ = (Math.random() - 0.5) * 300;
+  const dummy = useMemo(() => new THREE.Object3D(), []);
 
-      if (type > 0.7) return { type: 'auto', initialZ, speed, laneX };
-      if (type > 0.5) return { type: 'bus', initialZ, speed: speed * 0.7, laneX };
-      return {
-        type: 'car',
-        initialZ,
-        speed,
-        laneX,
-        color: ['#ff0000', '#0000ff', '#ffffff', '#333333', '#8B0000'][Math.floor(Math.random() * 5)]
-      };
+  useFrame((state, delta) => {
+    if (!meshRef.current || paused) return;
+    
+    data.forEach((p, i) => {
+      // Logic
+      p.z += p.speed * delta;
+      if (Math.abs(p.z) > 150) p.z = -150 * (p.speed > 0 ? 1 : -1);
+
+      // Walking bounce
+      const bounce = Math.abs(Math.sin(state.clock.elapsedTime * 8 + p.offset)) * 0.1;
+      
+      dummy.position.set(p.x, 0.7 + bounce, p.z);
+      dummy.rotation.y = p.speed > 0 ? 0 : Math.PI;
+      dummy.updateMatrix();
+      meshRef.current!.setMatrixAt(i, dummy.matrix);
     });
-  }, [isMobile, vehiclesCount]);
-
-  const pedestrians = useMemo(() => {
-    return Array.from({ length: pedsCount }).map((_, i) => {
-      const isBeach = Math.random() > 0.4;
-      const initialLaneX = isBeach
-        ? -15 + (Math.random() - 0.5) * 10
-        : 10 + (Math.random() - 0.5) * 8;
-
-      return {
-        initialZ: (Math.random() - 0.5) * 200,
-        speed: (Math.random() * 1.5 + 1) * (Math.random() > 0.5 ? 1 : -1),
-        initialLaneX,
-        color: ['#ff5555', '#5555ff', '#55ff55', '#ffff55', '#ff55ff', '#ffffff'][Math.floor(Math.random() * 6)]
-      };
-    });
-  }, [isMobile, pedsCount]);
-
-  const birds = useMemo(() => {
-    return Array.from({ length: birdsCount }).map((_, i) => ({
-      initialZ: (Math.random() - 0.5) * 300,
-      speed: (10 + Math.random() * 5),
-      initialX: (Math.random() - 0.5) * 50,
-      initialY: 15 + Math.random() * 10
-    }));
-  }, [isMobile, birdsCount]);
-
-  const cyclists = useMemo(() => {
-    return Array.from({ length: cyclistsCount }).map((_, i) => ({
-      initialZ: (Math.random() - 0.5) * 200,
-      speed: (5 + Math.random() * 5) * (Math.random() > 0.5 ? 1 : -1),
-      laneX: 5.5,
-      color: ['#00ffff', '#ff00ff', '#ffff00'][Math.floor(Math.random() * 3)]
-    }));
-  }, [isMobile, cyclistsCount]);
+    meshRef.current.instanceMatrix.needsUpdate = true;
+  });
 
   return (
-    <group>
-      {vehicles.map((v, i) => {
-        if (v.type === 'auto') return <AutoRickshaw key={`v-${i}`} {...v} paused={paused} isMobile={isMobile} />;
-        if (v.type === 'bus') return <MTCBus key={`v-${i}`} {...v} paused={paused} isMobile={isMobile} />;
-        return <Car key={`v-${i}`} {...v} paused={paused} isMobile={isMobile} />;
-      })}
-      {pedestrians.map((ped, i) => {
-        let routine: Routine = { type: 'stroller' };
-        const rand = Math.random();
-        if (rand > 0.8) {
-          routine = { type: 'beachWatcher', targetZ: (Math.random() - 0.5) * 100 };
-        } else if (rand > 0.6) {
-          routine = { type: 'shopper', targetZ: 20, waitTime: 5 + Math.random() * 8 };
-        } else if (rand > 0.4) {
-          routine = { type: 'commuter', targetZ: -40, waitTime: 10 + Math.random() * 10 };
-        }
+    <instancedMesh ref={meshRef} args={[undefined, undefined, count]} castShadow>
+      <capsuleGeometry args={[0.2, 1.4]} />
+      <meshStandardMaterial color={color} />
+    </instancedMesh>
+  );
+};
 
-        return (
-          <HumanNPC
-            key={`ped-${i}`}
-            initialZ={ped.initialZ}
-            speed={ped.speed}
-            initialLaneX={ped.initialLaneX}
-            paused={paused}
-            isMobile={isMobile}
-            routine={routine}
-            weather={weather}
-          />
-        );
-      })}
-      {cyclists.map((cyc, i) => (
-        <Cyclist key={`cyc-${i}`} {...cyc} paused={paused} isMobile={isMobile} />
-      ))}
-      {birds.map((bird, i) => (
-        <Bird key={`bird-${i}`} {...bird} paused={paused} isMobile={isMobile} />
-      ))}
+export default function CityLife({ paused, isMobile, weather }: { paused: boolean, isMobile?: boolean, weather?: string }) {
+  return (
+    <group>
+      {/* Layer 1: Waterline (Dynamic) */}
+      <HumanInstances count={isMobile ? 20 : 50} color="#ffbdad" initialLaneX={-25} laneWidth={5} paused={paused} weather={weather} />
+      
+      {/* Layer 2: Pathway (Dynamic) */}
+      <HumanInstances count={isMobile ? 30 : 80} color="#ffffff" initialLaneX={12} laneWidth={6} paused={paused} weather={weather} />
+
+      {/* Layer 5: Horizon (Static Silhouettes - Zero Logic) */}
+      <HorizonSilhouettes count={isMobile ? 20 : 100} />
+
+      {/* Optimized Vehicles */}
+      <VehiclesLayer paused={paused} isMobile={isMobile} />
+      
+      <BirdGroup paused={paused} isMobile={isMobile} />
     </group>
   );
 }
+
+const HorizonSilhouettes = ({ count }: { count: number }) => {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  useEffect(() => {
+    if (!meshRef.current) return;
+    const dummy = new THREE.Object3D();
+    for (let i = 0; i < count; i++) {
+      dummy.position.set(-60 - Math.random() * 60, 0.9, (Math.random() - 0.5) * 400);
+      dummy.updateMatrix();
+      meshRef.current.setMatrixAt(i, dummy.matrix);
+    }
+    meshRef.current.instanceMatrix.needsUpdate = true;
+  }, [count]);
+
+  return (
+    <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
+      <boxGeometry args={[0.5, 1.8, 0.5]} />
+      <meshBasicMaterial color="#000" transparent opacity={0.3} />
+    </instancedMesh>
+  );
+};
+
+const VehiclesLayer = ({ paused, isMobile }: any) => {
+  const count = isMobile ? 12 : 30;
+  const vehicles = useMemo(() => Array.from({ length: count }).map((_, i) => ({
+    type: Math.random() > 0.7 ? 'auto' : (Math.random() > 0.4 ? 'car' : 'bus'),
+    z: (Math.random() - 0.5) * 300,
+    laneX: Math.random() > 0.5 ? 2.5 : -2.5,
+    speed: (15 + Math.random() * 10) * (Math.random() > 0.5 ? 1 : -1)
+  })), [count, isMobile]);
+
+  return (
+    <>
+      {vehicles.map((v, i) => {
+        if (v.type === 'auto') return <AutoRickshaw key={i} initialZ={v.z} laneX={v.laneX} speed={v.speed} paused={paused} isMobile={isMobile} />;
+        if (v.type === 'bus') return <MTCBus key={i} initialZ={v.z} laneX={v.laneX} speed={v.speed} paused={paused} isMobile={isMobile} />;
+        return <Car key={i} initialZ={v.z} laneX={v.laneX} speed={v.speed} paused={paused} color={['#f00', '#00f', '#fff'][i%3]} isMobile={isMobile} />;
+      })}
+    </>
+  );
+};
+
+const BirdGroup = ({ paused, isMobile }: any) => {
+  const count = isMobile ? 8 : 20;
+  return Array.from({ length: count }).map((_, i) => (
+    <Bird key={i} initialZ={(Math.random()-0.5)*200} speed={10+Math.random()*5} initialX={(Math.random()-0.5)*40} initialY={10+Math.random()*5} paused={paused} isMobile={isMobile} />
+  ));
+};

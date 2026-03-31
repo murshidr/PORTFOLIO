@@ -1,5 +1,5 @@
 import { useThree, useFrame } from '@react-three/fiber';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import gsap from 'gsap';
 
@@ -11,46 +11,59 @@ export default function CameraFlyIn({ onLanded }: CameraFlyInProps) {
   const { camera } = useThree();
   const timeline = useRef<gsap.core.Timeline | null>(null);
   const landed = useRef(false);
+  const [isSeaSkim, setIsSeaSkim] = useState(false);
 
   useEffect(() => {
     if (landed.current) return;
+    setIsSeaSkim(true);
+    setTimeout(() => setIsSeaSkim(false), 2200);
     
-    console.log("Starting camera fly-in");
-    
-    // Initial position: Low over the Bay of Bengal
-    camera.position.set(-80, 2, 50);
+    // Initial position: 2m above Bay of Bengal (v1.0 spec)
+    camera.position.set(-150, 2, 80);
     camera.lookAt(0, 2, 0);
 
-    // Create animation timeline
     timeline.current = gsap.timeline({
       onComplete: () => {
-        console.log("Cinematic intro complete");
-        landed.current = true;
-        onLanded();
+        if (!landed.current) {
+          landed.current = true;
+          onLanded();
+        }
       }
     });
 
-    // 1. Skim the waves towards the shoreline
+    // 0.0 - 2.2s: Skim the water
     timeline.current.to(camera.position, {
-      x: -20,
+      x: -30,
       y: 3,
-      z: 20,
-      duration: 2,
-      ease: "power1.inOut",
+      z: 50,
+      duration: 2.2,
+      ease: "power2.in",
       onUpdate: () => {
-        camera.lookAt(7.5, 1.5, 0);
+         camera.lookAt(0, 2, 0);
       }
     });
 
-    // 2. Rise and Rotate to settle behind the character
+    // 2.2 - 3.6s: Cross shoreline
+    timeline.current.to(camera.position, {
+      x: 0,
+      y: 4,
+      z: 20,
+      duration: 1.4,
+      ease: "none",
+      onUpdate: () => {
+        camera.lookAt(7.5, 1.8, 0);
+      }
+    });
+
+    // 3.6 - 5.0s: Decelerate and settle behind character
     timeline.current.to(camera.position, {
       x: 7.5, 
       y: 1.8, 
-      z: -5, // Settle slightly further back for RDR2 feel
-      duration: 2.5,
-      ease: "power2.out",
+      z: -6,
+      duration: 1.4,
+      ease: "power3.out",
       onUpdate: () => {
-        camera.lookAt(7.5, 1.5, 10); // Look forward down the path
+        camera.lookAt(7.5, 1.8, 20);
       }
     });
 
@@ -59,5 +72,17 @@ export default function CameraFlyIn({ onLanded }: CameraFlyInProps) {
     };
   }, [camera, onLanded]);
 
-  return null;
+  return (
+    <>
+      {isSeaSkim && (
+        <div className="fixed inset-0 pointer-events-none z-[100] overflow-hidden">
+          {/* Subtle Lens Moisture / Droplets */}
+          <div className="absolute inset-0 bg-white/5 backdrop-blur-[2px] animate-pulse" />
+          <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-white/20 rounded-full blur-[4px]" />
+          <div className="absolute top-1/2 left-2/3 w-3 h-3 bg-white/10 rounded-full blur-[6px]" />
+          <div className="absolute top-2/3 left-1/4 w-1.5 h-1.5 bg-white/20 rounded-full blur-[3px]" />
+        </div>
+      )}
+    </>
+  );
 }

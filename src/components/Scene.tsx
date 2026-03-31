@@ -67,54 +67,58 @@ const WEATHER_CONFIG: Record<WeatherState, any> = {
   MISTY: { sky: '#cbd5e1', fog: '#e2e8f0', light: '#f1f5f9', intensity: 0.8, fogDensity: 0.045 },
 };
 
-const EnvironmentManager = ({ weather, timeSpeed = 0.1 }: { weather: WeatherState, timeSpeed?: number }) => {
-  const [timeOfDay, setTimeOfDay] = useState(12); // 0-24
+const EnvironmentManager = ({ weather, timeSpeed = 0.005 }: { weather: WeatherState, timeSpeed?: number }) => {
+  const [timeOfDay, setTimeOfDay] = useState(18.16); // 6:10 PM
+  const [cloudDimmness, setCloudDimmness] = useState(1);
   const lightRef = useRef<THREE.DirectionalLight>(null);
   const colorObj = useMemo(() => new THREE.Color(), []);
   const { scene } = useThree();
 
-  useFrame((state, delta) => {
-    // Advance time
-    setTimeOfDay((prev) => (prev + delta * timeSpeed) % 24);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeOfDay(prev => {
+        const next = prev + 0.005; 
+        if (next > 18.5) return 18.16; // Reset at 6:30 PM
+        return next;
+      });
+    }, 1000);
 
-    // Calculate Sun/Moon position
+    // Cloud Pass (Simulate cloud covering sun)
+    const cloudTimer = setInterval(() => {
+      setCloudDimmness(0.5);
+      setTimeout(() => setCloudDimmness(1), 8000);
+    }, 45000);
+
+    return () => {
+      clearInterval(timer);
+      clearInterval(cloudTimer);
+    };
+  }, []);
+
+  useFrame((state, delta) => {
     const angle = ((timeOfDay - 6) / 24) * Math.PI * 2;
     const sunX = Math.cos(angle) * 100;
     const sunY = Math.sin(angle) * 100;
-    const isNight = timeOfDay > 19 || timeOfDay < 5;
 
     if (lightRef.current) {
       lightRef.current.position.set(sunX, sunY, Math.sin(angle) * 50);
-      
-      // Dynamic Intensity based on Sun Angle & Weather
-      const baseIntensity = Math.max(0, Math.sin(angle));
-      const targetIntensity = WEATHER_CONFIG[weather].intensity * baseIntensity;
-      lightRef.current.intensity = THREE.MathUtils.lerp(lightRef.current.intensity, isNight ? 0.2 : targetIntensity, 0.05);
+      const intensity = Math.max(0, Math.sin(angle)) * 1.5 * cloudDimmness;
+      lightRef.current.intensity = THREE.MathUtils.lerp(lightRef.current.intensity, intensity, 0.05);
     }
 
-    // Kelvin-inspired Color Shifts
-    let targetSky = WEATHER_CONFIG[weather].sky;
-    let targetLight = WEATHER_CONFIG[weather].light;
+    // Chennai Golden Hour Colors
+    let targetSky = '#f43f5e'; // Mauve
+    let targetLight = '#fb923c'; // Amber
 
-    if (timeOfDay >= 5 && timeOfDay < 7) { // Dawn: 2500K-3500K
-      targetSky = '#fdba74';
-      targetLight = '#fb923c';
-    } else if (timeOfDay >= 17 && timeOfDay < 19.5) { // Dusk: 2000K-3000K
-      targetSky = '#f43f5e';
-      targetLight = '#fb7185';
-    } else if (isNight) { // Night: Deep Blue / Moon
-      targetSky = '#020617';
-      targetLight = '#334155';
+    if (timeOfDay > 18.3) { // Getting darker
+       targetSky = '#020617';
+       targetLight = '#334155';
     }
 
-    // Apply scene Background & Fog
     scene.background = colorObj.set(targetSky).clone();
-    const fogDensity = isNight ? 0.01 : WEATHER_CONFIG[weather].fogDensity;
-    scene.fog = new THREE.FogExp2(targetSky, fogDensity);
+    scene.fog = new THREE.FogExp2(targetSky, 0.01);
     
-    if (lightRef.current) {
-      lightRef.current.color.lerp(colorObj.set(targetLight), 0.05);
-    }
+    if (lightRef.current) lightRef.current.color.lerp(colorObj.set(targetLight), 0.05);
   });
 
   const isNight = timeOfDay > 19 || timeOfDay < 5;
@@ -238,7 +242,7 @@ export default function Scene() {
         <AudioManager weather={weather} />
 
         {/* Cinematic Post-Processing */}
-        <EffectComposer disableNormalPass>
+        <EffectComposer>
           <Bloom 
             intensity={weather === 'CLEAR' ? 1.5 : 0.5} 
             luminanceThreshold={0.9} 
