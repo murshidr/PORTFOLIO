@@ -189,11 +189,28 @@ const Car = ({ initialZ, speed, laneX, color, paused, isMobile }: any) => {
   const direction = speed > 0 ? 1 : -1;
   const wobbleOffset = Math.random() * 100;
 
+  const [isBraking, setIsBraking] = useState(false);
+  const currentSpeed = useRef(Math.abs(speed));
+  const maxSpeed = Math.abs(speed);
+
   useFrame((state, delta) => {
     if (ref.current && !paused) {
-      ref.current.position.z += speed * delta;
+      // Very basic "traffic sensing"
+      // If a vehicle is ahead or if near character (z=0, x=7.5)
+      const distToCenter = Math.abs(ref.current.position.z - 0);
+      const isNearCharacter = distToCenter < 15 && Math.abs(laneX - 7.5) < 10;
+      
+      if (isNearCharacter) {
+        setIsBraking(true);
+        currentSpeed.current = THREE.MathUtils.lerp(currentSpeed.current, maxSpeed * 0.4, delta * 2);
+      } else {
+        setIsBraking(false);
+        currentSpeed.current = THREE.MathUtils.lerp(currentSpeed.current, maxSpeed, delta);
+      }
 
-      // Slight lane drift
+      const finalSpeed = (speed > 0 ? 1 : -1) * currentSpeed.current;
+      ref.current.position.z += finalSpeed * delta;
+
       if (!isMobile) {
         const wobble = Math.sin(state.clock.elapsedTime * 1.5 + wobbleOffset) * 0.15;
         ref.current.position.x = laneX + wobble;
@@ -235,11 +252,11 @@ const Car = ({ initialZ, speed, laneX, color, paused, isMobile }: any) => {
       {/* Taillights */}
       <mesh position={[0.6, 0.3, -2]} rotation={[0, 0, 0]}>
         <sphereGeometry args={[0.2]} />
-        <meshStandardMaterial color="#f00" emissive="#f00" emissiveIntensity={3} toneMapped={false} />
+        <meshStandardMaterial color="#f00" emissive="#f00" emissiveIntensity={isBraking ? 10 : 3} toneMapped={false} />
       </mesh>
       <mesh position={[-0.6, 0.3, -2]} rotation={[0, 0, 0]}>
         <sphereGeometry args={[0.2]} />
-        <meshStandardMaterial color="#f00" emissive="#f00" emissiveIntensity={3} toneMapped={false} />
+        <meshStandardMaterial color="#f00" emissive="#f00" emissiveIntensity={isBraking ? 10 : 3} toneMapped={false} />
       </mesh>
 
       {/* Wheels */}
@@ -265,25 +282,24 @@ const Car = ({ initialZ, speed, laneX, color, paused, isMobile }: any) => {
 
 // --- ADVANCED NPC HUMAN ---
 interface Routine {
-  type: 'commuter' | 'shopper' | 'stroller';
+  type: 'commuter' | 'shopper' | 'stroller' | 'beachWatcher' | 'socializing';
   targetX?: number;
   targetZ?: number;
   waitTime?: number;
 }
 
-const HumanNPC = ({ initialZ, speed, initialLaneX, paused, isMobile, routine }: any) => {
+const HumanNPC = ({ initialZ, speed, initialLaneX, paused, isMobile, routine, weather }: any) => {
   const ref = useRef<THREE.Group>(null);
   const leftLeg = useRef<THREE.Mesh>(null);
   const rightLeg = useRef<THREE.Mesh>(null);
   const leftArm = useRef<THREE.Mesh>(null);
   const rightArm = useRef<THREE.Mesh>(null);
 
-  const [behavior, setBehavior] = useState<'walking' | 'idle_browsing' | 'idle_waiting'>('walking');
-  const timer = useRef(0);
+  const [behavior, setBehavior] = useState<'walking' | 'idle_browsing' | 'idle_waiting' | 'watching_ocean'>('walking');
+  const timer = useRef(Math.random() * 5);
   const direction = useRef(speed > 0 ? 1 : -1);
   const currentSpeed = useRef(Math.abs(speed));
 
-  // Randomize clothing
   const skinTone = useMemo(() => ['#ffdbac', '#f1c27d', '#e0ac69', '#8d5524', '#c68642'][Math.floor(Math.random() * 5)], []);
   const shirtColor = useMemo(() => ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#6b7280', '#ffffff'][Math.floor(Math.random() * 6)], []);
   const pantColor = useMemo(() => ['#1e3a8a', '#111827', '#4b5563', '#d1d5db'][Math.floor(Math.random() * 4)], []);
@@ -291,79 +307,61 @@ const HumanNPC = ({ initialZ, speed, initialLaneX, paused, isMobile, routine }: 
   useFrame((state, delta) => {
     if (!ref.current || paused) return;
 
+    const isRaining = weather === 'RAIN' || weather === 'STORM';
+
+    // RDR2 Detail: Seek shelter when raining
+    if (isRaining && behavior !== 'idle_waiting' && routine.type !== 'commuter') {
+       // Force move towards the bus stop (z=-40) or building side
+       routine.type = 'commuter';
+       routine.targetZ = -40;
+       currentSpeed.current = Math.abs(speed) * 1.5; // Walk faster in rain
+    }
+
     if (behavior === 'walking') {
-      // Move along Z
       ref.current.position.z += currentSpeed.current * direction.current * delta;
       ref.current.rotation.y = direction.current > 0 ? 0 : Math.PI;
       
-      // Animate limbs (walking cycle)
-      const time = state.clock.elapsedTime * currentSpeed.current * 3;
+      const time = state.clock.elapsedTime * currentSpeed.current * 4;
       if (leftLeg.current) leftLeg.current.rotation.x = Math.sin(time) * 0.5;
       if (rightLeg.current) rightLeg.current.rotation.x = Math.sin(time + Math.PI) * 0.5;
       if (leftArm.current) leftArm.current.rotation.x = Math.sin(time + Math.PI) * 0.5;
       if (rightArm.current) rightArm.current.rotation.x = Math.sin(time) * 0.5;
 
-      // Routine checks
+      // Routine Detection
+      if (routine.type === 'beachWatcher' && !isRaining) {
+         const dist = Math.abs(ref.current.position.z - (routine.targetZ || 0));
+         if (dist < 1) {
+            setBehavior('watching_ocean');
+            timer.current = 10 + Math.random() * 20;
+            // Face the ocean (Ocean is at x = -75)
+            ref.current.rotation.y = -Math.PI / 2;
+         }
+      }
+
       if (routine.type === 'shopper' && routine.targetZ) {
         const dist = Math.abs(ref.current.position.z - routine.targetZ);
         if (dist < 0.5) {
-          // Reached store
           setBehavior('idle_browsing');
-          timer.current = routine.waitTime || 5;
-          // Face the store (tea stall is at x=12, road is at x=0)
+          timer.current = 5 + Math.random() * 5;
           ref.current.rotation.y = initialLaneX > 0 ? -Math.PI / 2 : Math.PI / 2;
         }
-      } else if (routine.type === 'commuter' && routine.targetZ) {
-        const dist = Math.abs(ref.current.position.z - routine.targetZ);
-        if (dist < 0.5) {
-          // Reached bus stop
-          setBehavior('idle_waiting');
-          timer.current = routine.waitTime || 10;
-          // Face road
-          ref.current.rotation.y = initialLaneX > 0 ? Math.PI / 2 : -Math.PI / 2;
-        }
       }
 
-      // Loop Strollers
-      if (ref.current.position.z > 150) {
-          ref.current.position.z = -150;
-          // Assign new routine on loop to keep things fresh
-          if (Math.random() > 0.5) {
-             routine.type = Math.random() > 0.5 ? 'shopper' : 'commuter';
-             routine.targetZ = (Math.random() - 0.5) * 80;
-             routine.waitTime = 5 + Math.random() * 10;
-          } else {
-             routine.type = 'stroller';
-          }
-      }
-      if (ref.current.position.z < -150) {
-          ref.current.position.z = 150;
-          if (Math.random() > 0.5) {
-             routine.type = Math.random() > 0.5 ? 'shopper' : 'commuter';
-             routine.targetZ = (Math.random() - 0.5) * 80;
-             routine.waitTime = 5 + Math.random() * 10;
-          } else {
-             routine.type = 'stroller';
-          }
+      // Loop
+      if (Math.abs(ref.current.position.z) > 150) {
+          ref.current.position.z = -150 * direction.current;
       }
 
-    } else if (behavior === 'idle_browsing' || behavior === 'idle_waiting') {
-      // Relax limbs
+    } else {
+      // Idle / Watching
+      timer.current -= delta;
       if (leftLeg.current) leftLeg.current.rotation.x = THREE.MathUtils.lerp(leftLeg.current.rotation.x, 0, 0.1);
       if (rightLeg.current) rightLeg.current.rotation.x = THREE.MathUtils.lerp(rightLeg.current.rotation.x, 0, 0.1);
-      if (leftArm.current) leftArm.current.rotation.x = THREE.MathUtils.lerp(leftArm.current.rotation.x, 0, 0.1);
-      if (rightArm.current) rightArm.current.rotation.x = THREE.MathUtils.lerp(rightArm.current.rotation.x, 0, 0.1);
-
-      timer.current -= delta;
+      
       if (timer.current <= 0) {
-        // Resume walking, maybe change direction
         setBehavior('walking');
-        if (Math.random() > 0.5) direction.current *= -1;
-        
-        // Reset rotation forward/backward
-        ref.current.rotation.y = direction.current > 0 ? 0 : Math.PI;
-        // Turn this routine into a stroller until they loop
-        routine.type = 'stroller';
+        currentSpeed.current = Math.abs(speed);
+        if (Math.random() > 0.7) direction.current *= -1;
       }
     }
   });
@@ -381,14 +379,12 @@ const HumanNPC = ({ initialZ, speed, initialLaneX, paused, isMobile, routine }: 
         <meshStandardMaterial color={shirtColor} />
       </mesh>
       
-      {/* Left Arm (hinged at shoulder) */}
       <group position={[-0.35, 1.3, 0]} ref={leftArm}>
         <mesh position={[0, -0.3, 0]}>
           <boxGeometry args={[0.15, 0.7, 0.15]} />
           <meshStandardMaterial color={skinTone} />
         </mesh>
       </group>
-      {/* Right Arm */}
       <group position={[0.35, 1.3, 0]} ref={rightArm}>
         <mesh position={[0, -0.3, 0]}>
           <boxGeometry args={[0.15, 0.7, 0.15]} />
@@ -396,14 +392,12 @@ const HumanNPC = ({ initialZ, speed, initialLaneX, paused, isMobile, routine }: 
         </mesh>
       </group>
 
-      {/* Left Leg (hinged at hip) */}
       <group position={[-0.15, 0.6, 0]} ref={leftLeg}>
         <mesh position={[0, -0.4, 0]}>
           <boxGeometry args={[0.18, 0.8, 0.2]} />
           <meshStandardMaterial color={pantColor} />
         </mesh>
       </group>
-      {/* Right Leg */}
       <group position={[0.15, 0.6, 0]} ref={rightLeg}>
         <mesh position={[0, -0.4, 0]}>
           <boxGeometry args={[0.18, 0.8, 0.2]} />
@@ -536,49 +530,35 @@ const Bird = ({ initialZ, speed, initialX, initialY, paused, isMobile }: any) =>
   );
 };
 
-export default function CityLife({ paused, isMobile }: { paused: boolean, isMobile?: boolean }) {
-  const vehiclesCount = isMobile ? 10 : 12; // optimized downward for both
-  const pedsCount = isMobile ? 15 : 20; // optimized downward
-  const birdsCount = isMobile ? 8 : 10;
-  const cyclistsCount = isMobile ? 4 : 5;
+export default function CityLife({ paused, isMobile, weather }: { paused: boolean, isMobile?: boolean, weather?: string }) {
+  const vehiclesCount = isMobile ? 15 : 30; // Increased density
+  const pedsCount = isMobile ? 25 : 50; 
+  const birdsCount = isMobile ? 12 : 25;
+  const cyclistsCount = isMobile ? 6 : 12;
 
   const vehicles = useMemo(() => {
     return Array.from({ length: vehiclesCount }).map((_, i) => {
       const type = Math.random();
-      // Lane Logic:
-      // Left Lane (x = -2.5): Moving -z (Away from camera/Forward) -> Speed Negative
-      // Right Lane (x = 2.5): Moving +z (Towards camera) -> Speed Positive
       const isRightLane = Math.random() > 0.5;
       const laneX = isRightLane ? 2.5 : -2.5;
-
       const baseSpeed = 15 + Math.random() * 10;
       const speed = isRightLane ? baseSpeed : -baseSpeed;
-
       const initialZ = (Math.random() - 0.5) * 300;
 
-      if (type > 0.7) {
-        // 30% Auto Rickshaws
-        return { type: 'auto', initialZ, speed, laneX };
-      } else if (type > 0.5) {
-        // 20% Buses
-        // Buses need to be slower
-        return { type: 'bus', initialZ, speed: speed * 0.7, laneX };
-      } else {
-        // 50% Cars
-        return {
-          type: 'car',
-          initialZ,
-          speed,
-          laneX,
-          color: ['#ff0000', '#0000ff', '#ffffff', '#333333', '#8B0000'][Math.floor(Math.random() * 5)]
-        };
-      }
+      if (type > 0.7) return { type: 'auto', initialZ, speed, laneX };
+      if (type > 0.5) return { type: 'bus', initialZ, speed: speed * 0.7, laneX };
+      return {
+        type: 'car',
+        initialZ,
+        speed,
+        laneX,
+        color: ['#ff0000', '#0000ff', '#ffffff', '#333333', '#8B0000'][Math.floor(Math.random() * 5)]
+      };
     });
   }, [isMobile, vehiclesCount]);
 
   const pedestrians = useMemo(() => {
     return Array.from({ length: pedsCount }).map((_, i) => {
-      // Spawn on Beach (-15) or Pavement (10)
       const isBeach = Math.random() > 0.4;
       const initialLaneX = isBeach
         ? -15 + (Math.random() - 0.5) * 10
@@ -606,7 +586,7 @@ export default function CityLife({ paused, isMobile }: { paused: boolean, isMobi
     return Array.from({ length: cyclistsCount }).map((_, i) => ({
       initialZ: (Math.random() - 0.5) * 200,
       speed: (5 + Math.random() * 5) * (Math.random() > 0.5 ? 1 : -1),
-      laneX: 5.5, // Edge of road/sidewalk
+      laneX: 5.5,
       color: ['#00ffff', '#ff00ff', '#ffff00'][Math.floor(Math.random() * 3)]
     }));
   }, [isMobile, cyclistsCount]);
@@ -619,13 +599,14 @@ export default function CityLife({ paused, isMobile }: { paused: boolean, isMobi
         return <Car key={`v-${i}`} {...v} paused={paused} isMobile={isMobile} />;
       })}
       {pedestrians.map((ped, i) => {
-        // Assign routines randomly
         let routine: Routine = { type: 'stroller' };
         const rand = Math.random();
-        if (rand > 0.7) {
-          routine = { type: 'shopper', targetZ: 20, waitTime: 5 + Math.random() * 8 }; // Target tea stall at z=20
+        if (rand > 0.8) {
+          routine = { type: 'beachWatcher', targetZ: (Math.random() - 0.5) * 100 };
+        } else if (rand > 0.6) {
+          routine = { type: 'shopper', targetZ: 20, waitTime: 5 + Math.random() * 8 };
         } else if (rand > 0.4) {
-          routine = { type: 'commuter', targetZ: -40, waitTime: 10 + Math.random() * 10 }; // Target bus stop at z=-40
+          routine = { type: 'commuter', targetZ: -40, waitTime: 10 + Math.random() * 10 };
         }
 
         return (
@@ -637,6 +618,7 @@ export default function CityLife({ paused, isMobile }: { paused: boolean, isMobi
             paused={paused}
             isMobile={isMobile}
             routine={routine}
+            weather={weather}
           />
         );
       })}

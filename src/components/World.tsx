@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
+import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
 
@@ -243,6 +244,55 @@ const TenderCoconutCart = ({ position, isMobile }: { position: [number, number, 
   );
 };
 
+const PalmTree = ({ position, isMobile }: { position: [number, number, number], isMobile?: boolean }) => {
+  const leafRef = useRef<THREE.Group>(null);
+  
+  useFrame((state) => {
+    if (leafRef.current) {
+      const time = state.clock.elapsedTime;
+      leafRef.current.children.forEach((leaf, i) => {
+        // Independent leaf movement using sine waves
+        leaf.rotation.x = Math.sin(time + i) * 0.1;
+        leaf.rotation.z = Math.cos(time * 0.8 + i) * 0.1;
+      });
+    }
+  });
+
+  return (
+    <group position={position}>
+      {/* Trunk - slightly bent toward sea */}
+      <mesh castShadow position={[0, 4, 0]} rotation={[0, 0, 0.05]}>
+        <cylinderGeometry args={[0.3, 0.5, 10, 8]} />
+        <meshStandardMaterial color="#5c4033" roughness={0.9} />
+      </mesh>
+      
+      {/* Leaves */}
+      <group ref={leafRef} position={[0.5, 9, 0]}>
+        {Array.from({ length: 8 }).map((_, i) => (
+          <mesh 
+            key={i} 
+            rotation={[0, (i * Math.PI) / 4, 0]} 
+            position={[0, 0, 0]}
+          >
+            <group position={[0, 0, 2]}>
+              <mesh rotation={[Math.PI / 2, 0, 0]}>
+                <planeGeometry args={[1.5, 4]} />
+                <meshStandardMaterial 
+                  color="#2d5a27" 
+                  side={THREE.DoubleSide} 
+                  transparent 
+                  opacity={0.9}
+                  roughness={0.4}
+                />
+              </mesh>
+            </group>
+          </mesh>
+        ))}
+      </group>
+    </group>
+  );
+};
+
 const FallenLeaves = ({ isMobile }: { isMobile?: boolean }) => {
   const leafCount = isMobile ? 50 : 300;
   const roadWidth = 10;
@@ -356,10 +406,11 @@ const NapierBridge = ({ position }: { position: [number, number, number] }) => {
   );
 };
 
-export default function World({ isMobile }: { isMobile?: boolean }) {
+export default function World({ isMobile, weather }: { isMobile?: boolean, weather?: string }) {
   const roadWidth = 10;
   const roadLength = 300;
   const buildingCount = isMobile ? 45 : 60;
+  const isWet = weather === 'RAIN' || weather === 'STORM';
 
   const buildings = useMemo(() => {
     const items = [];
@@ -379,44 +430,44 @@ export default function World({ isMobile }: { isMobile?: boolean }) {
       });
     }
     return items.sort((a, b) => a.position[2] - b.position[2]);
-  }, [isMobile]);
+  }, [isMobile, buildingCount]);
 
   return (
     <group>
       {/* Road */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]} receiveShadow={!isMobile}>
         <planeGeometry args={[roadWidth, roadLength]} />
-        <meshStandardMaterial color="#222" roughness={0.6} />
+        <meshStandardMaterial color="#111" roughness={isWet ? 0.1 : 0.6} metalness={isWet ? 0.4 : 0} />
       </mesh>
 
       {/* Road Markings */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
         <planeGeometry args={[0.3, roadLength]} />
-        <meshBasicMaterial color="#ffffff" />
+        <meshBasicMaterial color="#ffffff" transparent opacity={isWet ? 0.8 : 1} />
       </mesh>
 
       {/* Beach Sand */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-roadWidth / 2 - 25, 0.01, 0]} receiveShadow={!isMobile}>
         <planeGeometry args={[50, roadLength]} />
-        <meshStandardMaterial color="#e6c288" roughness={1} />
+        <meshStandardMaterial color={isWet ? "#9a7b4f" : "#e6c288"} roughness={0.9} />
       </mesh>
 
       {/* Ocean */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-roadWidth / 2 - 75, -0.5, 0]}>
         <planeGeometry args={[50, roadLength]} />
-        <meshStandardMaterial color="#006994" roughness={0.1} metalness={0.5} />
+        <meshStandardMaterial color="#006994" roughness={0.1} metalness={0.6} transparent opacity={0.9} />
       </mesh>
 
-      {/* Pavement */}
+      {/* Pavement (Marina Tiled Path) */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[10, 0.1, 0]} receiveShadow={!isMobile}>
         <planeGeometry args={[10, roadLength]} />
-        <meshStandardMaterial color="#94a3b8" roughness={0.8} />
+        <meshStandardMaterial color="#94a3b8" roughness={isWet ? 0.05 : 0.8} metalness={isWet ? 0.3 : 0} />
       </mesh>
 
       {/* Building Ground */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[40, 0.05, 0]} receiveShadow={!isMobile}>
         <planeGeometry args={[50, roadLength]} />
-        <meshStandardMaterial color="#64748b" roughness={0.9} />
+        <meshStandardMaterial color="#64748b" roughness={isWet ? 0.2 : 0.9} />
       </mesh>
 
       {buildings.map((data, i) => (
@@ -438,22 +489,22 @@ export default function World({ isMobile }: { isMobile?: boolean }) {
       ))}
 
       {/* Iconic Chennai Monuments */}
-      {/* LIC Building in the background distance */}
       <LICBuilding position={[45, 0, 40]} />
-      <LICBuilding position={[60, 0, -50]} /> {/* Second instance for skyline density */}
+      <LICBuilding position={[60, 0, -50]} />
 
-      {/* Napier Bridge arching over a side street intersection */}
       <NapierBridge position={[30, 0, 80]} />
       <NapierBridge position={[30, 0, -80]} />
 
       <TeaStall position={[12, 0, 20]} isMobile={isMobile} />
       <BusStop position={[12, 0, -40]} isMobile={isMobile} />
 
-      <SundalCart position={[-15, 0, 10]} isMobile={isMobile} />
-      <SundalCart position={[-16, 0, 60]} isMobile={isMobile} />
+      {/* Palm Trees along the pavement */}
+      {Array.from({ length: 10 }).map((_, i) => (
+        <PalmTree key={`palm-${i}`} position={[14, 0, -100 + i * 30]} isMobile={isMobile} />
+      ))}
 
+      <SundalCart position={[-15, 0, 10]} isMobile={isMobile} />
       <TenderCoconutCart position={[-12, 0, -20]} isMobile={isMobile} />
-      <TenderCoconutCart position={[-13, 0, -80]} isMobile={isMobile} />
 
       <FallenLeaves isMobile={isMobile} />
 
@@ -464,9 +515,18 @@ export default function World({ isMobile }: { isMobile?: boolean }) {
           <group key={`light-${i}`} position={[roadWidth / 2 + 1, 0, z]}>
             <mesh position={[0, 4, 0]}>
               <cylinderGeometry args={[0.08, 0.08, 8, 6]} />
-              <meshStandardMaterial color="#444" />
+              <meshStandardMaterial color="#222" />
             </mesh>
-            <pointLight position={[-2, 7, 0]} intensity={1.5} distance={15} color="#ffaa00" />
+            <mesh position={[0, 8, 0]} rotation={[0, 0, Math.PI / 2]}>
+              <cylinderGeometry args={[0.1, 0.1, 1, 6]} />
+              <meshStandardMaterial color="#222" />
+            </mesh>
+            <pointLight position={[-1, 7.8, 0]} intensity={2} distance={15} color="#ffaa00" />
+            {/* Light Mesh Glow */}
+            <mesh position={[-1, 7.8, 0]}>
+              <sphereGeometry args={[0.2, 8, 8]} />
+              <meshBasicMaterial color="#ffaa00" />
+            </mesh>
           </group>
         );
       })}

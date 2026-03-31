@@ -8,7 +8,10 @@ import RadialMenu from './RadialMenu';
 import World from './World';
 import CityLife from './CityLife';
 import OnboardingOverlay from './OnboardingOverlay';
+import AudioManager from './AudioManager';
 import { useLocation } from 'react-router-dom';
+import { EffectComposer, Bloom, Vignette, Noise, ChromaticAberration } from '@react-three/postprocessing';
+import { BlendFunction } from 'postprocessing';
 
 // --- WEATHER SYSTEM ---
 const Rain = () => {
@@ -52,71 +55,65 @@ const Rain = () => {
   );
 };
 
-// --- DAY/NIGHT CYCLE MANAGER ---
-const EnvironmentManager = ({ isRaining }: { isRaining: boolean }) => {
-  // Time ranges from 0 to 24
-  const [timeOfDay, setTimeOfDay] = useState(12); // Start at noon
+// --- WEATHER & ATMOSPHERE ENGINE ---
+export type WeatherState = 'CLEAR' | 'CLOUDY' | 'OVERCAST' | 'RAIN' | 'STORM' | 'MISTY';
+
+const WEATHER_CONFIG: Record<WeatherState, any> = {
+  CLEAR: { sky: '#38bdf8', fog: '#e0f2fe', light: '#ffffff', intensity: 1.5, fogDensity: 0.008 },
+  CLOUDY: { sky: '#94a3b8', fog: '#cbd5e1', light: '#f1f5f9', intensity: 1.0, fogDensity: 0.012 },
+  OVERCAST: { sky: '#64748b', fog: '#94a3b8', light: '#94a3b8', intensity: 0.6, fogDensity: 0.015 },
+  RAIN: { sky: '#475569', fog: '#64748b', light: '#94a3b8', intensity: 0.4, fogDensity: 0.025 },
+  STORM: { sky: '#1e293b', fog: '#334155', light: '#64748b', intensity: 0.3, fogDensity: 0.035 },
+  MISTY: { sky: '#cbd5e1', fog: '#e2e8f0', light: '#f1f5f9', intensity: 0.8, fogDensity: 0.045 },
+};
+
+const EnvironmentManager = ({ weather, timeSpeed = 0.1 }: { weather: WeatherState, timeSpeed?: number }) => {
+  const [timeOfDay, setTimeOfDay] = useState(12); // 0-24
   const lightRef = useRef<THREE.DirectionalLight>(null);
   const colorObj = useMemo(() => new THREE.Color(), []);
   const { scene } = useThree();
 
   useFrame((state, delta) => {
-    // Advance time (1 game hour every 10 real seconds = 0.1 hrs/sec)
-    setTimeOfDay((prev) => (prev + delta * 0.1) % 24);
+    // Advance time
+    setTimeOfDay((prev) => (prev + delta * timeSpeed) % 24);
 
-    // Calculate light properties based on timeOfDay
-    // 0 = midnight, 6 = dawn, 12 = noon, 18 = dusk
-    
-    // Sun position (arch overhead)
+    // Calculate Sun/Moon position
     const angle = ((timeOfDay - 6) / 24) * Math.PI * 2;
+    const sunX = Math.cos(angle) * 100;
+    const sunY = Math.sin(angle) * 100;
+    const isNight = timeOfDay > 19 || timeOfDay < 5;
+
     if (lightRef.current) {
-      lightRef.current.position.x = Math.cos(angle) * 100;
-      lightRef.current.position.y = Math.sin(angle) * 100;
-      lightRef.current.position.z = Math.sin(angle) * 50; // slight offset
+      lightRef.current.position.set(sunX, sunY, Math.sin(angle) * 50);
       
-      // Light intensity dips at night
-      const intensityScale = Math.max(0.1, Math.sin(angle));
-      lightRef.current.intensity = isRaining ? intensityScale * 0.5 : intensityScale * 1.5;
+      // Dynamic Intensity based on Sun Angle & Weather
+      const baseIntensity = Math.max(0, Math.sin(angle));
+      const targetIntensity = WEATHER_CONFIG[weather].intensity * baseIntensity;
+      lightRef.current.intensity = THREE.MathUtils.lerp(lightRef.current.intensity, isNight ? 0.2 : targetIntensity, 0.05);
     }
 
-    // Colors
-    let skyColor = '#ff9966'; // Default warm
-    let fogColor = '#ff9966';
-    let lightColor = '#ffaa00';
+    // Kelvin-inspired Color Shifts
+    let targetSky = WEATHER_CONFIG[weather].sky;
+    let targetLight = WEATHER_CONFIG[weather].light;
 
-    if (timeOfDay >= 0 && timeOfDay < 5) {
-      // Night
-      skyColor = '#020617';
-      fogColor = '#0f172a';
-      lightColor = '#e2e8f0'; // moon light
-    } else if (timeOfDay >= 5 && timeOfDay < 8) {
-      // Dawn transition
-      skyColor = '#fdba74';
-      fogColor = '#fed7aa';
-      lightColor = '#fb923c';
-    } else if (timeOfDay >= 8 && timeOfDay < 17) {
-      // Day
-      skyColor = isRaining ? '#64748b' : '#38bdf8';
-      fogColor = isRaining ? '#94a3b8' : '#e0f2fe';
-      lightColor = isRaining ? '#cbd5e1' : '#ffffff';
-    } else if (timeOfDay >= 17 && timeOfDay < 20) {
-      // Dusk transition
-      skyColor = '#f43f5e';
-      fogColor = '#fda4af';
-      lightColor = '#fb7185';
-    } else {
-      // Night
-      skyColor = '#020617';
-      fogColor = '#0f172a';
-      lightColor = '#e2e8f0';
+    if (timeOfDay >= 5 && timeOfDay < 7) { // Dawn: 2500K-3500K
+      targetSky = '#fdba74';
+      targetLight = '#fb923c';
+    } else if (timeOfDay >= 17 && timeOfDay < 19.5) { // Dusk: 2000K-3000K
+      targetSky = '#f43f5e';
+      targetLight = '#fb7185';
+    } else if (isNight) { // Night: Deep Blue / Moon
+      targetSky = '#020617';
+      targetLight = '#334155';
     }
 
-    // Smoothly interpolate scene background and fog
-    scene.background = colorObj.set(skyColor).clone();
-    scene.fog = new THREE.FogExp2(fogColor, isRaining ? 0.02 : 0.008);
+    // Apply scene Background & Fog
+    scene.background = colorObj.set(targetSky).clone();
+    const fogDensity = isNight ? 0.01 : WEATHER_CONFIG[weather].fogDensity;
+    scene.fog = new THREE.FogExp2(targetSky, fogDensity);
     
     if (lightRef.current) {
-        lightRef.current.color.set(lightColor);
+      lightRef.current.color.lerp(colorObj.set(targetLight), 0.05);
     }
   });
 
@@ -125,24 +122,31 @@ const EnvironmentManager = ({ isRaining }: { isRaining: boolean }) => {
 
   return (
     <>
-      <ambientLight intensity={isNight ? 0.2 : (isRaining ? 0.4 : 0.8)} />
+      <ambientLight intensity={isNight ? 0.1 : 0.4} />
       <directionalLight
         ref={lightRef}
         castShadow
-        intensity={1.5}
-        shadow-mapSize={isMobile ? [512, 512] : [1024, 1024]}
+        shadow-mapSize={isMobile ? [512, 512] : [2048, 2048]}
         shadow-camera-near={1}
-        shadow-camera-far={200}
-        shadow-camera-left={-100}
-        shadow-camera-right={100}
-        shadow-camera-top={100}
-        shadow-camera-bottom={-100}
-        shadow-bias={-0.0001}
+        shadow-camera-far={300}
+        shadow-camera-left={-150}
+        shadow-camera-right={150}
+        shadow-camera-top={150}
+        shadow-camera-bottom={-150}
+        shadow-bias={-0.0005}
       />
       
-      {/* Stars only visible at night */}
-      {isNight && !isRaining && <Stars radius={100} depth={50} count={2000} factor={4} saturation={0} fade speed={1} />}
-      {!isNight && !isRaining && <Sky sunPosition={[Math.cos(((timeOfDay - 6) / 24) * Math.PI * 2) * 100, Math.sin(((timeOfDay - 6) / 24) * Math.PI * 2) * 100, Math.sin(((timeOfDay - 6) / 24) * Math.PI * 2) * 50]} turbidity={8} rayleigh={3} />}
+      {/* Stars and Sky dynamics */}
+      {isNight && <Stars radius={100} depth={50} count={5000} factor={4} saturation={0} fade speed={1} />}
+      {!isNight && (
+        <Sky 
+          sunPosition={[Math.cos(((timeOfDay - 6) / 24) * Math.PI * 2) * 100, Math.sin(((timeOfDay - 6) / 24) * Math.PI * 2) * 100, 0]} 
+          turbidity={weather === 'MISTY' ? 20 : 8} 
+          rayleigh={weather === 'CLEAR' ? 3 : 1}
+          mieCoefficient={0.005}
+          mieDirectionalG={0.8}
+        />
+      )}
     </>
   );
 };
@@ -151,7 +155,7 @@ export default function Scene() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [cameraLanded, setCameraLanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isRaining, setIsRaining] = useState(false);
+  const [weather, setWeather] = useState<WeatherState>('CLEAR');
   const [showOnboarding, setShowOnboarding] = useState(true);
   const location = useLocation();
 
@@ -164,68 +168,63 @@ export default function Scene() {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
-  useEffect(() => {
-    console.log("Scene mounted. Performance mode:", isMobile ? "Mobile" : "Desktop");
-  }, [isMobile]);
+  const weatherCycle: WeatherState[] = ['CLEAR', 'CLOUDY', 'MISTY', 'RAIN', 'STORM'];
+  const nextWeather = () => {
+    const currentIndex = weatherCycle.indexOf(weather);
+    setWeather(weatherCycle[(currentIndex + 1) % weatherCycle.length]);
+  };
 
-  // Reset menu state when navigating away from home, or if we are back at home
+  useEffect(() => {
+    console.log("Scene mounted. Weather:", weather);
+  }, [weather]);
+
+  // Reset menu state when navigating away from home
   useEffect(() => {
     if (location.pathname !== '/') {
       setMenuOpen(false);
     }
   }, [location]);
 
-  // Memoize the landing handler to prevent re-triggering the fly-in effect
   const handleLanded = useCallback(() => {
     console.log("Camera landed!");
     setCameraLanded(true);
   }, []);
 
-  // Fallback: Force landed state after 6 seconds if animation fails
   useEffect(() => {
     const timer = setTimeout(() => {
-      if (!cameraLanded) {
-        console.log("Force landing camera (fallback)");
-        setCameraLanded(true);
-      }
+      if (!cameraLanded) setCameraLanded(true);
     }, 6000);
     return () => clearTimeout(timer);
   }, [cameraLanded]);
 
   const handleCharacterClick = useCallback(() => {
-    if (cameraLanded) {
-      setMenuOpen((prev) => !prev);
-    }
+    if (cameraLanded) setMenuOpen((prev) => !prev);
   }, [cameraLanded]);
 
   return (
     <div className="fixed inset-0 w-full h-full z-0 font-sans">
       <Canvas 
-        shadows="basic" // Keep basic shadows on mobile for better visuals
-        dpr={isMobile ? [1, 1] : [1, 1.2]} // Cap DPR to save pixels on Desktop too
-        gl={{ antialias: true, powerPreference: "high-performance" }} // Antialias on for quality
+        shadows="soft" 
+        dpr={isMobile ? [1, 1] : [1, 1.5]}
+        gl={{ antialias: true, powerPreference: "high-performance" }}
         camera={{ position: [0, 50, 50], fov: 45 }}
       >
-        {/* Dynamic Environment replaces static colors */}
-        <EnvironmentManager isRaining={isRaining} />
-        {isRaining && <Rain />}
+        <EnvironmentManager weather={weather} />
+        {(weather === 'RAIN' || weather === 'STORM') && <Rain />}
         
-        {/* Controls for easier interaction */}
         <OrbitControls 
-          makeDefault // This is crucial for accessing controls via useThree state.controls
+          makeDefault 
           enableZoom={cameraLanded} 
           enablePan={cameraLanded}
           maxPolarAngle={Math.PI / 2 - 0.05} 
           minPolarAngle={0}
-          target={[7.5, 1.5, 0]} // Target the sidewalk character
+          target={[7.5, 1.5, 0]} 
         />
 
-        {/* Core Scene Elements */}
         <group position={[0, -1, 0]}>
-          <World isMobile={isMobile} />
-          <CityLife paused={menuOpen} isMobile={isMobile} />
+          <World isMobile={isMobile} weather={weather} />
+          <CityLife paused={menuOpen} isMobile={isMobile} weather={weather} />
           
-          {/* Character on Sidewalk (x=7.5) */}
           <group position={[7.5, 0, 0]}>
             <Character 
               onClick={handleCharacterClick} 
@@ -236,26 +235,37 @@ export default function Scene() {
         </group>
 
         <CameraFlyIn onLanded={handleLanded} />
+        <AudioManager weather={weather} />
 
-        {/* Atmospheric Elements - Conditional Rendering */}
+        {/* Cinematic Post-Processing */}
+        <EffectComposer disableNormalPass>
+          <Bloom 
+            intensity={weather === 'CLEAR' ? 1.5 : 0.5} 
+            luminanceThreshold={0.9} 
+            luminanceSmoothing={0.025} 
+            mipmapBlur 
+          />
+          <Vignette eskil={false} offset={0.1} darkness={1.1} />
+          <Noise opacity={0.03} />
+          {weather === 'STORM' && <ChromaticAberration offset={new THREE.Vector2(0.004, 0.004)} />}
+        </EffectComposer>
+
         <Suspense fallback={null}>
-          <Cloud opacity={0.6} speed={0.2} bounds={[40, 10, 20]} segments={30} position={[0, 20, -30]} color="#ffccaa" />
+          <Cloud opacity={0.4} speed={0.2} bounds={[40, 10, 20]} segments={20} position={[0, 20, -30]} color={weather === 'CLEAR' ? "#fff" : "#64748b"} />
           <Environment preset="sunset" />
         </Suspense>
       </Canvas>
       
-      {/* UI Overlay for Menu (Rendered OUTSIDE canvas for pure DOM interaction) */}
       {cameraLanded && location.pathname === '/' && menuOpen && (
         <RadialMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
       )}
       
       {!cameraLanded && (
-        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-white/50 text-sm animate-pulse font-mono tracking-widest pointer-events-none">
-          INITIALIZING ENVIRONMENT...
+        <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-white/50 text-sm animate-pulse font-mono tracking-widest pointer-events-none uppercase">
+          Initializing Environment — {weather}
         </div>
       )}
 
-      {/* Onboarding / Help Overlay */}
       {location.pathname === '/' && (
         <OnboardingOverlay 
           showInitially={showOnboarding} 
@@ -263,18 +273,18 @@ export default function Scene() {
         />
       )}
 
-      {/* Weather UI Toggle - Moved here for better rendering precedence */}
+      {/* Advanced Weather Controller */}
       {cameraLanded && location.pathname === '/' && (
-        <div className="absolute top-6 right-6 z-50">
+        <div className="absolute top-6 right-6 z-50 flex flex-col gap-2 scale-90 md:scale-100 origin-top-right">
           <button 
-            onClick={() => setIsRaining(!isRaining)}
-            className="bg-black/40 text-white px-5 py-2.5 rounded-full backdrop-blur-md border border-white/20 text-xs font-bold hover:bg-white/20 hover:scale-105 transition-all shadow-lg flex items-center gap-2"
+            onClick={nextWeather}
+            className="bg-black/40 text-white px-5 py-2.5 rounded-full backdrop-blur-md border border-white/20 text-xs font-bold hover:bg-white/20 hover:scale-105 transition-all shadow-lg flex items-center gap-2 group"
           >
-            {isRaining ? '☀️ Stop Rain' : '🌧️ Start Rain'}
+            <span className="opacity-60 group-hover:opacity-100 transition-opacity">Weather:</span>
+            <span className="text-yellow-400">{weather}</span>
           </button>
         </div>
       )}
     </div>
-
   );
 }

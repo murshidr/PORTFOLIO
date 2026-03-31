@@ -17,29 +17,40 @@ export default function CameraFlyIn({ onLanded }: CameraFlyInProps) {
     
     console.log("Starting camera fly-in");
     
-    // Initial position: High in the sky
-    camera.position.set(0, 100, 100);
-    camera.lookAt(0, 0, 0);
+    // Initial position: Low over the Bay of Bengal
+    camera.position.set(-80, 2, 50);
+    camera.lookAt(0, 2, 0);
 
     // Create animation timeline
     timeline.current = gsap.timeline({
       onComplete: () => {
-        console.log("Camera fly-in complete");
+        console.log("Cinematic intro complete");
         landed.current = true;
         onLanded();
       }
     });
 
-    // Animate to ground level
+    // 1. Skim the waves towards the shoreline
     timeline.current.to(camera.position, {
-      x: 7.5, // Sidewalk X position
-      y: 1.5, // Eye level (Straight at character)
-      z: -4, // Distance IN FRONT of character
-      duration: 4,
-      ease: "power2.inOut",
+      x: -20,
+      y: 3,
+      z: 20,
+      duration: 2,
+      ease: "power1.inOut",
       onUpdate: () => {
-        // Keep looking at the character center (on sidewalk) during flight
         camera.lookAt(7.5, 1.5, 0);
+      }
+    });
+
+    // 2. Rise and Rotate to settle behind the character
+    timeline.current.to(camera.position, {
+      x: 7.5, 
+      y: 1.8, 
+      z: -5, // Settle slightly further back for RDR2 feel
+      duration: 2.5,
+      ease: "power2.out",
+      onUpdate: () => {
+        camera.lookAt(7.5, 1.5, 10); // Look forward down the path
       }
     });
 
