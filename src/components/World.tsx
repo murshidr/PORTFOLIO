@@ -42,67 +42,12 @@ const ModernBuilding = ({ position, scale, color, isMobile }: { position: [numbe
   const [width, height, depth] = scale;
   const hasShop = useMemo(() => Math.random() > 0.4, []); // 60% chance of having a shop
 
-  // Generate windows and balconies
-  const details = useMemo(() => {
-    const items = [];
-    const floorHeight = 3;
-    const windowWidth = 1.5;
-    const windowHeight = 1.8;
-    const gap = 0.8;
-
-    const floors = Math.floor(height / floorHeight);
-    const cols = Math.floor(width / (windowWidth + gap));
-
-    // Limit detail count to prevent severe WebGL overhead on mobile
-    const drawLimit = isMobile ? Math.min(floors, 4) : floors;
-
-    // Start from floor 1 (floor 0 is ground floor/shops)
-    for (let f = 1; f < drawLimit; f++) {
-      for (let c = 0; c < cols; c++) {
-        // Front face windows
-        const xPos = -width / 2 + (width / (cols + 1)) * (c + 1);
-        const yPos = -height / 2 + f * floorHeight;
-
-        // Window Frame
-        items.push(
-          <mesh key={`w-${f}-${c}`} position={[xPos, yPos, depth / 2 + 0.05]}>
-            <boxGeometry args={[windowWidth, windowHeight, 0.1]} />
-            <meshStandardMaterial color="#334155" roughness={0.2} metalness={0.5} />
-          </mesh>
-        );
-
-        // Glass
-        items.push(
-          <mesh key={`wg-${f}-${c}`} position={[xPos, yPos, depth / 2 + 0.06]}>
-            <planeGeometry args={[windowWidth - 0.2, windowHeight - 0.2]} />
-            <meshStandardMaterial color="#93c5fd" roughness={0.1} metalness={0.9} transparent opacity={0.7} />
-          </mesh>
-        );
-
-        // Add Balcony for some (randomly or patterned)
-        if (Math.random() > 0.8) {
-          items.push(
-            <group key={`b-${f}-${c}`} position={[xPos, yPos - 0.9, depth / 2 + 0.5]}>
-              {/* Floor */}
-              <mesh position={[0, 0, 0]}>
-                <boxGeometry args={[windowWidth + 0.4, 0.1, 1]} />
-                <meshStandardMaterial color="#475569" />
-              </mesh>
-            </group>
-          );
-        }
-      }
-    }
-    return items;
-  }, [width, height, depth, isMobile]);
-
   return (
     <group position={position}>
       <mesh castShadow={!isMobile} receiveShadow={!isMobile}>
         <boxGeometry args={[width, height, depth]} />
         <meshStandardMaterial color={color} roughness={0.5} />
       </mesh>
-      {details}
       {/* Roof Elements (Water Tank) - One simplified element */}
       <mesh position={[width / 4, height / 2 + 0.5, 0]}>
         <cylinderGeometry args={[1, 1, 1, isMobile ? 6 : 12]} />
@@ -120,34 +65,12 @@ const HeritageBuilding = ({ position, scale, color, isMobile }: { position: [num
   const [width, height, depth] = scale;
   const hasShop = useMemo(() => Math.random() > 0.3, []);
 
-  // Indo-Saracenic Details
-  const details = useMemo(() => {
-    const items = [];
-    const floorHeight = 4;
-    const floors = Math.floor(height / floorHeight);
-    
-    // Limit detail count on mobile to prevent crash
-    const drawLimit = isMobile ? Math.min(floors, 3) : floors;
-
-    for (let f = 1; f <= drawLimit; f++) {
-      // Cornice
-      items.push(
-        <mesh key={`c-${f}`} position={[0, -height / 2 + f * floorHeight, 0]}>
-          <boxGeometry args={[width + 0.6, 0.4, depth + 0.6]} />
-          <meshStandardMaterial color="#fef3c7" />
-        </mesh>
-      );
-    }
-    return items;
-  }, [width, height, depth, isMobile]);
-
   return (
     <group position={position}>
       <mesh castShadow={!isMobile} receiveShadow={!isMobile}>
         <boxGeometry args={[width, height, depth]} />
         <meshStandardMaterial color={color} roughness={0.7} />
       </mesh>
-      {details}
       {/* Dome */}
       <group position={[0, height / 2, 0]}>
         <mesh position={[0, 1, 0]}>
@@ -421,6 +344,55 @@ export default function World({ isMobile, weather }: { isMobile?: boolean, weath
     return items.sort((a, b) => a.position[2] - b.position[2]);
   }, [isMobile, buildingCount]);
 
+  const windowInstances = useMemo(() => {
+    const frameData: THREE.Matrix4[] = [];
+    const glassData: THREE.Matrix4[] = [];
+    
+    const floorHeight = 3;
+    const windowWidth = 1.5;
+    const windowHeight = 1.8;
+    const gap = 0.8;
+
+    buildings.forEach((b: any) => {
+      if (b.isHeritage) return;
+      const [width, height, depth] = b.scale;
+      const floors = Math.floor(height / floorHeight);
+      const cols = Math.floor(width / (windowWidth + gap));
+      const drawLimit = isMobile ? Math.min(floors, 4) : floors;
+
+      for (let f = 1; f < drawLimit; f++) {
+        for (let c = 0; c < cols; c++) {
+          const xPos = b.position[0] - width / 2 + (width / (cols + 1)) * (c + 1);
+          const yPos = b.position[1] - height / 2 + f * floorHeight;
+          const zPos = b.position[2] + depth / 2 + 0.05;
+
+          const matrix = new THREE.Matrix4();
+          matrix.setPosition(new THREE.Vector3(xPos, yPos, zPos));
+          frameData.push(matrix);
+
+          const glassMatrix = matrix.clone();
+          glassMatrix.setPosition(new THREE.Vector3(xPos, yPos, zPos + 0.01));
+          glassData.push(glassMatrix);
+        }
+      }
+    });
+    return { frameData, glassData };
+  }, [buildings, isMobile]);
+
+  const frameRef = useRef<THREE.InstancedMesh>(null);
+  const glassRef = useRef<THREE.InstancedMesh>(null);
+
+  useFrame(() => {
+    if (frameRef.current && windowInstances.frameData.length > 0) {
+      windowInstances.frameData.forEach((matrix, i) => frameRef.current!.setMatrixAt(i, matrix));
+      frameRef.current.instanceMatrix.needsUpdate = true;
+    }
+    if (glassRef.current && windowInstances.glassData.length > 0) {
+      windowInstances.glassData.forEach((matrix, i) => glassRef.current!.setMatrixAt(i, matrix));
+      glassRef.current.instanceMatrix.needsUpdate = true;
+    }
+  });
+
   return (
     <group>
       {/* Road */}
@@ -458,6 +430,16 @@ export default function World({ isMobile, weather }: { isMobile?: boolean, weath
         <planeGeometry args={[50, roadLength]} />
         <meshStandardMaterial color="#64748b" roughness={isWet ? 0.2 : 0.9} />
       </mesh>
+
+      {/* Optimized Windows */}
+      <instancedMesh ref={frameRef} args={[undefined, undefined, windowInstances.frameData.length]}>
+        <boxGeometry args={[1.5, 1.8, 0.1]} />
+        <meshStandardMaterial color="#334155" roughness={0.2} metalness={0.5} />
+      </instancedMesh>
+      <instancedMesh ref={glassRef} args={[undefined, undefined, windowInstances.glassData.length]}>
+        <planeGeometry args={[1.3, 1.6]} />
+        <meshStandardMaterial color="#93c5fd" roughness={0.1} metalness={0.9} transparent opacity={0.7} />
+      </instancedMesh>
 
       {buildings.map((data, i) => (
         data.isHeritage ?
