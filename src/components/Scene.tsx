@@ -218,18 +218,14 @@ export default function Scene() {
         
         <OrbitControls 
           makeDefault 
-          enableZoom={cameraLanded} 
-          enablePan={cameraLanded}
-          maxPolarAngle={Math.PI / 2 - 0.05} 
-          minPolarAngle={0}
-          target={[7.5, 1.5, 0]} 
+          target={[17.5, 1.5, 0]} 
         />
 
         <group position={[0, -1, 0]}>
           <World isMobile={isMobile} weather={weather} />
           <CityLife paused={menuOpen} isMobile={isMobile} weather={weather} />
           
-          <group position={[7.5, 0, 0]}>
+          <group position={[17.5, 0, 0]}>
             <Character 
               onClick={handleCharacterClick} 
               isMenuOpen={menuOpen}

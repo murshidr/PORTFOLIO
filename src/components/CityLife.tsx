@@ -329,6 +329,8 @@ const HumanNPC = ({ initialZ, speed, initialLaneX, paused, isMobile, routine, we
 
       // Routine Detection
       if (routine.type === 'beachWatcher' && !isRaining) {
+         const characterX = 17.5;
+         const characterZ = 0;
          const dist = Math.abs(ref.current.position.z - (routine.targetZ || 0));
          if (dist < 1) {
             setBehavior('watching_ocean');
@@ -380,13 +382,13 @@ const HumanNPC = ({ initialZ, speed, initialLaneX, paused, isMobile, routine, we
       </mesh>
       
       <group position={[-0.35, 1.3, 0]} ref={leftArm}>
-        <mesh position={[0, -0.3, 0]}>
+        <mesh position={[0, -0.35, 0]}>
           <boxGeometry args={[0.15, 0.7, 0.15]} />
           <meshStandardMaterial color={skinTone} />
         </mesh>
       </group>
       <group position={[0.35, 1.3, 0]} ref={rightArm}>
-        <mesh position={[0, -0.3, 0]}>
+        <mesh position={[0, -0.35, 0]}>
           <boxGeometry args={[0.15, 0.7, 0.15]} />
           <meshStandardMaterial color={skinTone} />
         </mesh>
@@ -548,10 +550,21 @@ const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused
   useFrame((state, delta) => {
     if (!bodyRef.current || !headRef.current || paused) return;
     
+    const playerPos = { x: 17.5, z: 0 };
+
     data.forEach((p, i) => {
       // Basic Movement
       p.z += p.speed * delta;
       if (Math.abs(p.z) > 150) p.z = -150 * (p.speed > 0 ? 1 : -1);
+
+      // --- Intelligence: Proximity Avoidance ---
+      if (Math.abs(p.z - playerPos.z) < 15) {
+        const dx = Math.abs(p.x - playerPos.x);
+        const dz = Math.abs(p.z - playerPos.z);
+        if (dx < 1.5 && dz < 3) {
+          p.x += (p.x > playerPos.x ? 0.05 : -0.05);
+        }
+      }
 
       // Walking bounce/bob
       const bounce = Math.abs(Math.sin(state.clock.elapsedTime * 8 + p.offset)) * 0.08;
@@ -594,8 +607,8 @@ export default function CityLife({ paused, isMobile, weather }: { paused: boolea
       {/* Layer 1: Waterline (Dynamic) */}
       <HumanInstances count={isMobile ? 20 : 50} color="#ffbdad" initialLaneX={-40} laneWidth={10} paused={paused} weather={weather} />
       
-      {/* Layer 2: Pathway (Dynamic) */}
-      <HumanInstances count={isMobile ? 30 : 80} color="#ffffff" initialLaneX={22} laneWidth={8} paused={paused} weather={weather} />
+      {/* Layer 2: Pathway (Dynamic) - Centered on User pathway (x=17.5) */}
+      <HumanInstances count={isMobile ? 30 : 80} color="#ffffff" initialLaneX={17.5} laneWidth={12} paused={paused} weather={weather} />
 
       {/* Layer 5: Horizon (Static Silhouettes - Zero Logic) */}
       <HorizonSilhouettes count={isMobile ? 20 : 100} />
@@ -606,7 +619,7 @@ export default function CityLife({ paused, isMobile, weather }: { paused: boolea
       <BirdGroup paused={paused} isMobile={isMobile} />
     </group>
   );
-}
+};
 
 const HorizonSilhouettes = ({ count }: { count: number }) => {
   const meshRef = useRef<THREE.InstancedMesh>(null);

@@ -141,23 +141,20 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu }: Characte
       }
 
       // --- 3rd Person Camera Follow (Walking) ---
-      const targetX = 7.5;
+      const targetX = 17.5;
       
+      const lerpFactor = 0.1; // Smoother stabilization
       const controls = state.controls as any;
       if (controls) {
-        // Find current offset vector from target to camera
-        const offset = camera.position.clone().sub(controls.target);
-        
         // Move the target to the character's new position
-        controls.target.z = group.current.position.z; 
-        controls.target.x = targetX;
-        controls.target.y = 1.6; // Head level
+        controls.target.z = THREE.MathUtils.lerp(controls.target.z, group.current.position.z, lerpFactor); 
+        controls.target.x = THREE.MathUtils.lerp(controls.target.x, targetX, lerpFactor);
+        controls.target.y = THREE.MathUtils.lerp(controls.target.y, 1.6, lerpFactor); // Head level
         
-        // Move the camera by the SAME EXACT amount so the relative offset (distance/angle) stays perfectly locked
-        // This gives a true 3rd person follow camera where you can still orbit around!
-        camera.position.z -= walkSpeed * delta;
+        // Move the camera by the SAME amount but with slightly staggered lerp to eliminate "micro-jitter"
+        camera.position.z = THREE.MathUtils.lerp(camera.position.z, camera.position.z - (walkSpeed * delta), 0.5);
         
-        controls.update(); // Keep the orbit tight
+        controls.update(); 
       }
     }
   });
@@ -174,11 +171,13 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu }: Characte
 
   // Materials
   const skinMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#ffdbac", roughness: 0.5 }), []);
-  const shirtMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#3b82f6", roughness: 0.7 }), []); // Casual Blue Tee
-  const pantMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#1e293b", roughness: 0.8 }), []); // Dark Chinos/Jeans
-  const shoeMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: 0.4 }), []); // White Sneakers
-  const hairMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#0f172a", roughness: 0.9 }), []);
-  const headphoneMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#ef4444", roughness: 0.2, metalness: 0.5 }), []); // Red Headphones
+  const jacketMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#1e293b", roughness: 0.6 }), []); // Dark Blazer
+  const shirtMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#cbd5e1", roughness: 0.7 }), []); // Light Blue Shirt
+  const pantMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#0f172a", roughness: 0.8 }), []); // Dark Trousers
+  const shoeMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: 0.4 }), []); 
+  const backpackMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#111111", roughness: 0.9 }), []);
+  const hairMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#000000", roughness: 0.9 }), []);
+  const headphoneMaterial = useMemo(() => new THREE.MeshStandardMaterial({ color: "#ef4444", roughness: 0.2, metalness: 0.5 }), []);
 
   // Facial feature materials
   const eyeMaterial = useMemo(() => new THREE.MeshBasicMaterial({ color: "#000000" }), []);
@@ -206,9 +205,18 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu }: Characte
         <meshBasicMaterial transparent opacity={0.5} color="red" />
       </mesh>
 
-      {/* --- TORSO --- */}
-      <mesh position={[0, 1.4, 0]} castShadow material={shirtMaterial}>
-        <boxGeometry args={[0.5, 0.7, 0.25]} />
+      {/* --- TORSO & BLAZER --- */}
+      <mesh position={[0, 1.4, 0]} castShadow material={jacketMaterial}>
+        <boxGeometry args={[0.5, 0.7, 0.3]} />
+      </mesh>
+      {/* Inner Shirt Detail */}
+      <mesh position={[0, 1.5, 0.1]} material={shirtMaterial}>
+        <boxGeometry args={[0.15, 0.4, 0.12]} />
+      </mesh>
+
+      {/* --- BACKPACK --- */}
+      <mesh position={[0, 1.35, -0.2]} material={backpackMaterial} castShadow>
+        <boxGeometry args={[0.4, 0.5, 0.15]} />
       </mesh>
 
       {/* --- HEAD GROUP --- */}
@@ -275,9 +283,9 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu }: Characte
       {/* --- ARMS --- */}
       {/* Left Arm (Holding Phone) */}
       <group ref={leftArm} position={[0.3, 1.6, 0]}>
-        {/* Sleeve */}
-        <mesh position={[0, -0.1, 0]} material={shirtMaterial}>
-          <boxGeometry args={[0.12, 0.2, 0.12]} />
+        {/* Sleeve (Blazer) */}
+        <mesh position={[0, -0.1, 0]} material={jacketMaterial}>
+          <boxGeometry args={[0.13, 0.2, 0.13]} />
         </mesh>
         {/* Forearm */}
         <mesh position={[0, -0.35, 0]} material={skinMaterial}>
@@ -301,9 +309,9 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu }: Characte
 
       {/* Right Arm */}
       <group ref={rightArm} position={[-0.3, 1.6, 0]}>
-        {/* Sleeve */}
-        <mesh position={[0, -0.1, 0]} material={shirtMaterial}>
-          <boxGeometry args={[0.12, 0.2, 0.12]} />
+        {/* Sleeve (Blazer) */}
+        <mesh position={[0, -0.1, 0]} material={jacketMaterial}>
+          <boxGeometry args={[0.13, 0.2, 0.13]} />
         </mesh>
         {/* Forearm */}
         <mesh position={[0, -0.35, 0]} material={skinMaterial}>
