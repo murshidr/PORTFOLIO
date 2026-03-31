@@ -532,40 +532,59 @@ const Bird = ({ initialZ, speed, initialX, initialY, paused, isMobile }: any) =>
 
 // --- GPU INSTANCED ACTOR SYSTEM (Extreme Optimization) ---
 const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused }: any) => {
-  const meshRef = useRef<THREE.InstancedMesh>(null);
+  const bodyRef = useRef<THREE.InstancedMesh>(null);
+  const headRef = useRef<THREE.InstancedMesh>(null);
+  
   const data = useMemo(() => Array.from({ length: count }).map(() => ({
     z: (Math.random() - 0.5) * 300,
     x: initialLaneX + (Math.random() - 0.5) * laneWidth,
     speed: (1 + Math.random() * 2) * (Math.random() > 0.5 ? 1 : -1),
-    offset: Math.random() * 100
+    offset: Math.random() * 100,
+    skinTone: ['#ffdbac', '#f1c27d', '#e0ac69', '#8d5524', '#c68642'][Math.floor(Math.random() * 5)]
   })), [count, initialLaneX, laneWidth]);
 
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   useFrame((state, delta) => {
-    if (!meshRef.current || paused) return;
+    if (!bodyRef.current || !headRef.current || paused) return;
     
     data.forEach((p, i) => {
-      // Logic
+      // Basic Movement
       p.z += p.speed * delta;
       if (Math.abs(p.z) > 150) p.z = -150 * (p.speed > 0 ? 1 : -1);
 
-      // Walking bounce
-      const bounce = Math.abs(Math.sin(state.clock.elapsedTime * 8 + p.offset)) * 0.1;
+      // Walking bounce/bob
+      const bounce = Math.abs(Math.sin(state.clock.elapsedTime * 8 + p.offset)) * 0.08;
       
+      // Update Body
       dummy.position.set(p.x, 0.7 + bounce, p.z);
       dummy.rotation.y = p.speed > 0 ? 0 : Math.PI;
+      dummy.scale.set(1, 1, 1);
       dummy.updateMatrix();
-      meshRef.current!.setMatrixAt(i, dummy.matrix);
+      bodyRef.current!.setMatrixAt(i, dummy.matrix);
+
+      // Update Head (Relative to body)
+      dummy.position.set(p.x, 1.5 + bounce * 1.2, p.z + (p.speed > 0 ? 0.05 : -0.05));
+      dummy.scale.set(0.4, 0.4, 0.4); // Scale down the head
+      dummy.updateMatrix();
+      headRef.current!.setMatrixAt(i, dummy.matrix);
     });
-    meshRef.current.instanceMatrix.needsUpdate = true;
+    
+    bodyRef.current.instanceMatrix.needsUpdate = true;
+    headRef.current.instanceMatrix.needsUpdate = true;
   });
 
   return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, count]} castShadow>
-      <capsuleGeometry args={[0.2, 1.4]} />
-      <meshStandardMaterial color={color} />
-    </instancedMesh>
+    <group>
+      <instancedMesh ref={bodyRef} args={[undefined, undefined, count]} castShadow>
+        <capsuleGeometry args={[0.2, 1.0, 4, 8]} />
+        <meshStandardMaterial color={color} />
+      </instancedMesh>
+      <instancedMesh ref={headRef} args={[undefined, undefined, count]} castShadow>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial color="#8d5524" /> {/* Generalized skin tone for heads */}
+      </instancedMesh>
+    </group>
   );
 };
 
@@ -573,10 +592,10 @@ export default function CityLife({ paused, isMobile, weather }: { paused: boolea
   return (
     <group>
       {/* Layer 1: Waterline (Dynamic) */}
-      <HumanInstances count={isMobile ? 20 : 50} color="#ffbdad" initialLaneX={-25} laneWidth={5} paused={paused} weather={weather} />
+      <HumanInstances count={isMobile ? 20 : 50} color="#ffbdad" initialLaneX={-40} laneWidth={10} paused={paused} weather={weather} />
       
       {/* Layer 2: Pathway (Dynamic) */}
-      <HumanInstances count={isMobile ? 30 : 80} color="#ffffff" initialLaneX={12} laneWidth={6} paused={paused} weather={weather} />
+      <HumanInstances count={isMobile ? 30 : 80} color="#ffffff" initialLaneX={22} laneWidth={8} paused={paused} weather={weather} />
 
       {/* Layer 5: Horizon (Static Silhouettes - Zero Logic) */}
       <HorizonSilhouettes count={isMobile ? 20 : 100} />
@@ -612,12 +631,16 @@ const HorizonSilhouettes = ({ count }: { count: number }) => {
 
 const VehiclesLayer = ({ paused, isMobile }: any) => {
   const count = isMobile ? 12 : 30;
-  const vehicles = useMemo(() => Array.from({ length: count }).map((_, i) => ({
-    type: Math.random() > 0.7 ? 'auto' : (Math.random() > 0.4 ? 'car' : 'bus'),
-    z: (Math.random() - 0.5) * 300,
-    laneX: Math.random() > 0.5 ? 2.5 : -2.5,
-    speed: (15 + Math.random() * 10) * (Math.random() > 0.5 ? 1 : -1)
-  })), [count, isMobile]);
+  const vehicles = useMemo(() => Array.from({ length: count }).map((_, i) => {
+    const laneX = [-7.5, -2.5, 2.5, 7.5][Math.floor(Math.random() * 4)];
+    const direction = laneX > 0 ? 1 : -1;
+    return {
+      type: Math.random() > 0.7 ? 'auto' : (Math.random() > 0.4 ? 'car' : 'bus'),
+      z: (Math.random() - 0.5) * 300,
+      laneX,
+      speed: (15 + Math.random() * 10) * direction
+    };
+  }), [count, isMobile]);
 
   return (
     <>

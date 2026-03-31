@@ -12,16 +12,16 @@ export default function CameraFlyIn({ onLanded }: CameraFlyInProps) {
   const { camera } = useThree();
   const timeline = useRef<gsap.core.Timeline | null>(null);
   const landed = useRef(false);
-  const [isSeaSkim, setIsSeaSkim] = useState(false);
+  const [isIntroActive, setIsIntroActive] = useState(false);
 
   useEffect(() => {
     if (landed.current) return;
-    setIsSeaSkim(true);
-    setTimeout(() => setIsSeaSkim(false), 2200);
+    setIsIntroActive(true);
+    setTimeout(() => setIsIntroActive(false), 3500);
     
-    // Initial position: 2m above Bay of Bengal (v1.0 spec)
-    camera.position.set(-150, 2, 80);
-    camera.lookAt(0, 2, 0);
+    // Initial position: 100m above the city/road
+    camera.position.set(40, 100, -30);
+    camera.lookAt(7.5, 0, 0);
 
     timeline.current = gsap.timeline({
       onComplete: () => {
@@ -32,36 +32,24 @@ export default function CameraFlyIn({ onLanded }: CameraFlyInProps) {
       }
     });
 
-    // 0.0 - 2.2s: Skim the water
+    // 0.0 - 2.5s: Dramatic Dive from the sky
     timeline.current.to(camera.position, {
-      x: -30,
-      y: 3,
-      z: 50,
-      duration: 2.2,
-      ease: "power2.in",
+      x: 15,
+      y: 10,
+      z: 10,
+      duration: 2.5,
+      ease: "power2.inOut",
       onUpdate: () => {
-         camera.lookAt(0, 2, 0);
+         camera.lookAt(7.5, 0, 10);
       }
     });
 
-    // 2.2 - 3.6s: Cross shoreline
-    timeline.current.to(camera.position, {
-      x: 0,
-      y: 4,
-      z: 20,
-      duration: 1.4,
-      ease: "none",
-      onUpdate: () => {
-        camera.lookAt(7.5, 1.8, 0);
-      }
-    });
-
-    // 3.6 - 5.0s: Decelerate and settle behind character
+    // 2.5 - 5.0s: Level out and settle behind character
     timeline.current.to(camera.position, {
       x: 7.5, 
       y: 1.8, 
       z: -6,
-      duration: 1.4,
+      duration: 2.5,
       ease: "power3.out",
       onUpdate: () => {
         camera.lookAt(7.5, 1.8, 20);
@@ -75,7 +63,7 @@ export default function CameraFlyIn({ onLanded }: CameraFlyInProps) {
 
   return (
     <>
-      {isSeaSkim && (
+      {isIntroActive && (
         <Html fullscreen style={{ pointerEvents: 'none', zIndex: 100 }}>
           <div className="fixed inset-0 pointer-events-none overflow-hidden">
             {/* Subtle Lens Moisture / Droplets */}

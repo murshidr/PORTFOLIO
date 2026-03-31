@@ -319,7 +319,7 @@ const NapierBridge = ({ position }: { position: [number, number, number] }) => {
 };
 
 export default function World({ isMobile, weather }: { isMobile?: boolean, weather?: string }) {
-  const roadWidth = 10;
+  const roadWidth = 20;
   const roadLength = 300;
   const buildingCount = isMobile ? 45 : 60;
   const isWet = weather === 'RAIN' || weather === 'STORM';
@@ -327,7 +327,7 @@ export default function World({ isMobile, weather }: { isMobile?: boolean, weath
   const buildings = useMemo(() => {
     const items = [];
     for (let i = 0; i < buildingCount; i++) {
-      const xOffset = roadWidth / 2 + 20 + Math.random() * 10;
+      const xOffset = roadWidth / 2 + 30 + Math.random() * 10;
       const zPos = (Math.random() - 0.5) * roadLength;
       const width = 10 + Math.random() * 8;
       const depth = 10 + Math.random() * 8;
@@ -401,32 +401,46 @@ export default function World({ isMobile, weather }: { isMobile?: boolean, weath
         <meshStandardMaterial color="#111" roughness={isWet ? 0.1 : 0.6} metalness={isWet ? 0.4 : 0} />
       </mesh>
 
-      {/* Road Markings */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.03, 0]}>
-        <planeGeometry args={[0.3, roadLength]} />
+      {/* Road Markings - Double Center Line */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0.2, 0.03, 0]}>
+        <planeGeometry args={[0.2, roadLength]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={isWet ? 0.8 : 1} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-0.2, 0.03, 0]}>
+        <planeGeometry args={[0.2, roadLength]} />
         <meshBasicMaterial color="#ffffff" transparent opacity={isWet ? 0.8 : 1} />
       </mesh>
 
+      {/* Lane Separators (Dashed) */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[5, 0.03, 0]}>
+        <planeGeometry args={[0.1, roadLength]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.4} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-5, 0.03, 0]}>
+        <planeGeometry args={[0.1, roadLength]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.4} />
+      </mesh>
+
       {/* Beach Sand */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-roadWidth / 2 - 25, 0.01, 0]} receiveShadow={!isMobile}>
-        <planeGeometry args={[50, roadLength]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-roadWidth / 2 - 30, 0.01, 0]} receiveShadow={!isMobile}>
+        <planeGeometry args={[60, roadLength]} />
         <meshStandardMaterial color={isWet ? "#9a7b4f" : "#e6c288"} roughness={0.9} />
       </mesh>
 
       {/* Ocean */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-roadWidth / 2 - 75, -0.5, 0]}>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-roadWidth / 2 - 85, -0.5, 0]}>
         <planeGeometry args={[50, roadLength]} />
         <meshStandardMaterial color="#006994" roughness={0.1} metalness={0.6} transparent opacity={0.9} />
       </mesh>
 
-      {/* Pavement (Marina Tiled Path) */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[10, 0.1, 0]} receiveShadow={!isMobile}>
-        <planeGeometry args={[10, roadLength]} />
+      {/* Pavement (Marina Tiled Path) - Shifted out */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[17.5, 0.1, 0]} receiveShadow={!isMobile}>
+        <planeGeometry args={[15, roadLength]} />
         <meshStandardMaterial color="#94a3b8" roughness={isWet ? 0.05 : 0.8} metalness={isWet ? 0.3 : 0} />
       </mesh>
 
-      {/* Building Ground */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[40, 0.05, 0]} receiveShadow={!isMobile}>
+      {/* Building Ground - Shifted out */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[50, 0.05, 0]} receiveShadow={!isMobile}>
         <planeGeometry args={[50, roadLength]} />
         <meshStandardMaterial color="#64748b" roughness={isWet ? 0.2 : 0.9} />
       </mesh>
@@ -460,18 +474,18 @@ export default function World({ isMobile, weather }: { isMobile?: boolean, weath
       ))}
 
       {/* Iconic Chennai Monuments */}
-      <LICBuilding position={[45, 0, 40]} />
-      <LICBuilding position={[60, 0, -50]} />
+      <LICBuilding position={[55, 0, 40]} />
+      <LICBuilding position={[70, 0, -50]} />
 
-      <NapierBridge position={[30, 0, 80]} />
-      <NapierBridge position={[30, 0, -80]} />
+      <NapierBridge position={[40, 0, 80]} />
+      <NapierBridge position={[40, 0, -80]} />
 
-      <TeaStall position={[12, 0, 20]} isMobile={isMobile} />
-      <BusStop position={[12, 0, -40]} isMobile={isMobile} />
+      <TeaStall position={[20, 0, 20]} isMobile={isMobile} />
+      <BusStop position={[20, 0, -40]} isMobile={isMobile} />
 
       {/* Palm Trees along the pavement */}
       {Array.from({ length: 10 }).map((_, i) => (
-        <PalmTree key={`palm-${i}`} position={[14, 0, -100 + i * 30]} isMobile={isMobile} />
+        <PalmTree key={`palm-${i}`} position={[22, 0, -100 + i * 30]} isMobile={isMobile} />
       ))}
 
       <SundalCart position={[-15, 0, 10]} isMobile={isMobile} />
