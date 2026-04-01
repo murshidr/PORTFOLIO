@@ -3,22 +3,13 @@ import { useFrame } from '@react-three/fiber';
 import { Text, Float } from '@react-three/drei';
 import * as THREE from 'three';
 
-const AutoRickshaw = ({ initialZ, speed, laneX, paused, isMobile }: any) => {
+const YellowTaxi = ({ initialZ, speed, laneX, paused, isMobile }: any) => {
   const ref = useRef<THREE.Group>(null);
   const direction = speed > 0 ? 1 : -1;
-  const wobbleOffset = Math.random() * 100;
 
   useFrame((state, delta) => {
     if (ref.current && !paused) {
       ref.current.position.z += speed * delta;
-
-      // Slight lane drift/wobble
-      // Reduce wobble frequency on mobile
-      if (!isMobile) {
-        const wobble = Math.sin(state.clock.elapsedTime * 2 + wobbleOffset) * 0.2;
-        ref.current.position.x = laneX + wobble;
-      }
-
       if (ref.current.position.z > 150) ref.current.position.z = -150;
       if (ref.current.position.z < -150) ref.current.position.z = 150;
     }
@@ -26,257 +17,67 @@ const AutoRickshaw = ({ initialZ, speed, laneX, paused, isMobile }: any) => {
 
   return (
     <group ref={ref} position={[laneX, 0.6, initialZ]} rotation={[0, direction > 0 ? 0 : Math.PI, 0]}>
-      {/* Body (Yellow Top) */}
-      <mesh castShadow={!isMobile} position={[0, 0.8, -0.2]}>
-        <boxGeometry args={[1.4, 0.8, 1.8]} />
-        <meshStandardMaterial color="#fbbf24" roughness={0.4} />
-      </mesh>
-      {/* Lower Body (Black) */}
       <mesh castShadow={!isMobile} position={[0, 0.3, 0]}>
-        <boxGeometry args={[1.3, 0.6, 2.2]} />
-        <meshStandardMaterial color="#111" roughness={0.5} />
-      </mesh>
-      {/* Windshield */}
-      <mesh position={[0, 0.8, 0.71]} rotation={[-0.2, 0, 0]}>
-        <planeGeometry args={[1.2, 0.6]} />
-        <meshStandardMaterial color="#88ccff" transparent opacity={0.6} side={THREE.DoubleSide} />
-      </mesh>
-      {/* Wheels (3 wheels) */}
-      <mesh position={[0, -0.3, 1.0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.25, 0.25, 0.3]} />
-        <meshStandardMaterial color="#111" />
-      </mesh>
-      <mesh position={[0.6, -0.3, -0.8]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.25, 0.25, 0.3]} />
-        <meshStandardMaterial color="#111" />
-      </mesh>
-      <mesh position={[-0.6, -0.3, -0.8]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.25, 0.25, 0.3]} />
-        <meshStandardMaterial color="#111" />
-      </mesh>
-    </group>
-  );
-};
-
-const MTCBus = ({ initialZ, speed, laneX, paused, isMobile }: any) => {
-  const ref = useRef<THREE.Group>(null);
-  const direction = speed > 0 ? 1 : -1;
-
-  // Bus Stop Logic
-  // Stops are at z = -40 and z = 80 on the Right side (laneX > 0)
-  const isRightLane = laneX > 0;
-  const stops = isRightLane ? [-40, 80] : [];
-
-  const [busState, setBusState] = useState<'moving' | 'stopping' | 'stopped' | 'accelerating'>('moving');
-  const stopTimer = useRef(0);
-  const currentSpeed = useRef(Math.abs(speed));
-  const maxSpeed = Math.abs(speed);
-
-  // Passengers visual
-  const [passengersVisible, setPassengersVisible] = useState(false);
-
-  useFrame((state, delta) => {
-    if (ref.current && !paused) {
-      // ... existing movement logic ...
-      if (isRightLane) { // Stop logic runs on all devices now
-        const z = ref.current.position.z;
-
-        if (busState === 'moving') {
-          for (const stopZ of stops) {
-            const dist = stopZ - z;
-            if (dist > 0 && dist < 15) {
-              setBusState('stopping');
-            }
-          }
-          setPassengersVisible(false);
-        } else if (busState === 'stopping') {
-          currentSpeed.current = THREE.MathUtils.lerp(currentSpeed.current, 0, delta * 2);
-          if (currentSpeed.current < 0.1) {
-            currentSpeed.current = 0;
-            setBusState('stopped');
-            stopTimer.current = 0;
-            setPassengersVisible(true); // Show passengers boarding/alighting
-          }
-        } else if (busState === 'stopped') {
-          stopTimer.current += delta;
-          if (stopTimer.current > 4) { // Wait 4 seconds
-            setBusState('accelerating');
-            setPassengersVisible(false);
-          }
-        } else if (busState === 'accelerating') {
-          currentSpeed.current = THREE.MathUtils.lerp(currentSpeed.current, maxSpeed, delta * 1.5);
-          if (currentSpeed.current > maxSpeed * 0.95) {
-            currentSpeed.current = maxSpeed;
-            setBusState('moving');
-          }
-        }
-      }
-
-      const finalSpeed = (speed > 0 ? 1 : -1) * currentSpeed.current;
-      ref.current.position.z += finalSpeed * delta;
-
-      if (ref.current.position.z > 150) ref.current.position.z = -150;
-      if (ref.current.position.z < -150) ref.current.position.z = 150;
-    }
-  });
-
-  return (
-    <group ref={ref} position={[laneX, 1.5, initialZ]} rotation={[0, direction > 0 ? 0 : Math.PI, 0]}>
-      {/* Main Body (Red/White MTC style) */}
-      <mesh castShadow={!isMobile} position={[0, 0, 0]}>
-        <boxGeometry args={[2.8, 2.5, 8]} />
-        <meshStandardMaterial color="#ef4444" />
-      </mesh>
-      {/* White Stripe */}
-      <mesh position={[0, 0, 0]}>
-        <boxGeometry args={[2.85, 0.8, 8.05]} />
-        <meshStandardMaterial color="#ffffff" />
-      </mesh>
-      {/* Windows */}
-      <mesh position={[0, 0.5, 0]}>
-        <boxGeometry args={[2.9, 0.8, 7.5]} />
-        <meshStandardMaterial color="#222" />
-      </mesh>
-
-      {/* Passengers Boarding/Alighting Animation */}
-      {passengersVisible && (
-        <group position={[-1.8, -1, 2]}> {/* Near rear door */}
-          {Array.from({ length: 3 }).map((_, i) => (
-            <mesh key={i} position={[Math.random() * 0.5, 0, Math.random() * 0.5]}>
-              <capsuleGeometry args={[0.15, 0.6]} />
-              <meshStandardMaterial color={['#fff', '#333', '#f00'][i]} />
-            </mesh>
-          ))}
-        </group>
-      )}
-
-      {/* Wheels */}
-      <mesh position={[1.4, -1.2, 2.5]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.5, 0.5, 0.5]} />
-        <meshStandardMaterial color="#111" />
-      </mesh>
-      <mesh position={[-1.4, -1.2, 2.5]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.5, 0.5, 0.5]} />
-        <meshStandardMaterial color="#111" />
-      </mesh>
-      <mesh position={[1.4, -1.2, -2.5]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.5, 0.5, 0.5]} />
-        <meshStandardMaterial color="#111" />
-      </mesh>
-      <mesh position={[-1.4, -1.2, -2.5]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.5, 0.5, 0.5]} />
-        <meshStandardMaterial color="#111" />
-      </mesh>
-
-      {/* Brake Lights (Active when stopping/stopped) */}
-      {(busState === 'stopping' || busState === 'stopped') && (
-        <>
-          <mesh position={[1, -0.5, -4.05]}>
-            <sphereGeometry args={[0.2]} />
-            <meshBasicMaterial color="#ff0000" toneMapped={false} />
-          </mesh>
-          <mesh position={[-1, -0.5, -4.05]}>
-            <sphereGeometry args={[0.2]} />
-            <meshBasicMaterial color="#ff0000" toneMapped={false} />
-          </mesh>
-        </>
-      )}
-    </group>
-  );
-};
-
-const Car = ({ initialZ, speed, laneX, color, paused, isMobile }: any) => {
-  const ref = useRef<THREE.Group>(null);
-  const direction = speed > 0 ? 1 : -1;
-  const wobbleOffset = Math.random() * 100;
-
-  const [isBraking, setIsBraking] = useState(false);
-  const currentSpeed = useRef(Math.abs(speed));
-  const maxSpeed = Math.abs(speed);
-
-  useFrame((state, delta) => {
-    if (ref.current && !paused) {
-      // Very basic "traffic sensing"
-      // If a vehicle is ahead or if near character (z=0, x=7.5)
-      const distToCenter = Math.abs(ref.current.position.z - 0);
-      const isNearCharacter = distToCenter < 15 && Math.abs(laneX - 7.5) < 10;
-      
-      if (isNearCharacter) {
-        setIsBraking(true);
-        currentSpeed.current = THREE.MathUtils.lerp(currentSpeed.current, maxSpeed * 0.4, delta * 2);
-      } else {
-        setIsBraking(false);
-        currentSpeed.current = THREE.MathUtils.lerp(currentSpeed.current, maxSpeed, delta);
-      }
-
-      const finalSpeed = (speed > 0 ? 1 : -1) * currentSpeed.current;
-      ref.current.position.z += finalSpeed * delta;
-
-      if (!isMobile) {
-        const wobble = Math.sin(state.clock.elapsedTime * 1.5 + wobbleOffset) * 0.15;
-        ref.current.position.x = laneX + wobble;
-      }
-
-      if (ref.current.position.z > 150) ref.current.position.z = -150;
-      if (ref.current.position.z < -150) ref.current.position.z = 150;
-    }
-  });
-
-  return (
-    <group ref={ref} position={[laneX, 0.6, initialZ]} rotation={[0, direction > 0 ? 0 : Math.PI, 0]}>
-      {/* Car Body */}
-      <mesh castShadow={!isMobile} receiveShadow={!isMobile} position={[0, 0.3, 0]}>
         <boxGeometry args={[1.8, 0.8, 4]} />
-        <meshStandardMaterial color={color} roughness={0.3} metalness={0.7} />
+        <meshStandardMaterial color="#fcd34d" roughness={0.2} metalness={0.8} />
       </mesh>
-      {/* Car Top */}
-      <mesh castShadow={!isMobile} receiveShadow={!isMobile} position={[0, 0.9, -0.2]}>
+      <mesh castShadow={!isMobile} position={[0, 0.9, -0.2]}>
         <boxGeometry args={[1.6, 0.6, 2.5]} />
-        <meshStandardMaterial color={color} roughness={0.3} metalness={0.7} />
+        <meshStandardMaterial color="#fcd34d" roughness={0.2} metalness={0.8} />
       </mesh>
-      {/* Windows */}
+      {/* Taxi Sign */}
+      <mesh position={[0, 1.3, -0.2]}>
+        <boxGeometry args={[0.6, 0.2, 0.4]} />
+        <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={2} />
+      </mesh>
       <mesh position={[0, 0.9, -0.2]}>
         <boxGeometry args={[1.62, 0.5, 2.2]} />
-        <meshStandardMaterial color="#111" roughness={0.1} metalness={0.9} />
+        <meshStandardMaterial color="#111" />
       </mesh>
-
-      {/* Headlights */}
-      <mesh position={[0.6, 0.3, 2]} rotation={[0, 0, 0]}>
-        <sphereGeometry args={[0.15]} />
-        <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={5} toneMapped={false} />
-      </mesh>
-      <mesh position={[-0.6, 0.3, 2]} rotation={[0, 0, 0]}>
-        <sphereGeometry args={[0.15]} />
-        <meshStandardMaterial color="#fff" emissive="#fff" emissiveIntensity={5} toneMapped={false} />
-      </mesh>
-
-      {/* Taillights */}
-      <mesh position={[0.6, 0.3, -2]} rotation={[0, 0, 0]}>
-        <sphereGeometry args={[0.2]} />
-        <meshStandardMaterial color="#f00" emissive="#f00" emissiveIntensity={isBraking ? 10 : 3} toneMapped={false} />
-      </mesh>
-      <mesh position={[-0.6, 0.3, -2]} rotation={[0, 0, 0]}>
-        <sphereGeometry args={[0.2]} />
-        <meshStandardMaterial color="#f00" emissive="#f00" emissiveIntensity={isBraking ? 10 : 3} toneMapped={false} />
-      </mesh>
-
       {/* Wheels */}
-      <mesh position={[0.9, -0.3, 1.2]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.35, 0.35, 0.4]} />
-        <meshStandardMaterial color="#111" />
+      {[ [0.9, -0.3, 1.2], [-0.9, -0.3, 1.2], [0.9, -0.3, -1.2], [-0.9, -0.3, -1.2] ].map((pos, i) => (
+        <mesh key={i} position={pos as any} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.35, 0.35, 0.4]} />
+          <meshStandardMaterial color="#111" />
+        </mesh>
+      ))}
+    </group>
+  );
+};
+
+const BlackSedan = ({ initialZ, speed, laneX, color, paused, isMobile }: any) => {
+  const ref = useRef<THREE.Group>(null);
+  const direction = speed > 0 ? 1 : -1;
+
+  useFrame((state, delta) => {
+    if (ref.current && !paused) {
+      ref.current.position.z += speed * delta;
+      if (ref.current.position.z > 150) ref.current.position.z = -150;
+      if (ref.current.position.z < -150) ref.current.position.z = 150;
+    }
+  });
+
+  return (
+    <group ref={ref} position={[laneX, 0.6, initialZ]} rotation={[0, direction > 0 ? 0 : Math.PI, 0]}>
+      <mesh castShadow={!isMobile} position={[0, 0.3, 0]}>
+        <boxGeometry args={[1.9, 0.8, 4.2]} />
+        <meshStandardMaterial color={color || "#111"} roughness={0.1} metalness={0.9} />
       </mesh>
-      <mesh position={[-0.9, -0.3, 1.2]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.35, 0.35, 0.4]} />
-        <meshStandardMaterial color="#111" />
+      <mesh castShadow={!isMobile} position={[0, 0.9, -0.2]}>
+        <boxGeometry args={[1.7, 0.6, 2.8]} />
+        <meshStandardMaterial color={color || "#111"} roughness={0.1} metalness={0.9} />
       </mesh>
-      <mesh position={[0.9, -0.3, -1.2]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.35, 0.35, 0.4]} />
-        <meshStandardMaterial color="#111" />
+      <mesh position={[0, 0.9, -0.2]}>
+        <boxGeometry args={[1.72, 0.5, 2.5]} />
+        <meshStandardMaterial color="#050505" />
       </mesh>
-      <mesh position={[-0.9, -0.3, -1.2]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.35, 0.35, 0.4]} />
-        <meshStandardMaterial color="#111" />
-      </mesh>
+      {/* Wheels */}
+      {[ [1.0, -0.3, 1.3], [-1.0, -0.3, 1.3], [1.0, -0.3, -1.3], [-1.0, -0.3, -1.3] ].map((pos, i) => (
+        <mesh key={i} position={pos as any} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.4, 0.4, 0.4]} />
+          <meshStandardMaterial color="#111" />
+        </mesh>
+      ))}
     </group>
   );
 };
@@ -546,10 +347,9 @@ const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused
   const data = useMemo(() => Array.from({ length: count }).map(() => ({
     z: (Math.random() - 0.5) * 300,
     x: initialLaneX + (Math.random() - 0.5) * laneWidth,
-    speed: (1 + Math.random() * 2) * (Math.random() > 0.5 ? 1 : -1),
-    offset: Math.random() * 100,
-    skinColor: new THREE.Color(['#ffdbac', '#f1c27d', '#e0ac69', '#8d5524', '#c68642'][Math.floor(Math.random() * 5)]),
-    shirtColor: new THREE.Color(['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#6b7280', '#ffffff'][Math.floor(Math.random() * 6)])
+    speed: (2.5 + Math.random() * 2) * (Math.random() > 0.5 ? 1 : -1),
+    offset: Math.random() * Math.PI * 2,
+    color: new THREE.Color(['#1e293b', '#334155', '#475569', '#cbd5e1', '#0f172a'][Math.floor(Math.random() * 5)])
   })), [count, initialLaneX, laneWidth]);
 
   const dummy = useMemo(() => new THREE.Object3D(), []);
@@ -557,12 +357,12 @@ const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused
   // Initialize colors
   useEffect(() => {
     data.forEach((p, i) => {
-      torsoRef.current?.setColorAt(i, p.shirtColor);
-      headRef.current?.setColorAt(i, p.skinColor);
-      leftArmRef.current?.setColorAt(i, p.skinColor);
-      rightArmRef.current?.setColorAt(i, p.skinColor);
-      leftLegRef.current?.setColorAt(i, p.shirtColor); // Pants same as shirt for simplicity or different
-      rightLegRef.current?.setColorAt(i, p.shirtColor);
+      torsoRef.current?.setColorAt(i, p.color);
+      headRef.current?.setColorAt(i, new THREE.Color('#ffdbac'));
+      leftArmRef.current?.setColorAt(i, p.color);
+      rightArmRef.current?.setColorAt(i, p.color);
+      leftLegRef.current?.setColorAt(i, p.color);
+      rightLegRef.current?.setColorAt(i, p.color);
     });
   }, [data]);
 
@@ -582,42 +382,43 @@ const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused
         if (Math.abs(p.x - playerPos.x) < 1.5) p.x += (p.x > playerPos.x ? 0.05 : -0.05);
       }
 
-      const stride = 8;
+      const stride = 8 * (p.speed > 0 ? 1 : 1.1);
       const walkCycle = Math.sin(t * stride + p.offset);
       const direction = p.speed > 0 ? 0 : Math.PI;
 
       // --- RESET DUMMY ---
       dummy.rotation.set(0, 0, 0);
-      dummy.scale.set(1, 1, 1);
+      const npcScale = 0.85; // NPCs are shorter than the player
+      dummy.scale.set(npcScale, npcScale, npcScale);
 
       // --- TORSO (Pivot: Bottom center) ---
-      dummy.position.set(p.x, 0.6, p.z); // Slightly above ground
+      dummy.position.set(p.x, 0.6 * npcScale, p.z);
       dummy.rotation.y = direction;
-      dummy.scale.set(0.5, 0.8, 0.3);
+      dummy.scale.set(0.5 * npcScale, 0.8 * npcScale, 0.3 * npcScale);
       dummy.updateMatrix();
       torsoRef.current!.setMatrixAt(i, dummy.matrix);
 
       // --- HEAD (Pivot: Bottom center) ---
       dummy.rotation.set(0, direction, 0);
-      dummy.position.set(p.x, 1.45 + Math.abs(walkCycle) * 0.05, p.z);
-      dummy.scale.set(0.3, 0.35, 0.3);
+      dummy.position.set(p.x, (1.4 + Math.abs(walkCycle) * 0.05) * npcScale, p.z);
+      dummy.scale.set(0.3 * npcScale, 0.35 * npcScale, 0.3 * npcScale);
       dummy.updateMatrix();
       headRef.current!.setMatrixAt(i, dummy.matrix);
 
       // --- FACE ---
-      dummy.position.set(p.x, 1.45 + Math.abs(walkCycle) * 0.05, p.z + (p.speed > 0 ? 0.16 : -0.16));
-      dummy.scale.set(0.15, 0.05, 0.02);
+      dummy.position.set(p.x, (1.4 + Math.abs(walkCycle) * 0.05) * npcScale, p.z + (p.speed > 0 ? 0.16 : -0.16) * npcScale);
+      dummy.scale.set(0.15 * npcScale, 0.05 * npcScale, 0.02 * npcScale);
       dummy.updateMatrix();
       faceRef.current!.setMatrixAt(i, dummy.matrix);
 
-      // --- ARMS (Pivot: Top center - set at shoulder height) ---
-      const shoulderY = 1.35;
-      const shoulderX = 0.35;
+      // --- ARMS ---
+      const shoulderY = 1.3 * npcScale;
+      const shoulderX = 0.35 * npcScale;
       
       // Left Arm
       dummy.rotation.set(walkCycle * 0.5, direction, 0);
       dummy.position.set(p.x + shoulderX, shoulderY, p.z);
-      dummy.scale.set(0.12, 0.6, 0.12);
+      dummy.scale.set(0.12 * npcScale, 0.6 * npcScale, 0.12 * npcScale);
       dummy.updateMatrix();
       leftArmRef.current!.setMatrixAt(i, dummy.matrix);
 
@@ -627,10 +428,10 @@ const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused
       dummy.updateMatrix();
       rightArmRef.current!.setMatrixAt(i, dummy.matrix);
 
-      // --- LEGS (Pivot: Top center - set at hip height) ---
-      const hipY = 0.8;
-      const hipX = 0.18;
-      dummy.scale.set(0.18, 0.8, 0.18);
+      // --- LEGS ---
+      const hipY = 0.75 * npcScale;
+      const hipX = 0.18 * npcScale;
+      dummy.scale.set(0.18 * npcScale, 0.8 * npcScale, 0.18 * npcScale);
       
       // Left Leg
       dummy.rotation.set(-walkCycle * 0.6, direction, 0);
@@ -696,84 +497,27 @@ const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused
   );
 };
 
-export default function CityLife({ paused, isMobile, weather }: { paused: boolean, isMobile?: boolean, weather?: string }) {
-  return (
-    <group>
-      {/* Layer 1: Waterline (Dynamic) */}
-      <HumanInstances count={isMobile ? 20 : 50} color="#ffbdad" initialLaneX={-40} laneWidth={10} paused={paused} weather={weather} />
-      
-      {/* Layer 1: Road (Vehicles only) */}
-      
-      {/* Layer 2: Pathway Right (Bustling Manhattan) */}
-      <HumanInstances count={isMobile ? 100 : 250} color="#ffffff" initialLaneX={17.5} laneWidth={12} paused={paused} weather={weather} />
-
-      {/* Layer 5: Holo UI Markers (Free Guy Style) */}
-      <HoloMarkers />
-      
-      {/* Layer 6: Sidewalk Left (Replacing Sand) */}
-      <HumanInstances count={isMobile ? 80 : 180} color="#cbd5e1" initialLaneX={-20} laneWidth={10} paused={paused} weather={weather} />
-
-      {/* Optimized Vehicles */}
-      <VehiclesLayer paused={paused} isMobile={isMobile} />
-      
-      <BirdGroup paused={paused} isMobile={isMobile} />
-    </group>
-  );
-};
-
-const HoloMarkers = () => {
-  const points = [
-    { z: -80, label: "AWARDS", color: "#60a5fa" },
-    { z: -40, label: "GITHUB", color: "#f87171" },
-    { z: 0, label: "CONTACT", color: "#fbbf24" },
-    { z: 40, label: "ABOUT", color: "#34d399" },
-    { z: 80, label: "DEVLOG", color: "#a78bfa" }
-  ];
-
-  return (
-    <group>
-      {points.map((p, i) => (
-        <Float key={i} speed={2} rotationIntensity={0.5} floatIntensity={0.5} position={[17.5, 3.5, p.z]}>
-          <Text
-            fontSize={0.5}
-            color={p.color}
-            anchorX="center"
-            anchorY="middle"
-          >
-            {p.label}
-          </Text>
-          <mesh position={[0, -0.4, 0]}>
-            <octahedronGeometry args={[0.2]} />
-            <meshStandardMaterial color={p.color} emissive={p.color} emissiveIntensity={2} />
-          </mesh>
-          <pointLight intensity={1} distance={5} color={p.color} />
-        </Float>
-      ))}
-    </group>
-  );
-};
-
 const VehiclesLayer = ({ paused, isMobile }: any) => {
-  const count = isMobile ? 12 : 30;
+  const count = isMobile ? 15 : 40;
   const vehicles = useMemo(() => Array.from({ length: count }).map((_, i) => {
-    const laneX = [-7.5, -2.5, 2.5, 7.5][Math.floor(Math.random() * 4)];
+    const laneX = [-7, -3, 3, 7][Math.floor(Math.random() * 4)];
     const direction = laneX > 0 ? 1 : -1;
     return {
-      type: Math.random() > 0.7 ? 'auto' : (Math.random() > 0.4 ? 'car' : 'bus'),
+      type: Math.random() > 0.5 ? 'taxi' : 'car',
       z: (Math.random() - 0.5) * 300,
       laneX,
-      speed: (15 + Math.random() * 10) * direction
+      speed: (12 + Math.random() * 8) * direction,
+      color: ['#000', '#111', '#222', '#333'][Math.floor(Math.random() * 4)]
     };
   }), [count, isMobile]);
 
   return (
-    <>
+    <group>
       {vehicles.map((v, i) => {
-        if (v.type === 'auto') return <AutoRickshaw key={i} initialZ={v.z} laneX={v.laneX} speed={v.speed} paused={paused} isMobile={isMobile} />;
-        if (v.type === 'bus') return <MTCBus key={i} initialZ={v.z} laneX={v.laneX} speed={v.speed} paused={paused} isMobile={isMobile} />;
-        return <Car key={i} initialZ={v.z} laneX={v.laneX} speed={v.speed} paused={paused} color={['#f00', '#00f', '#fff'][i%3]} isMobile={isMobile} />;
+        if (v.type === 'taxi') return <YellowTaxi key={i} initialZ={v.z} laneX={v.laneX} speed={v.speed} paused={paused} isMobile={isMobile} />;
+        return <BlackSedan key={i} initialZ={v.z} laneX={v.laneX} speed={v.speed} paused={paused} color={v.color} isMobile={isMobile} />;
       })}
-    </>
+    </group>
   );
 };
 
@@ -783,3 +527,27 @@ const BirdGroup = ({ paused, isMobile }: any) => {
     <Bird key={i} initialZ={(Math.random()-0.5)*200} speed={10+Math.random()*5} initialX={(Math.random()-0.5)*40} initialY={10+Math.random()*5} paused={paused} isMobile={isMobile} />
   ));
 };
+
+export default function CityLife({ paused, isMobile, weather }: { paused: boolean, isMobile?: boolean, weather?: string }) {
+  return (
+    <group>
+      {/* Layer 1: Waterline (Dynamic) */}
+      <HumanInstances count={isMobile ? 20 : 50} color="#ffbdad" initialLaneX={-40} laneWidth={10} paused={paused} weather={weather} />
+      
+      {/* Layer 1: Road (Vehicles only) */}
+      
+      {/* Layer 2: Pathway Right (Narrower Manhattan) */}
+      <HumanInstances count={isMobile ? 100 : 250} color="#ffffff" initialLaneX={13.5} laneWidth={4} paused={paused} weather={weather} />
+
+      {/* Layer 6: Sidewalk Left */}
+      <HumanInstances count={isMobile ? 80 : 180} color="#cbd5e1" initialLaneX={-13.5} laneWidth={4} paused={paused} weather={weather} />
+
+      {/* Optimized Vehicles */}
+      <VehiclesLayer paused={paused} isMobile={isMobile} />
+      
+      <BirdGroup paused={paused} isMobile={isMobile} />
+    </group>
+  );
+};
+
+

@@ -390,20 +390,20 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
     const items = [];
     // Right side buildings (x > 0)
     for (let i = 0; i < buildingCount / 2; i++) {
-        const xOffset = roadWidth / 2 + 30 + Math.random() * 5;
+        const xOffset = 22 + Math.random() * 5; // Closer to road
         const zPos = (Math.random() - 0.5) * roadLength;
         const width = 12 + Math.random() * 10;
-        const height = 30 + Math.random() * 60;
+        const height = 40 + Math.random() * 100; // Taller for realism
         const depth = width;
         const color = ['#f1f5f9', '#cbd5e1', '#94a3b8', '#475569'][Math.floor(Math.random() * 4)];
         items.push({ position: [xOffset, height / 2, zPos], scale: [width, height, depth], color });
     }
-    // Left side buildings (x < 0) - Replacing Sand/Ocean
+    // Left side buildings (x < 0)
     for (let i = 0; i < buildingCount / 2; i++) {
-        const xOffset = -(roadWidth / 2 + 50 + Math.random() * 10);
+        const xOffset = -(22 + Math.random() * 5);
         const zPos = (Math.random() - 0.5) * roadLength;
         const width = 15 + Math.random() * 10;
-        const height = 40 + Math.random() * 80;
+        const height = 50 + Math.random() * 120;
         const depth = width;
         const color = ['#cbd5e1', '#94a3b8', '#64748b', '#334155'][Math.floor(Math.random() * 4)];
         items.push({ position: [xOffset, height / 2, zPos], scale: [width, height, depth], color });
@@ -508,15 +508,13 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
       <Crosswalk z={0} />
       <Crosswalk z={80} />
 
-      {/* Building Ground Right */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[50, 0.05, 0]} receiveShadow={!isMobile}>
-        <planeGeometry args={[50, roadLength]} />
+      {/* Building Ground Pads */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[45, 0.05, 0]} receiveShadow={!isMobile}>
+        <planeGeometry args={[55, roadLength]} />
         <meshStandardMaterial color="#334155" roughness={0.9} />
       </mesh>
-
-      {/* Building Ground Left (Replacing Ocean) */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-60, 0.05, 0]} receiveShadow={!isMobile}>
-        <planeGeometry args={[80, roadLength]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-45, 0.05, 0]} receiveShadow={!isMobile}>
+        <planeGeometry args={[55, roadLength]} />
         <meshStandardMaterial color="#1e293b" roughness={0.9} />
       </mesh>
 
@@ -542,10 +540,10 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
       ))}
 
       {/* Modern Manhattan Street Props */}
-      <BusStop position={[20, 0, -40]} isMobile={isMobile} />
-      <BusStop position={[-20, 0, 40]} isMobile={isMobile} />
-      <BusStop position={[20, 0, 120]} isMobile={isMobile} />
-      <BusStop position={[-20, 0, -120]} isMobile={isMobile} />
+      <BusStop position={[14, 0, -40]} isMobile={isMobile} />
+      <BusStop position={[-14, 0, 40]} isMobile={isMobile} />
+      <BusStop position={[14, 0, 120]} isMobile={isMobile} />
+      <BusStop position={[-14, 0, -120]} isMobile={isMobile} />
       
       <FallenLeaves isMobile={isMobile} />
 
