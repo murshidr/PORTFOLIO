@@ -172,7 +172,7 @@ const EnvironmentManager = ({
 };
 
 export default function Scene() {
-  const [timeOfDay, setTimeOfDay] = useState(18.16); // 6:10 PM
+  const [timeOfDay, setTimeOfDay] = useState(11.0); // 11:00 AM (Bright & Sunny)
   const [menuOpen, setMenuOpen] = useState(false);
   const [cameraLanded, setCameraLanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);

@@ -38,6 +38,17 @@ const Signboard = ({ position, width, isMobile }: { position: [number, number, n
   );
 };
 
+const Crosswalk = ({ z }: { z: number }) => (
+  <group position={[0, 0.04, z]}>
+    {Array.from({ length: 8 }).map((_, i) => (
+      <mesh key={i} position={[(i - 3.5) * 2.5, 0, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[1.5, 8]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.6} />
+      </mesh>
+    ))}
+  </group>
+);
+
 const ModernBuilding = ({ position, width, height, color, complexity }: any) => {
   const details = useMemo(() => {
     const items = [];
@@ -377,20 +388,23 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
 
   const buildings = useMemo(() => {
     const items = [];
-    for (let i = 0; i < buildingCount; i++) {
-      const xOffset = roadWidth / 2 + 30 + Math.random() * 10;
+    // Right side buildings (x > 0)
+    for (let i = 0; i < buildingCount / 2; i++) {
+      const xOffset = roadWidth / 2 + 30 + Math.random() * 5;
       const zPos = (Math.random() - 0.5) * roadLength;
-      const width = 10 + Math.random() * 8;
-      const depth = 10 + Math.random() * 8;
-      const height = 15 + Math.random() * 30;
-      const isHeritage = Math.random() > 0.7;
-      const color = isHeritage ? "#7f1d1d" : "#e2e8f0";
-      items.push({
-        position: [xOffset, height / 2, zPos],
-        scale: [width, height, depth],
-        color: color,
-        isHeritage
-      });
+      const width = 12 + Math.random() * 10;
+      const height = 30 + Math.random() * 60; // Taller for Manhattan
+      const color = ['#f1f5f9', '#cbd5e1', '#94a3b8', '#475569'][Math.floor(Math.random() * 4)];
+      items.push({ position: [xOffset, height / 2, zPos], width, height, color });
+    }
+    // Left side buildings (x < 0) - Replacing Sand/Ocean
+    for (let i = 0; i < buildingCount / 2; i++) {
+        const xOffset = -(roadWidth / 2 + 50 + Math.random() * 10);
+        const zPos = (Math.random() - 0.5) * roadLength;
+        const width = 15 + Math.random() * 10;
+        const height = 40 + Math.random() * 80;
+        const color = ['#cbd5e1', '#94a3b8', '#64748b', '#334155'][Math.floor(Math.random() * 4)];
+        items.push({ position: [xOffset, height / 2, zPos], width, height, color });
     }
     return items.sort((a, b) => a.position[2] - b.position[2]);
   }, [isMobile, buildingCount]);
@@ -451,10 +465,20 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
       {/* Lights */}
       <StreetLights count={10} isNight={isNight} />
 
-      {/* Road */}
+      {/* Asphalt road */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]} receiveShadow={!isMobile}>
         <planeGeometry args={[roadWidth, roadLength]} />
-        <meshStandardMaterial color="#111" roughness={isWet ? 0.1 : 0.6} metalness={isWet ? 0.4 : 0} />
+        <meshStandardMaterial color="#111111" roughness={0.2} metalness={0.4} />
+      </mesh>
+
+      {/* Pavement/Sidewalks */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[17.5, 0.1, 0]} receiveShadow={!isMobile}>
+        <planeGeometry args={[15, roadLength]} />
+        <meshStandardMaterial color="#cbd5e1" roughness={0.5} metalness={0.1} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-20, 0.1, 0]} receiveShadow={!isMobile}>
+        <planeGeometry args={[15, roadLength]} />
+        <meshStandardMaterial color="#cbd5e1" roughness={0.5} metalness={0.1} />
       </mesh>
 
       {/* Road Markings - Double Center Line */}
@@ -477,28 +501,21 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
         <meshBasicMaterial color="#ffffff" transparent opacity={0.4} />
       </mesh>
 
-      {/* Beach Sand */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-roadWidth / 2 - 30, 0.01, 0]} receiveShadow={!isMobile}>
-        <planeGeometry args={[60, roadLength]} />
-        <meshStandardMaterial color={isWet ? "#9a7b4f" : "#e6c288"} roughness={0.9} />
-      </mesh>
+      {/* Crosswalks at major nodes */}
+      <Crosswalk z={-80} />
+      <Crosswalk z={0} />
+      <Crosswalk z={80} />
 
-      {/* Ocean */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-roadWidth / 2 - 85, -0.5, 0]}>
-        <planeGeometry args={[50, roadLength]} />
-        <meshStandardMaterial color="#006994" roughness={0.1} metalness={0.6} transparent opacity={0.9} />
-      </mesh>
-
-      {/* Pavement (Marina Tiled Path) - Shifted out */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[17.5, 0.1, 0]} receiveShadow={!isMobile}>
-        <planeGeometry args={[15, roadLength]} />
-        <meshStandardMaterial color="#94a3b8" roughness={isWet ? 0.05 : 0.8} metalness={isWet ? 0.3 : 0} />
-      </mesh>
-
-      {/* Building Ground - Shifted out */}
+      {/* Building Ground Right */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[50, 0.05, 0]} receiveShadow={!isMobile}>
         <planeGeometry args={[50, roadLength]} />
-        <meshStandardMaterial color="#64748b" roughness={isWet ? 0.2 : 0.9} />
+        <meshStandardMaterial color="#334155" roughness={0.9} />
+      </mesh>
+
+      {/* Building Ground Left (Replacing Ocean) */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-60, 0.05, 0]} receiveShadow={!isMobile}>
+        <planeGeometry args={[80, roadLength]} />
+        <meshStandardMaterial color="#1e293b" roughness={0.9} />
       </mesh>
 
       {/* Optimized Windows */}
@@ -512,42 +529,22 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
       </instancedMesh>
 
       {buildings.map((data, i) => (
-        data.isHeritage ?
-          <HeritageBuilding
-            key={`h-${i}`}
-            position={data.position as [number, number, number]}
-            scale={data.scale as [number, number, number]}
-            color={data.color}
-            isMobile={isMobile}
-          /> :
           <ModernBuilding
             key={`m-${i}`}
             position={data.position as [number, number, number]}
-            width={data.scale[0]}
-            height={data.scale[1]}
+            width={data.width}
+            height={data.height}
             color={data.color}
             complexity={Math.random()}
           />
       ))}
 
-      {/* Iconic Chennai Monuments */}
-      <LICBuilding position={[55, 0, 40]} />
-      <LICBuilding position={[70, 0, -50]} />
-
-      <NapierBridge position={[40, 0, 80]} />
-      <NapierBridge position={[40, 0, -80]} />
-
-      <TeaStall position={[20, 0, -25]} isMobile={isMobile} />
+      {/* Modern Manhattan Street Props */}
       <BusStop position={[20, 0, -40]} isMobile={isMobile} />
-
-      {/* Palm Trees along the pavement */}
-      {Array.from({ length: 10 }).map((_, i) => (
-        <PalmTree key={`palm-${i}`} position={[22, 0, -100 + i * 30]} isMobile={isMobile} />
-      ))}
-
-      <SundalCart position={[-15, 0, 10]} isMobile={isMobile} />
-      <TenderCoconutCart position={[-12, 0, -20]} isMobile={isMobile} />
-
+      <BusStop position={[-20, 0, 40]} isMobile={isMobile} />
+      <BusStop position={[20, 0, 120]} isMobile={isMobile} />
+      <BusStop position={[-20, 0, -120]} isMobile={isMobile} />
+      
       <FallenLeaves isMobile={isMobile} />
 
       <FallenLeaves isMobile={isMobile} />

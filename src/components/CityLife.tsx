@@ -1,5 +1,6 @@
 import { useRef, useMemo, useState, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { Text, Float } from '@react-three/drei';
 import * as THREE from 'three';
 
 const AutoRickshaw = ({ initialZ, speed, laneX, paused, isMobile }: any) => {
@@ -701,14 +702,16 @@ export default function CityLife({ paused, isMobile, weather }: { paused: boolea
       {/* Layer 1: Waterline (Dynamic) */}
       <HumanInstances count={isMobile ? 20 : 50} color="#ffbdad" initialLaneX={-40} laneWidth={10} paused={paused} weather={weather} />
       
-      {/* Layer 2: Pathway (Dynamic) - Centered on User pathway (x=17.5) */}
-      <HumanInstances count={isMobile ? 30 : 80} color="#ffffff" initialLaneX={17.5} laneWidth={12} paused={paused} weather={weather} />
-
-      {/* Layer 5: Street Stalls (Marina Style) */}
-      <StreetStalls count={isMobile ? 10 : 25} />
+      {/* Layer 1: Road (Vehicles only) */}
       
-      {/* Layer 6: Sand NPCs (Sitting/Watching) */}
-      <HumanInstances count={isMobile ? 15 : 40} color="#ffbdad" initialLaneX={-45} laneWidth={20} paused={paused} weather={weather} />
+      {/* Layer 2: Pathway Right (Bustling Manhattan) */}
+      <HumanInstances count={isMobile ? 100 : 250} color="#ffffff" initialLaneX={17.5} laneWidth={12} paused={paused} weather={weather} />
+
+      {/* Layer 5: Holo UI Markers (Free Guy Style) */}
+      <HoloMarkers />
+      
+      {/* Layer 6: Sidewalk Left (Replacing Sand) */}
+      <HumanInstances count={isMobile ? 80 : 180} color="#cbd5e1" initialLaneX={-20} laneWidth={10} paused={paused} weather={weather} />
 
       {/* Optimized Vehicles */}
       <VehiclesLayer paused={paused} isMobile={isMobile} />
@@ -718,51 +721,35 @@ export default function CityLife({ paused, isMobile, weather }: { paused: boolea
   );
 };
 
-const StreetStalls = ({ count }: { count: number }) => {
-  const meshRef = useRef<THREE.InstancedMesh>(null);
-  const roofRef = useRef<THREE.InstancedMesh>(null);
-  const data = useMemo(() => Array.from({ length: count }).map(() => ({
-    z: (Math.random() - 0.5) * 300,
-    x: 22 + (Math.random() - 0.5) * 2,
-    color: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b'][Math.floor(Math.random() * 4)]
-  })), [count]);
-
-  useEffect(() => {
-    if (!meshRef.current || !roofRef.current) return;
-    const dummy = new THREE.Object3D();
-    data.forEach((d, i) => {
-      // Counter
-      dummy.position.set(d.x, 0.5, d.z);
-      dummy.scale.set(1.5, 1, 1.2);
-      dummy.rotation.set(0, 0, 0);
-      dummy.updateMatrix();
-      meshRef.current?.setMatrixAt(i, dummy.matrix);
-      meshRef.current?.setColorAt(i, new THREE.Color(d.color));
-
-      // Slanted Roof
-      dummy.position.set(d.x, 1.6, d.z);
-      dummy.scale.set(1.8, 0.1, 1.8);
-      dummy.rotation.set(0.2, 0, 0); // Slant
-      dummy.updateMatrix();
-      roofRef.current?.setMatrixAt(i, dummy.matrix);
-      roofRef.current?.setColorAt(i, new THREE.Color(d.color));
-    });
-    meshRef.current.instanceMatrix.needsUpdate = true;
-    roofRef.current.instanceMatrix.needsUpdate = true;
-  }, [data]);
+const HoloMarkers = () => {
+  const points = [
+    { z: -80, label: "AWARDS", color: "#60a5fa" },
+    { z: -40, label: "GITHUB", color: "#f87171" },
+    { z: 0, label: "CONTACT", color: "#fbbf24" },
+    { z: 40, label: "ABOUT", color: "#34d399" },
+    { z: 80, label: "DEVLOG", color: "#a78bfa" }
+  ];
 
   return (
     <group>
-      {/* Stall Counters */}
-      <instancedMesh ref={meshRef} args={[undefined, undefined, count]} castShadow>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial roughness={0.7} />
-      </instancedMesh>
-      {/* Slanted Roofs */}
-      <instancedMesh ref={roofRef} args={[undefined, undefined, count]} castShadow>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial roughness={0.5} />
-      </instancedMesh>
+      {points.map((p, i) => (
+        <Float key={i} speed={2} rotationIntensity={0.5} floatIntensity={0.5} position={[17.5, 3.5, p.z]}>
+          <Text
+            fontSize={0.5}
+            color={p.color}
+            anchorX="center"
+            anchorY="middle"
+            font="/fonts/GeistMono-Bold.ttf"
+          >
+            {p.label}
+          </Text>
+          <mesh position={[0, -0.4, 0]}>
+            <octahedronGeometry args={[0.2]} />
+            <meshStandardMaterial color={p.color} emissive={p.color} emissiveIntensity={2} />
+          </mesh>
+          <pointLight intensity={1} distance={5} color={p.color} />
+        </Float>
+      ))}
     </group>
   );
 };
