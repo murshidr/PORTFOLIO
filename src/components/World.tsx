@@ -390,12 +390,13 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
     const items = [];
     // Right side buildings (x > 0)
     for (let i = 0; i < buildingCount / 2; i++) {
-      const xOffset = roadWidth / 2 + 30 + Math.random() * 5;
-      const zPos = (Math.random() - 0.5) * roadLength;
-      const width = 12 + Math.random() * 10;
-      const height = 30 + Math.random() * 60; // Taller for Manhattan
-      const color = ['#f1f5f9', '#cbd5e1', '#94a3b8', '#475569'][Math.floor(Math.random() * 4)];
-      items.push({ position: [xOffset, height / 2, zPos], width, height, color });
+        const xOffset = roadWidth / 2 + 30 + Math.random() * 5;
+        const zPos = (Math.random() - 0.5) * roadLength;
+        const width = 12 + Math.random() * 10;
+        const height = 30 + Math.random() * 60;
+        const depth = width;
+        const color = ['#f1f5f9', '#cbd5e1', '#94a3b8', '#475569'][Math.floor(Math.random() * 4)];
+        items.push({ position: [xOffset, height / 2, zPos], scale: [width, height, depth], color });
     }
     // Left side buildings (x < 0) - Replacing Sand/Ocean
     for (let i = 0; i < buildingCount / 2; i++) {
@@ -403,8 +404,9 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
         const zPos = (Math.random() - 0.5) * roadLength;
         const width = 15 + Math.random() * 10;
         const height = 40 + Math.random() * 80;
+        const depth = width;
         const color = ['#cbd5e1', '#94a3b8', '#64748b', '#334155'][Math.floor(Math.random() * 4)];
-        items.push({ position: [xOffset, height / 2, zPos], width, height, color });
+        items.push({ position: [xOffset, height / 2, zPos], scale: [width, height, depth], color });
     }
     return items.sort((a, b) => a.position[2] - b.position[2]);
   }, [isMobile, buildingCount]);
@@ -532,8 +534,8 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
           <ModernBuilding
             key={`m-${i}`}
             position={data.position as [number, number, number]}
-            width={data.width}
-            height={data.height}
+            width={data.scale[0]}
+            height={data.scale[1]}
             color={data.color}
             complexity={Math.random()}
           />
