@@ -344,26 +344,53 @@ const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused
   const rightLegRef = useRef<THREE.InstancedMesh>(null);
   const faceRef = useRef<THREE.InstancedMesh>(null);
   
-  const data = useMemo(() => Array.from({ length: count }).map(() => ({
-    z: (Math.random() - 0.5) * 300,
-    x: initialLaneX + (Math.random() - 0.5) * laneWidth,
-    speed: (2.5 + Math.random() * 2) * (Math.random() > 0.5 ? 1 : -1),
-    offset: Math.random() * Math.PI * 2,
-    color: new THREE.Color(['#1e293b', '#334155', '#475569', '#cbd5e1', '#0f172a'][Math.floor(Math.random() * 5)])
-  })), [count, initialLaneX, laneWidth]);
+  const data = useMemo(() => Array.from({ length: count }).map(() => {
+    // Professional NYC crowd - mix of suits, casuals, colorful outfits
+    const outfitPalettes = [
+      // Dark business suits
+      { torso: '#1e293b', legs: '#0f172a', skin: '#ffdbac' },
+      { torso: '#1e3a5f', legs: '#172554', skin: '#d4a574' },
+      // Colorful business casual
+      { torso: '#2563eb', legs: '#1e293b', skin: '#ffdbac' },
+      { torso: '#dc2626', legs: '#1e293b', skin: '#c68642' },
+      { torso: '#16a34a', legs: '#14532d', skin: '#ffdbac' },
+      { torso: '#7c3aed', legs: '#1e293b', skin: '#d4a574' },
+      // Light / smart casual
+      { torso: '#f1f5f9', legs: '#334155', skin: '#ffdbac' },
+      { torso: '#fbbf24', legs: '#1e293b', skin: '#8d5524' },
+      { torso: '#f97316', legs: '#292524', skin: '#c68642' },
+      { torso: '#06b6d4', legs: '#0f172a', skin: '#ffdbac' },
+    ];
+    const palette = outfitPalettes[Math.floor(Math.random() * outfitPalettes.length)];
+    return {
+      z: (Math.random() - 0.5) * 300,
+      x: initialLaneX + (Math.random() - 0.5) * laneWidth,
+      speed: (2.5 + Math.random() * 2) * (Math.random() > 0.5 ? 1 : -1),
+      offset: Math.random() * Math.PI * 2,
+      torsoColor: new THREE.Color(palette.torso),
+      legColor: new THREE.Color(palette.legs),
+      skinColor: new THREE.Color(palette.skin),
+    };
+  }), [count, initialLaneX, laneWidth]);
 
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   // Initialize colors
   useEffect(() => {
     data.forEach((p, i) => {
-      torsoRef.current?.setColorAt(i, p.color);
-      headRef.current?.setColorAt(i, new THREE.Color('#ffdbac'));
-      leftArmRef.current?.setColorAt(i, p.color);
-      rightArmRef.current?.setColorAt(i, p.color);
-      leftLegRef.current?.setColorAt(i, p.color);
-      rightLegRef.current?.setColorAt(i, p.color);
+      torsoRef.current?.setColorAt(i, p.torsoColor);
+      headRef.current?.setColorAt(i, p.skinColor);
+      leftArmRef.current?.setColorAt(i, p.skinColor);
+      rightArmRef.current?.setColorAt(i, p.skinColor);
+      leftLegRef.current?.setColorAt(i, p.legColor);
+      rightLegRef.current?.setColorAt(i, p.legColor);
     });
+    if (torsoRef.current?.instanceColor) torsoRef.current.instanceColor.needsUpdate = true;
+    if (headRef.current?.instanceColor) headRef.current.instanceColor.needsUpdate = true;
+    if (leftArmRef.current?.instanceColor) leftArmRef.current.instanceColor.needsUpdate = true;
+    if (rightArmRef.current?.instanceColor) rightArmRef.current.instanceColor.needsUpdate = true;
+    if (leftLegRef.current?.instanceColor) leftLegRef.current.instanceColor.needsUpdate = true;
+    if (rightLegRef.current?.instanceColor) rightLegRef.current.instanceColor.needsUpdate = true;
   }, [data]);
 
   useFrame((state, delta) => {
@@ -388,7 +415,7 @@ const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused
 
       // --- RESET DUMMY ---
       dummy.rotation.set(0, 0, 0);
-      const npcScale = 0.85; // NPCs are shorter than the player
+      const npcScale = 1.0; // Same height as player
       dummy.scale.set(npcScale, npcScale, npcScale);
 
       // --- TORSO (Pivot: Bottom center) ---
@@ -549,5 +576,4 @@ export default function CityLife({ paused, isMobile, weather }: { paused: boolea
     </group>
   );
 };
-
 

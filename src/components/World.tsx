@@ -388,24 +388,24 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
 
   const buildings = useMemo(() => {
     const items = [];
-    // Right side buildings (x > 0)
+    // Right side buildings — inner face must clear x=20 (character is at x=17.5, sidewalk ends ~x=17)
     for (let i = 0; i < buildingCount / 2; i++) {
-        const xOffset = 22 + Math.random() * 5; // Closer to road
         const zPos = (Math.random() - 0.5) * roadLength;
         const width = 12 + Math.random() * 10;
-        const height = 40 + Math.random() * 100; // Taller for realism
+        const xOffset = 20 + width / 2 + Math.random() * 5; // inner face always at x >= 20
+        const height = 40 + Math.random() * 100;
         const depth = width;
-        const color = ['#f1f5f9', '#cbd5e1', '#94a3b8', '#475569'][Math.floor(Math.random() * 4)];
+        const color = ['#f1f5f9', '#cbd5e1', '#94a3b8', '#475569', '#e2e8f0'][Math.floor(Math.random() * 5)];
         items.push({ position: [xOffset, height / 2, zPos], scale: [width, height, depth], color });
     }
-    // Left side buildings (x < 0)
+    // Left side buildings — symmetric
     for (let i = 0; i < buildingCount / 2; i++) {
-        const xOffset = -(22 + Math.random() * 5);
         const zPos = (Math.random() - 0.5) * roadLength;
-        const width = 15 + Math.random() * 10;
+        const width = 12 + Math.random() * 10;
+        const xOffset = -(20 + width / 2 + Math.random() * 5);
         const height = 50 + Math.random() * 120;
         const depth = width;
-        const color = ['#cbd5e1', '#94a3b8', '#64748b', '#334155'][Math.floor(Math.random() * 4)];
+        const color = ['#cbd5e1', '#94a3b8', '#64748b', '#334155', '#475569'][Math.floor(Math.random() * 5)];
         items.push({ position: [xOffset, height / 2, zPos], scale: [width, height, depth], color });
     }
     return items.sort((a, b) => a.position[2] - b.position[2]);
