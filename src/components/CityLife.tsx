@@ -739,7 +739,6 @@ const HoloMarkers = () => {
             color={p.color}
             anchorX="center"
             anchorY="middle"
-            font="/fonts/GeistMono-Bold.ttf"
           >
             {p.label}
           </Text>
