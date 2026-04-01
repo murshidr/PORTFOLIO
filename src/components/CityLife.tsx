@@ -583,20 +583,20 @@ const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused
 
       const stride = 8;
       const walkCycle = Math.sin(t * stride + p.offset);
-      const walkCycleLegs = Math.sin(t * stride + p.offset);
       const direction = p.speed > 0 ? 0 : Math.PI;
 
-      // --- RESET DUMMY ROTATION (Fixes 'Raised Arms') ---
+      // --- RESET DUMMY ---
       dummy.rotation.set(0, 0, 0);
-
-      // --- TORSO ---
-      dummy.position.set(p.x, 1.0, p.z);
-      dummy.rotation.y = direction;
       dummy.scale.set(1, 1, 1);
+
+      // --- TORSO (Pivot: Bottom center) ---
+      dummy.position.set(p.x, 0.6, p.z); // Slightly above ground
+      dummy.rotation.y = direction;
+      dummy.scale.set(0.5, 0.8, 0.3);
       dummy.updateMatrix();
       torsoRef.current!.setMatrixAt(i, dummy.matrix);
 
-      // --- HEAD ---
+      // --- HEAD (Pivot: Bottom center) ---
       dummy.rotation.set(0, direction, 0);
       dummy.position.set(p.x, 1.45 + Math.abs(walkCycle) * 0.05, p.z);
       dummy.scale.set(0.3, 0.35, 0.3);
@@ -609,32 +609,37 @@ const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused
       dummy.updateMatrix();
       faceRef.current!.setMatrixAt(i, dummy.matrix);
 
-      // --- ARMS ---
+      // --- ARMS (Pivot: Top center - set at shoulder height) ---
+      const shoulderY = 1.35;
+      const shoulderX = 0.35;
+      
       // Left Arm
       dummy.rotation.set(walkCycle * 0.5, direction, 0);
-      dummy.position.set(p.x + 0.35, 1.3, p.z);
+      dummy.position.set(p.x + shoulderX, shoulderY, p.z);
       dummy.scale.set(0.12, 0.6, 0.12);
       dummy.updateMatrix();
       leftArmRef.current!.setMatrixAt(i, dummy.matrix);
 
       // Right Arm
       dummy.rotation.set(-walkCycle * 0.5, direction, 0);
-      dummy.position.set(p.x - 0.35, 1.3, p.z);
+      dummy.position.set(p.x - shoulderX, shoulderY, p.z);
       dummy.updateMatrix();
       rightArmRef.current!.setMatrixAt(i, dummy.matrix);
 
-      // --- LEGS ---
+      // --- LEGS (Pivot: Top center - set at hip height) ---
+      const hipY = 0.8;
+      const hipX = 0.18;
       dummy.scale.set(0.18, 0.8, 0.18);
       
       // Left Leg
-      dummy.rotation.set(walkCycleLegs * 0.6, direction, 0);
-      dummy.position.set(p.x + 0.15, 0.5, p.z);
+      dummy.rotation.set(-walkCycle * 0.6, direction, 0);
+      dummy.position.set(p.x + hipX, hipY, p.z);
       dummy.updateMatrix();
       leftLegRef.current!.setMatrixAt(i, dummy.matrix);
 
       // Right Leg
-      dummy.rotation.set(-walkCycleLegs * 0.6, direction, 0);
-      dummy.position.set(p.x - 0.15, 0.5, p.z);
+      dummy.rotation.set(walkCycle * 0.6, direction, 0);
+      dummy.position.set(p.x - hipX, hipY, p.z);
       dummy.updateMatrix();
       rightLegRef.current!.setMatrixAt(i, dummy.matrix);
     });
@@ -648,30 +653,38 @@ const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused
     faceRef.current.instanceMatrix.needsUpdate = true;
   });
 
+  // --- GEOMETRY HELPERS (Pivots for natural animation) ---
+  const torsoGeo = useMemo(() => {
+    const geo = new THREE.BoxGeometry(1, 1, 1);
+    geo.translate(0, 0.5, 0); // Pivot at bottom
+    return geo;
+  }, []);
+
+  const limbGeo = useMemo(() => {
+    const geo = new THREE.BoxGeometry(1, 1, 1);
+    geo.translate(0, -0.5, 0); // Pivot at top
+    return geo;
+  }, []);
+
   return (
     <group>
-      <instancedMesh ref={torsoRef} args={[undefined, undefined, count]} castShadow>
-        <boxGeometry args={[0.5, 0.8, 0.3]} />
+      <instancedMesh ref={torsoRef} args={[torsoGeo, undefined, count]} castShadow>
         <meshStandardMaterial />
       </instancedMesh>
       <instancedMesh ref={headRef} args={[undefined, undefined, count]} castShadow>
         <boxGeometry args={[1, 1, 1]} />
         <meshStandardMaterial /> 
       </instancedMesh>
-      <instancedMesh ref={leftArmRef} args={[undefined, undefined, count]} castShadow>
-        <boxGeometry args={[1, 1, 1]} />
+      <instancedMesh ref={leftArmRef} args={[limbGeo, undefined, count]} castShadow>
         <meshStandardMaterial />
       </instancedMesh>
-      <instancedMesh ref={rightArmRef} args={[undefined, undefined, count]} castShadow>
-        <boxGeometry args={[1, 1, 1]} />
+      <instancedMesh ref={rightArmRef} args={[limbGeo, undefined, count]} castShadow>
         <meshStandardMaterial />
       </instancedMesh>
-      <instancedMesh ref={leftLegRef} args={[undefined, undefined, count]} castShadow>
-        <boxGeometry args={[1, 1, 1]} />
+      <instancedMesh ref={leftLegRef} args={[limbGeo, undefined, count]} castShadow>
         <meshStandardMaterial />
       </instancedMesh>
-      <instancedMesh ref={rightLegRef} args={[undefined, undefined, count]} castShadow>
-        <boxGeometry args={[1, 1, 1]} />
+      <instancedMesh ref={rightLegRef} args={[limbGeo, undefined, count]} castShadow>
         <meshStandardMaterial />
       </instancedMesh>
       <instancedMesh ref={faceRef} args={[undefined, undefined, count]}>
@@ -707,6 +720,7 @@ export default function CityLife({ paused, isMobile, weather }: { paused: boolea
 
 const StreetStalls = ({ count }: { count: number }) => {
   const meshRef = useRef<THREE.InstancedMesh>(null);
+  const roofRef = useRef<THREE.InstancedMesh>(null);
   const data = useMemo(() => Array.from({ length: count }).map(() => ({
     z: (Math.random() - 0.5) * 300,
     x: 22 + (Math.random() - 0.5) * 2,
@@ -714,22 +728,42 @@ const StreetStalls = ({ count }: { count: number }) => {
   })), [count]);
 
   useEffect(() => {
-    if (!meshRef.current) return;
+    if (!meshRef.current || !roofRef.current) return;
     const dummy = new THREE.Object3D();
     data.forEach((d, i) => {
-      dummy.position.set(d.x, 0.8, d.z);
+      // Counter
+      dummy.position.set(d.x, 0.5, d.z);
+      dummy.scale.set(1.5, 1, 1.2);
+      dummy.rotation.set(0, 0, 0);
       dummy.updateMatrix();
       meshRef.current?.setMatrixAt(i, dummy.matrix);
       meshRef.current?.setColorAt(i, new THREE.Color(d.color));
+
+      // Slanted Roof
+      dummy.position.set(d.x, 1.6, d.z);
+      dummy.scale.set(1.8, 0.1, 1.8);
+      dummy.rotation.set(0.2, 0, 0); // Slant
+      dummy.updateMatrix();
+      roofRef.current?.setMatrixAt(i, dummy.matrix);
+      roofRef.current?.setColorAt(i, new THREE.Color(d.color));
     });
     meshRef.current.instanceMatrix.needsUpdate = true;
+    roofRef.current.instanceMatrix.needsUpdate = true;
   }, [data]);
 
   return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, count]} castShadow>
-      <boxGeometry args={[1.5, 1.6, 1.5]} />
-      <meshStandardMaterial roughness={0.7} />
-    </instancedMesh>
+    <group>
+      {/* Stall Counters */}
+      <instancedMesh ref={meshRef} args={[undefined, undefined, count]} castShadow>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial roughness={0.7} />
+      </instancedMesh>
+      {/* Slanted Roofs */}
+      <instancedMesh ref={roofRef} args={[undefined, undefined, count]} castShadow>
+        <boxGeometry args={[1, 1, 1]} />
+        <meshStandardMaterial roughness={0.5} />
+      </instancedMesh>
+    </group>
   );
 };
 
