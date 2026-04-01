@@ -142,7 +142,7 @@ const EnvironmentManager = ({
 
   return (
     <>
-      <ambientLight intensity={isNight ? 0.1 : 0.4} />
+      <ambientLight intensity={isNight ? 0.08 : 0.25} />
       <directionalLight
         ref={lightRef}
         castShadow
@@ -161,8 +161,8 @@ const EnvironmentManager = ({
       {!isNight && (
         <Sky 
           sunPosition={[Math.cos(((timeOfDay - 6) / 24) * Math.PI * 2) * 100, Math.sin(((timeOfDay - 6) / 24) * Math.PI * 2) * 100, 0]} 
-          turbidity={weather === 'MISTY' ? 20 : 8} 
-          rayleigh={weather === 'CLEAR' ? 3 : 1}
+          turbidity={weather === 'MISTY' ? 20 : 6} 
+          rayleigh={weather === 'CLEAR' ? 1.5 : 0.8}
           mieCoefficient={0.005}
           mieDirectionalG={0.8}
         />
@@ -172,7 +172,7 @@ const EnvironmentManager = ({
 };
 
 export default function Scene() {
-  const [timeOfDay, setTimeOfDay] = useState(11.0); // 11:00 AM (Bright & Sunny)
+  const [timeOfDay, setTimeOfDay] = useState(15.0); // 3:00 PM — soft golden NYC afternoon
   const [menuOpen, setMenuOpen] = useState(false);
   const [cameraLanded, setCameraLanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -257,9 +257,9 @@ export default function Scene() {
         {/* Cinematic Post-Processing */}
         <EffectComposer>
           <Bloom 
-            intensity={weather === 'CLEAR' ? 1.5 : 0.5} 
-            luminanceThreshold={0.9} 
-            luminanceSmoothing={0.025} 
+            intensity={weather === 'CLEAR' ? 0.25 : 0.15} 
+            luminanceThreshold={0.95} 
+            luminanceSmoothing={0.05} 
             mipmapBlur 
           />
           <Vignette eskil={false} offset={0.1} darkness={1.1} />
@@ -269,7 +269,7 @@ export default function Scene() {
 
         <Suspense fallback={null}>
           <Cloud opacity={0.4} speed={0.2} bounds={[40, 10, 20]} segments={20} position={[0, 20, -30]} color={weather === 'CLEAR' ? "#fff" : "#64748b"} />
-          <Environment preset="sunset" />
+          <Environment preset="city" background={false} />
         </Suspense>
       </Canvas>
       

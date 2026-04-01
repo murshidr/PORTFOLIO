@@ -547,7 +547,87 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
       
       <FallenLeaves isMobile={isMobile} />
 
-      <FallenLeaves isMobile={isMobile} />
+      {/* NYC Fire Hydrants — right sidewalk every 30 units */}
+      {Array.from({ length: 8 }).map((_, i) => (
+        <group key={`hydrant-${i}`} position={[17, 0, -105 + i * 30]}>
+          <mesh position={[0, 0.3, 0]}>
+            <cylinderGeometry args={[0.15, 0.2, 0.6, 8]} />
+            <meshStandardMaterial color="#dc2626" roughness={0.4} metalness={0.3} />
+          </mesh>
+          <mesh position={[0, 0.65, 0]}>
+            <cylinderGeometry args={[0.1, 0.15, 0.15, 8]} />
+            <meshStandardMaterial color="#dc2626" roughness={0.4} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* NYC Park Benches — both sides */}
+      {Array.from({ length: 5 }).map((_, i) => (
+        <group key={`bench-r-${i}`} position={[16, 0, -60 + i * 30]}>
+          <mesh position={[0, 0.4, 0]}>
+            <boxGeometry args={[1.8, 0.08, 0.5]} />
+            <meshStandardMaterial color="#92400e" roughness={0.9} />
+          </mesh>
+          <mesh position={[0, 0.2, -0.2]}>
+            <boxGeometry args={[1.8, 0.4, 0.08]} />
+            <meshStandardMaterial color="#92400e" roughness={0.9} />
+          </mesh>
+          <mesh position={[-0.85, 0.2, 0]}>
+            <boxGeometry args={[0.08, 0.4, 0.5]} />
+            <meshStandardMaterial color="#78350f" roughness={1.0} />
+          </mesh>
+          <mesh position={[0.85, 0.2, 0]}>
+            <boxGeometry args={[0.08, 0.4, 0.5]} />
+            <meshStandardMaterial color="#78350f" roughness={1.0} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* NYC Street Sign Poles */}
+      {Array.from({ length: 4 }).map((_, i) => (
+        <group key={`sign-${i}`} position={[17.5, 0, -90 + i * 60]}>
+          <mesh position={[0, 2.5, 0]}>
+            <cylinderGeometry args={[0.05, 0.05, 5, 6]} />
+            <meshStandardMaterial color="#6b7280" metalness={0.8} roughness={0.2} />
+          </mesh>
+          <mesh position={[0, 4.8, 0]} rotation={[0, Math.PI / 4 * i, 0]}>
+            <boxGeometry args={[1.2, 0.3, 0.06]} />
+            <meshStandardMaterial color="#1d4ed8" roughness={0.5} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* NYC Sidewalk Trees (Ginkgo Style) — right side every 25 units */}
+      {!isMobile && Array.from({ length: 10 }).map((_, i) => (
+        <group key={`tree-r-${i}`} position={[15.5, 0, -112 + i * 25]}>
+          <mesh position={[0, 1.5, 0]}>
+            <cylinderGeometry args={[0.12, 0.18, 3, 6]} />
+            <meshStandardMaterial color="#57534e" roughness={1.0} />
+          </mesh>
+          <mesh position={[0, 3.5, 0]}>
+            <sphereGeometry args={[1.2, 6, 5]} />
+            <meshStandardMaterial color="#166534" roughness={0.9} />
+          </mesh>
+          <mesh position={[0.4, 3.2, 0.3]}>
+            <sphereGeometry args={[0.8, 5, 4]} />
+            <meshStandardMaterial color="#15803d" roughness={0.9} />
+          </mesh>
+        </group>
+      ))}
+
+      {/* Left side trees */}
+      {!isMobile && Array.from({ length: 10 }).map((_, i) => (
+        <group key={`tree-l-${i}`} position={[-12, 0, -100 + i * 25]}>
+          <mesh position={[0, 1.5, 0]}>
+            <cylinderGeometry args={[0.12, 0.18, 3, 6]} />
+            <meshStandardMaterial color="#57534e" roughness={1.0} />
+          </mesh>
+          <mesh position={[0, 3.5, 0]}>
+            <sphereGeometry args={[1.2, 6, 5]} />
+            <meshStandardMaterial color="#166534" roughness={0.9} />
+          </mesh>
+        </group>
+      ))}
     </group>
   );
 }
