@@ -172,7 +172,7 @@ const EnvironmentManager = ({
 };
 
 export default function Scene() {
-  const [timeOfDay, setTimeOfDay] = useState(15.0); // 3:00 PM — soft golden NYC afternoon
+  const [timeOfDay, setTimeOfDay] = useState(17.5); // 5:30 PM — golden hour
   const [menuOpen, setMenuOpen] = useState(false);
   const [cameraLanded, setCameraLanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -227,9 +227,11 @@ export default function Scene() {
       <Canvas 
         shadows="soft" 
         dpr={isMobile ? [1, 1] : [1, 1.5]}
-        gl={{ antialias: true, powerPreference: "high-performance" }}
+        gl={{ antialias: !isMobile, powerPreference: "high-performance" }}
         camera={{ position: [0, 50, 50], fov: 45 }}
+        performance={{ min: 0.5 }}
       >
+        <fog attach="fog" args={['#f5e6c8', 80, 280]} />
         <EnvironmentManager weather={weather} timeOfDay={timeOfDay} setTimeOfDay={setTimeOfDay} />
         {(weather === 'RAIN' || weather === 'STORM') && <Rain />}
         

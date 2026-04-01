@@ -563,11 +563,11 @@ export default function CityLife({ paused, isMobile, weather }: { paused: boolea
       
       {/* Layer 1: Road (Vehicles only) */}
       
-      {/* Layer 2: Pathway Right (Narrower Manhattan) */}
-      <HumanInstances count={isMobile ? 100 : 250} color="#ffffff" initialLaneX={13.5} laneWidth={4} paused={paused} weather={weather} />
+      {/* Layer 2: Right Sidewalk */}
+      <HumanInstances count={isMobile ? 60 : 200} color="#ffffff" initialLaneX={13.5} laneWidth={4} paused={paused} weather={weather} />
 
-      {/* Layer 6: Sidewalk Left */}
-      <HumanInstances count={isMobile ? 80 : 180} color="#cbd5e1" initialLaneX={-13.5} laneWidth={4} paused={paused} weather={weather} />
+      {/* Layer 6: Left Sidewalk */}
+      <HumanInstances count={isMobile ? 40 : 120} color="#cbd5e1" initialLaneX={-13.5} laneWidth={4} paused={paused} weather={weather} />
 
       {/* Optimized Vehicles */}
       <VehiclesLayer paused={paused} isMobile={isMobile} />

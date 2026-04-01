@@ -49,6 +49,38 @@ const Crosswalk = ({ z }: { z: number }) => (
   </group>
 );
 
+// Yellow traffic light hung over intersection
+const TrafficLight = ({ position }: { position: [number, number, number] }) => (
+  <group position={position}>
+    <mesh position={[-4, 0, 0]}><boxGeometry args={[8, 0.12, 0.12]} /><meshStandardMaterial color="#374151" metalness={0.8} roughness={0.2} /></mesh>
+    <mesh position={[0, -3, 0]}><cylinderGeometry args={[0.08, 0.1, 6, 6]} /><meshStandardMaterial color="#4b5563" metalness={0.7} roughness={0.3} /></mesh>
+    <group position={[-7.5, 0, 0]}>
+      <mesh><boxGeometry args={[0.5, 1.4, 0.4]} /><meshStandardMaterial color="#111827" /></mesh>
+      <mesh position={[0, 0.45, 0.21]}><circleGeometry args={[0.18, 8]} /><meshStandardMaterial color="#ef4444" emissive="#ef4444" emissiveIntensity={0.5} toneMapped={false} /></mesh>
+      <mesh position={[0, 0, 0.21]}><circleGeometry args={[0.18, 8]} /><meshStandardMaterial color="#fbbf24" emissive="#fbbf24" emissiveIntensity={2.5} toneMapped={false} /></mesh>
+      <mesh position={[0, -0.45, 0.21]}><circleGeometry args={[0.18, 8]} /><meshStandardMaterial color="#22c55e" emissive="#22c55e" emissiveIntensity={0.3} toneMapped={false} /></mesh>
+    </group>
+  </group>
+);
+
+const ParkedCar = ({ position, color }: { position: [number, number, number]; color: string }) => (
+  <group position={position}>
+    <mesh position={[0, 0.45, 0]}><boxGeometry args={[2, 0.9, 4.5]} /><meshStandardMaterial color={color} roughness={0.15} metalness={0.85} /></mesh>
+    <mesh position={[0, 1.05, -0.3]}><boxGeometry args={[1.8, 0.6, 2.8]} /><meshStandardMaterial color={color} roughness={0.15} metalness={0.85} /></mesh>
+    <mesh position={[0, 1.05, -0.3]}><boxGeometry args={[1.82, 0.5, 2.6]} /><meshStandardMaterial color="#0a0a0a" roughness={0.05} metalness={0.95} /></mesh>
+    {([ [1.0, 0, 1.5], [-1.0, 0, 1.5], [1.0, 0, -1.5], [-1.0, 0, -1.5] ] as [number,number,number][]).map((p, i) => (
+      <mesh key={i} position={p} rotation={[0, 0, Math.PI / 2]}><cylinderGeometry args={[0.38, 0.38, 0.25, 8]} /><meshStandardMaterial color="#0f0f0f" /></mesh>
+    ))}
+  </group>
+);
+
+const Cone = ({ position }: { position: [number, number, number] }) => (
+  <group position={position}>
+    <mesh position={[0, 0.4, 0]}><coneGeometry args={[0.18, 0.8, 6]} /><meshStandardMaterial color="#f97316" roughness={0.6} /></mesh>
+    <mesh position={[0, 0.04, 0]}><cylinderGeometry args={[0.22, 0.22, 0.08, 6]} /><meshStandardMaterial color="#1f2937" roughness={0.8} /></mesh>
+  </group>
+);
+
 const ModernBuilding = ({ position, width, height, color, complexity }: any) => {
   const details = useMemo(() => {
     const items = [];
@@ -383,29 +415,45 @@ const StreetLights = ({ count, isNight }: { count: number, isNight: boolean }) =
 export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boolean, weather?: string, timeOfDay?: number }) {
   const roadWidth = 20;
   const roadLength = 300;
-  const buildingCount = isMobile ? 45 : 60;
+  const buildingCount = isMobile ? 30 : 60;
   const isWet = weather === 'RAIN' || weather === 'STORM';
 
   const buildings = useMemo(() => {
     const items = [];
-    // Right side buildings — inner face must clear x=20 (character is at x=17.5, sidewalk ends ~x=17)
+    // Manhattan-style warm brick & limestone buildings — flush with sidewalk curb
+    // Right side: curb at x=17, so building inner face at x=17, center at x=17+width/2
     for (let i = 0; i < buildingCount / 2; i++) {
+        const width = 10 + Math.random() * 12;
+        const height = 20 + Math.random() * 120; // range from low-rise to skyscraper
+        const xOffset = 17 + width / 2; // flush with curb!
         const zPos = (Math.random() - 0.5) * roadLength;
-        const width = 12 + Math.random() * 10;
-        const xOffset = 20 + width / 2 + Math.random() * 5; // inner face always at x >= 20
-        const height = 40 + Math.random() * 100;
-        const depth = width;
-        const color = ['#f1f5f9', '#cbd5e1', '#94a3b8', '#475569', '#e2e8f0'][Math.floor(Math.random() * 5)];
+        const depth = width * 0.7;
+        // Warm Manhattan palette: brick, limestone, brownstone, glass towers
+        const color = [
+          '#b45309', // brownstone
+          '#92400e', // dark brick
+          '#d97706', // warm brick
+          '#a16207', // terracotta
+          '#78350f', // dark brownstone
+          '#c4b5a0', // limestone
+          '#e8d5b7', // beige stone
+          '#f5f0e8', // light stone
+          '#475569', // modern glass (taller buildings)
+          '#334155', // dark glass tower
+        ][Math.floor(Math.random() * 10)];
         items.push({ position: [xOffset, height / 2, zPos], scale: [width, height, depth], color });
     }
-    // Left side buildings — symmetric
+    // Left side: curb at x=-10, so building inner face at x=-10
     for (let i = 0; i < buildingCount / 2; i++) {
+        const width = 10 + Math.random() * 12;
+        const height = 20 + Math.random() * 120;
+        const xOffset = -(10 + width / 2);
         const zPos = (Math.random() - 0.5) * roadLength;
-        const width = 12 + Math.random() * 10;
-        const xOffset = -(20 + width / 2 + Math.random() * 5);
-        const height = 50 + Math.random() * 120;
-        const depth = width;
-        const color = ['#cbd5e1', '#94a3b8', '#64748b', '#334155', '#475569'][Math.floor(Math.random() * 5)];
+        const depth = width * 0.7;
+        const color = [
+          '#b45309', '#92400e', '#d97706', '#a16207', '#78350f',
+          '#c4b5a0', '#e8d5b7', '#475569', '#334155', '#1e3a5f'
+        ][Math.floor(Math.random() * 10)];
         items.push({ position: [xOffset, height / 2, zPos], scale: [width, height, depth], color });
     }
     return items.sort((a, b) => a.position[2] - b.position[2]);
@@ -539,12 +587,30 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
           />
       ))}
 
-      {/* Modern Manhattan Street Props */}
-      <BusStop position={[14, 0, -40]} isMobile={isMobile} />
-      <BusStop position={[-14, 0, 40]} isMobile={isMobile} />
-      <BusStop position={[14, 0, 120]} isMobile={isMobile} />
-      <BusStop position={[-14, 0, -120]} isMobile={isMobile} />
-      
+
+      {/* --- MANHATTAN STREET PROPS --- */}
+
+      {/* Yellow Traffic Lights at intersections */}
+      <TrafficLight position={[17.5, 5, -80]} />
+      <TrafficLight position={[17.5, 5, 0]} />
+      <TrafficLight position={[17.5, 5, 80]} />
+
+      {/* Parked cars along right curb */}
+      {Array.from({ length: isMobile ? 4 : 10 }).map((_, i) => (
+        <ParkedCar
+          key={`pcar-${i}`}
+          position={[9.5, 0, -130 + i * 28]}
+          color={['#111', '#1e293b', '#0f172a', '#1c1917', '#18181b'][i % 5]}
+        />
+      ))}
+
+      {/* Orange Construction Cones near crosswalks */}
+      {[-80, 0, 80].flatMap((z, j) => (
+        [0, 2, 4].map((dz, k) => (
+          <Cone key={`cone-${j}-${k}`} position={[7, 0, z + dz]} />
+        ))
+      ))}
+
       <FallenLeaves isMobile={isMobile} />
 
       {/* NYC Fire Hydrants — right sidewalk every 30 units */}
