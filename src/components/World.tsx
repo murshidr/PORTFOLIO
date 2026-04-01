@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { useMemo, useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
@@ -38,25 +38,45 @@ const Signboard = ({ position, width, isMobile }: { position: [number, number, n
   );
 };
 
-const ModernBuilding = ({ position, scale, color, isMobile }: { position: [number, number, number], scale: [number, number, number], color: string, isMobile?: boolean, key?: string }) => {
-  const [width, height, depth] = scale;
-  const hasShop = useMemo(() => Math.random() > 0.4, []); // 60% chance of having a shop
+const ModernBuilding = ({ position, width, height, color, complexity }: any) => {
+  const details = useMemo(() => {
+    const items = [];
+    const floors = Math.floor(height / 3);
+    for (let f = 0; f < floors; f++) {
+      if (Math.random() > 0.4) {
+        items.push({ 
+          type: 'balcony', 
+          pos: [0, f * 3 + 1.5, width/2 + 0.1], 
+          scale: [width * 0.8, 0.1, 0.4] 
+        });
+      }
+      if (Math.random() > 0.6) {
+        items.push({ 
+          type: 'ac', 
+          pos: [width/4, f * 3 + 2.2, width/2 + 0.05], 
+          scale: [0.3, 0.3, 0.3] 
+        });
+      }
+    }
+    return items;
+  }, [width, height, color]);
 
   return (
     <group position={position}>
-      <mesh castShadow={!isMobile} receiveShadow={!isMobile}>
-        <boxGeometry args={[width, height, depth]} />
-        <meshStandardMaterial color={color} roughness={0.5} />
+      <mesh castShadow receiveShadow>
+        <boxGeometry args={[width, height, width]} />
+        <meshStandardMaterial color={color} roughness={0.8} />
       </mesh>
-      {/* Roof Elements (Water Tank) - One simplified element */}
-      <mesh position={[width / 4, height / 2 + 0.5, 0]}>
-        <cylinderGeometry args={[1, 1, 1, isMobile ? 6 : 12]} />
-        <meshStandardMaterial color="#000" />
+      {details.map((d, i) => (
+        <mesh key={i} position={d.pos as any} castShadow>
+          <boxGeometry args={d.scale as any} />
+          <meshStandardMaterial color={d.type === 'balcony' ? color : '#94a3b8'} />
+        </mesh>
+      ))}
+      <mesh position={[0, 0, width / 2 + 0.01]}>
+        <planeGeometry args={[width * 0.8, height * 0.9]} />
+        <meshStandardMaterial color="#1e293b" emissive="#60a5fa" emissiveIntensity={complexity > 0.7 ? 0.5 : 0.2} roughness={0.1} metalness={0.9} />
       </mesh>
-
-      {hasShop && (
-        <Signboard position={[0, -height / 2 + 2, depth / 2 + 0.1]} width={width} isMobile={isMobile} />
-      )}
     </group>
   );
 };
@@ -306,7 +326,6 @@ const NapierBridge = ({ position }: { position: [number, number, number] }) => {
               <torusGeometry args={[3.3, 0.4, 8, 16, Math.PI]} />
               <meshStandardMaterial color="#ffffff" roughness={0.4} />
             </mesh>
-            {/* Right Arc */}
             <mesh position={[xPos, 1.25, 5.5]} rotation={[0, 0, 0]}>
               <torusGeometry args={[3.3, 0.4, 8, 16, Math.PI]} />
               <meshStandardMaterial color="#ffffff" roughness={0.4} />
@@ -318,7 +337,39 @@ const NapierBridge = ({ position }: { position: [number, number, number] }) => {
   );
 };
 
-export default function World({ isMobile, weather }: { isMobile?: boolean, weather?: string }) {
+const StreetLights = ({ count, isNight }: { count: number, isNight: boolean }) => {
+  const meshRef = useRef<THREE.InstancedMesh>(null);
+  useEffect(() => {
+    if (!meshRef.current) return;
+    const dummy = new THREE.Object3D();
+    for (let i = 0; i < count; i++) {
+        dummy.position.set(12, 0, (i - count/2) * 50);
+        dummy.updateMatrix();
+        meshRef.current.setMatrixAt(i, dummy.matrix);
+    }
+    meshRef.current.instanceMatrix.needsUpdate = true;
+  }, [count]);
+
+  return (
+    <group>
+      <instancedMesh ref={meshRef} args={[undefined, undefined, count]} castShadow>
+        <cylinderGeometry args={[0.08, 0.12, 6]} />
+        <meshStandardMaterial color="#334155" roughness={0.2} metalness={0.8} />
+      </instancedMesh>
+      {isNight && Array.from({ length: count }).map((_, i) => (
+        <group key={i} position={[12, 5.8, (i - count/2) * 50]}>
+           <mesh>
+             <sphereGeometry args={[0.22]} />
+             <meshStandardMaterial color="#fcd34d" emissive="#f59e0b" emissiveIntensity={4} toneMapped={false} />
+           </mesh>
+           <pointLight intensity={3} distance={30} color="#fcd34d" decay={2} />
+        </group>
+      ))}
+    </group>
+  );
+};
+
+export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boolean, weather?: string, timeOfDay?: number }) {
   const roadWidth = 20;
   const roadLength = 300;
   const buildingCount = isMobile ? 45 : 60;
@@ -393,8 +444,13 @@ export default function World({ isMobile, weather }: { isMobile?: boolean, weath
     }
   });
 
+  const isNight = timeOfDay ? (timeOfDay > 18.5 || timeOfDay < 5.5) : false;
+
   return (
     <group>
+      {/* Lights */}
+      <StreetLights count={10} isNight={isNight} />
+
       {/* Road */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]} receiveShadow={!isMobile}>
         <planeGeometry args={[roadWidth, roadLength]} />
@@ -467,9 +523,10 @@ export default function World({ isMobile, weather }: { isMobile?: boolean, weath
           <ModernBuilding
             key={`m-${i}`}
             position={data.position as [number, number, number]}
-            scale={data.scale as [number, number, number]}
+            width={data.scale[0]}
+            height={data.scale[1]}
             color={data.color}
-            isMobile={isMobile}
+            complexity={Math.random()}
           />
       ))}
 
@@ -480,7 +537,7 @@ export default function World({ isMobile, weather }: { isMobile?: boolean, weath
       <NapierBridge position={[40, 0, 80]} />
       <NapierBridge position={[40, 0, -80]} />
 
-      <TeaStall position={[20, 0, 20]} isMobile={isMobile} />
+      <TeaStall position={[20, 0, -25]} isMobile={isMobile} />
       <BusStop position={[20, 0, -40]} isMobile={isMobile} />
 
       {/* Palm Trees along the pavement */}
@@ -493,28 +550,7 @@ export default function World({ isMobile, weather }: { isMobile?: boolean, weath
 
       <FallenLeaves isMobile={isMobile} />
 
-      {/* Street Lights */}
-      {Array.from({ length: 15 }).map((_, i) => {
-        const z = -100 + i * 20;
-        return (
-          <group key={`light-${i}`} position={[roadWidth / 2 + 1, 0, z]}>
-            <mesh position={[0, 4, 0]}>
-              <cylinderGeometry args={[0.08, 0.08, 8, 6]} />
-              <meshStandardMaterial color="#222" />
-            </mesh>
-            <mesh position={[0, 8, 0]} rotation={[0, 0, Math.PI / 2]}>
-              <cylinderGeometry args={[0.1, 0.1, 1, 6]} />
-              <meshStandardMaterial color="#222" />
-            </mesh>
-            <pointLight position={[-1, 7.8, 0]} intensity={2} distance={15} color="#ffaa00" />
-            {/* Light Mesh Glow */}
-            <mesh position={[-1, 7.8, 0]}>
-              <sphereGeometry args={[0.2, 8, 8]} />
-              <meshBasicMaterial color="#ffaa00" />
-            </mesh>
-          </group>
-        );
-      })}
+      <FallenLeaves isMobile={isMobile} />
     </group>
   );
 }

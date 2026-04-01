@@ -12,6 +12,7 @@ interface CharacterProps {
 }
 
 export default function Character({ onClick, isMenuOpen, onCloseMenu }: CharacterProps): React.ReactElement {
+  const [narrativeState, setNarrativeState] = useState<'AT_CAFE' | 'PREPARING' | 'WALKING'>('AT_CAFE');
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
   const { camera } = useThree();
@@ -28,6 +29,24 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu }: Characte
   useFrame((state, delta) => {
     if (group.current) {
       const t = state.clock.getElapsedTime();
+
+      // --- NARRATIVE ROUTINE LOGIC (v1.4) ---
+      if (narrativeState === 'AT_CAFE') {
+          // Stay near the cafe building
+          group.current.position.z = THREE.MathUtils.lerp(group.current.position.z, -25, 0.1);
+          group.current.rotation.y = Math.PI / 2; // Face the stalls
+          
+          // Auto-transition after 4 seconds or user interaction
+          if (t > 4) setNarrativeState('PREPARING');
+          return;
+      }
+
+      if (narrativeState === 'PREPARING') {
+          // Play a "getting ready" idle
+          group.current.position.y = Math.abs(Math.sin(t * 5)) * 0.05;
+          if (t > 7) setNarrativeState('WALKING');
+          return;
+      }
       
       if (isMenuOpen) {
         // --- IDLE / PAUSED STATE ---

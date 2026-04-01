@@ -67,8 +67,17 @@ const WEATHER_CONFIG: Record<WeatherState, any> = {
   MISTY: { sky: '#cbd5e1', fog: '#e2e8f0', light: '#f1f5f9', intensity: 0.8, fogDensity: 0.045 },
 };
 
-const EnvironmentManager = ({ weather, timeSpeed = 0.005 }: { weather: WeatherState, timeSpeed?: number }) => {
-  const [timeOfDay, setTimeOfDay] = useState(18.16); // 6:10 PM
+const EnvironmentManager = ({ 
+  weather, 
+  timeSpeed = 0.005, 
+  timeOfDay, 
+  setTimeOfDay 
+}: { 
+  weather: WeatherState, 
+  timeSpeed?: number, 
+  timeOfDay: number, 
+  setTimeOfDay: (v: number | ((prev: number) => number)) => void 
+}) => {
   const [cloudDimmness, setCloudDimmness] = useState(1);
   const lightRef = useRef<THREE.DirectionalLight>(null);
   const colorObj = useMemo(() => new THREE.Color(), []);
@@ -163,6 +172,7 @@ const EnvironmentManager = ({ weather, timeSpeed = 0.005 }: { weather: WeatherSt
 };
 
 export default function Scene() {
+  const [timeOfDay, setTimeOfDay] = useState(18.16); // 6:10 PM
   const [menuOpen, setMenuOpen] = useState(false);
   const [cameraLanded, setCameraLanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -220,7 +230,7 @@ export default function Scene() {
         gl={{ antialias: true, powerPreference: "high-performance" }}
         camera={{ position: [0, 50, 50], fov: 45 }}
       >
-        <EnvironmentManager weather={weather} />
+        <EnvironmentManager weather={weather} timeOfDay={timeOfDay} setTimeOfDay={setTimeOfDay} />
         {(weather === 'RAIN' || weather === 'STORM') && <Rain />}
         
         <OrbitControls 
@@ -229,7 +239,7 @@ export default function Scene() {
         />
 
         <group position={[0, -1, 0]}>
-          <World isMobile={isMobile} weather={weather} />
+          <World isMobile={isMobile} weather={weather} timeOfDay={timeOfDay} />
           <CityLife paused={menuOpen} isMobile={isMobile} weather={weather} />
           
           <group position={[17.5, 0, 0]}>

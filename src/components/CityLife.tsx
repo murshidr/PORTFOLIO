@@ -586,6 +586,9 @@ const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused
       const walkCycleLegs = Math.sin(t * stride + p.offset);
       const direction = p.speed > 0 ? 0 : Math.PI;
 
+      // --- RESET DUMMY ROTATION (Fixes 'Raised Arms') ---
+      dummy.rotation.set(0, 0, 0);
+
       // --- TORSO ---
       dummy.position.set(p.x, 1.0, p.z);
       dummy.rotation.y = direction;
@@ -594,12 +597,13 @@ const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused
       torsoRef.current!.setMatrixAt(i, dummy.matrix);
 
       // --- HEAD ---
+      dummy.rotation.set(0, direction, 0);
       dummy.position.set(p.x, 1.45 + Math.abs(walkCycle) * 0.05, p.z);
       dummy.scale.set(0.3, 0.35, 0.3);
       dummy.updateMatrix();
       headRef.current!.setMatrixAt(i, dummy.matrix);
 
-      // --- FACE (Orientation marker) ---
+      // --- FACE ---
       dummy.position.set(p.x, 1.45 + Math.abs(walkCycle) * 0.05, p.z + (p.speed > 0 ? 0.16 : -0.16));
       dummy.scale.set(0.15, 0.05, 0.02);
       dummy.updateMatrix();
@@ -607,30 +611,30 @@ const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused
 
       // --- ARMS ---
       // Left Arm
+      dummy.rotation.set(walkCycle * 0.5, direction, 0);
       dummy.position.set(p.x + 0.35, 1.3, p.z);
-      dummy.rotation.x = walkCycle * 0.5;
       dummy.scale.set(0.12, 0.6, 0.12);
       dummy.updateMatrix();
       leftArmRef.current!.setMatrixAt(i, dummy.matrix);
 
       // Right Arm
+      dummy.rotation.set(-walkCycle * 0.5, direction, 0);
       dummy.position.set(p.x - 0.35, 1.3, p.z);
-      dummy.rotation.x = -walkCycle * 0.5;
       dummy.updateMatrix();
       rightArmRef.current!.setMatrixAt(i, dummy.matrix);
 
       // --- LEGS ---
-      dummy.rotation.x = walkCycleLegs * 0.6;
       dummy.scale.set(0.18, 0.8, 0.18);
       
       // Left Leg
+      dummy.rotation.set(walkCycleLegs * 0.6, direction, 0);
       dummy.position.set(p.x + 0.15, 0.5, p.z);
       dummy.updateMatrix();
       leftLegRef.current!.setMatrixAt(i, dummy.matrix);
 
       // Right Leg
+      dummy.rotation.set(-walkCycleLegs * 0.6, direction, 0);
       dummy.position.set(p.x - 0.15, 0.5, p.z);
-      dummy.rotation.x = -walkCycleLegs * 0.6;
       dummy.updateMatrix();
       rightLegRef.current!.setMatrixAt(i, dummy.matrix);
     });
@@ -687,8 +691,11 @@ export default function CityLife({ paused, isMobile, weather }: { paused: boolea
       {/* Layer 2: Pathway (Dynamic) - Centered on User pathway (x=17.5) */}
       <HumanInstances count={isMobile ? 30 : 80} color="#ffffff" initialLaneX={17.5} laneWidth={12} paused={paused} weather={weather} />
 
-      {/* Layer 5: Horizon (Static Silhouettes - Zero Logic) */}
-      <HorizonSilhouettes count={isMobile ? 20 : 100} />
+      {/* Layer 5: Street Stalls (Marina Style) */}
+      <StreetStalls count={isMobile ? 10 : 25} />
+      
+      {/* Layer 6: Sand NPCs (Sitting/Watching) */}
+      <HumanInstances count={isMobile ? 15 : 40} color="#ffbdad" initialLaneX={-45} laneWidth={20} paused={paused} weather={weather} />
 
       {/* Optimized Vehicles */}
       <VehiclesLayer paused={paused} isMobile={isMobile} />
@@ -698,23 +705,30 @@ export default function CityLife({ paused, isMobile, weather }: { paused: boolea
   );
 };
 
-const HorizonSilhouettes = ({ count }: { count: number }) => {
+const StreetStalls = ({ count }: { count: number }) => {
   const meshRef = useRef<THREE.InstancedMesh>(null);
+  const data = useMemo(() => Array.from({ length: count }).map(() => ({
+    z: (Math.random() - 0.5) * 300,
+    x: 22 + (Math.random() - 0.5) * 2,
+    color: ['#3b82f6', '#ef4444', '#10b981', '#f59e0b'][Math.floor(Math.random() * 4)]
+  })), [count]);
+
   useEffect(() => {
     if (!meshRef.current) return;
     const dummy = new THREE.Object3D();
-    for (let i = 0; i < count; i++) {
-      dummy.position.set(-60 - Math.random() * 60, 0.9, (Math.random() - 0.5) * 400);
+    data.forEach((d, i) => {
+      dummy.position.set(d.x, 0.8, d.z);
       dummy.updateMatrix();
-      meshRef.current.setMatrixAt(i, dummy.matrix);
-    }
+      meshRef.current?.setMatrixAt(i, dummy.matrix);
+      meshRef.current?.setColorAt(i, new THREE.Color(d.color));
+    });
     meshRef.current.instanceMatrix.needsUpdate = true;
-  }, [count]);
+  }, [data]);
 
   return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
-      <boxGeometry args={[0.5, 1.8, 0.5]} />
-      <meshBasicMaterial color="#000" transparent opacity={0.3} />
+    <instancedMesh ref={meshRef} args={[undefined, undefined, count]} castShadow>
+      <boxGeometry args={[1.5, 1.6, 1.5]} />
+      <meshStandardMaterial roughness={0.7} />
     </instancedMesh>
   );
 };
