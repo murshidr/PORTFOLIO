@@ -421,11 +421,11 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
   const buildings = useMemo(() => {
     const items = [];
     // Manhattan-style warm brick & limestone buildings — flush with sidewalk curb
-    // Right side: curb at x=17, so building inner face at x=17, center at x=17+width/2
+    // Right side: sidewalk ends at x=20, so building inner face at 20.
     for (let i = 0; i < buildingCount / 2; i++) {
         const width = 10 + Math.random() * 12;
         const height = 20 + Math.random() * 120; // range from low-rise to skyscraper
-        const xOffset = 17 + width / 2; // flush with curb!
+        const xOffset = 20 + width / 2; // Fixed: pushed back to 20 so character at 17.5 doesn't clip
         const zPos = (Math.random() - 0.5) * roadLength;
         const depth = width * 0.7;
         // Warm Manhattan palette: brick, limestone, brownstone, glass towers
@@ -443,11 +443,11 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
         ][Math.floor(Math.random() * 10)];
         items.push({ position: [xOffset, height / 2, zPos], scale: [width, height, depth], color });
     }
-    // Left side: curb at x=-10, so building inner face at x=-10
+    // Left side: sidewalk ends at x=-20
     for (let i = 0; i < buildingCount / 2; i++) {
         const width = 10 + Math.random() * 12;
         const height = 20 + Math.random() * 120;
-        const xOffset = -(10 + width / 2);
+        const xOffset = -(20 + width / 2); // Fixed from -10 to -20
         const zPos = (Math.random() - 0.5) * roadLength;
         const depth = width * 0.7;
         const color = [

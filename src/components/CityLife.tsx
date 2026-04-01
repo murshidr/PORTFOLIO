@@ -344,7 +344,7 @@ const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused
   const rightLegRef = useRef<THREE.InstancedMesh>(null);
   const faceRef = useRef<THREE.InstancedMesh>(null);
   
-  const data = useMemo(() => Array.from({ length: count }).map(() => {
+  const data = useMemo(() => Array.from({ length: count }).map((_, i) => {
     // Professional NYC crowd - mix of suits, casuals, colorful outfits
     const outfitPalettes = [
       // Dark business suits
@@ -362,10 +362,19 @@ const HumanInstances = ({ count, color, initialLaneX, laneWidth, weather, paused
       { torso: '#06b6d4', legs: '#0f172a', skin: '#ffdbac' },
     ];
     const palette = outfitPalettes[Math.floor(Math.random() * outfitPalettes.length)];
+    
+    // Organized Manhattan foot traffic: split into directional lanes to avoid chaos
+    const isForward = i % 2 === 0;
+    const laneOffset = isForward ? (Math.random() * laneWidth / 2) : -(Math.random() * laneWidth / 2);
+    
+    // Distribute evenly along the Z axis to prevent massive clumping
+    const spacing = 300 / count;
+    const baseZ = -150 + i * spacing;
+
     return {
-      z: (Math.random() - 0.5) * 300,
-      x: initialLaneX + (Math.random() - 0.5) * laneWidth,
-      speed: (2.5 + Math.random() * 2) * (Math.random() > 0.5 ? 1 : -1),
+      z: baseZ + (Math.random() - 0.5) * spacing * 0.8,
+      x: initialLaneX + laneOffset,
+      speed: (2.0 + Math.random() * 1.5) * (isForward ? 1 : -1),
       offset: Math.random() * Math.PI * 2,
       torsoColor: new THREE.Color(palette.torso),
       legColor: new THREE.Color(palette.legs),
@@ -564,10 +573,10 @@ export default function CityLife({ paused, isMobile, weather }: { paused: boolea
       {/* Layer 1: Road (Vehicles only) */}
       
       {/* Layer 2: Right Sidewalk */}
-      <HumanInstances count={isMobile ? 60 : 200} color="#ffffff" initialLaneX={13.5} laneWidth={4} paused={paused} weather={weather} />
+      <HumanInstances count={isMobile ? 30 : 80} color="#ffffff" initialLaneX={13.5} laneWidth={3} paused={paused} weather={weather} />
 
       {/* Layer 6: Left Sidewalk */}
-      <HumanInstances count={isMobile ? 40 : 120} color="#cbd5e1" initialLaneX={-13.5} laneWidth={4} paused={paused} weather={weather} />
+      <HumanInstances count={isMobile ? 20 : 60} color="#cbd5e1" initialLaneX={-13.5} laneWidth={3} paused={paused} weather={weather} />
 
       {/* Optimized Vehicles */}
       <VehiclesLayer paused={paused} isMobile={isMobile} />
