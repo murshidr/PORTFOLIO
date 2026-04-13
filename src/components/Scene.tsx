@@ -270,25 +270,38 @@ export default function Scene() {
       {/* Day/Night System Controller (Collapsible & Responsive) */}
       {cameraLanded && location.pathname === '/' && (
         <div 
-          className={`absolute ${isMobile ? 'top-[120px]' : 'top-6'} right-6 z-50 flex flex-col gap-2 origin-top-right transition-all duration-500`}
+          className={`absolute ${isMobile ? 'top-[120px]' : 'top-6'} right-6 z-50 flex flex-col gap-2 origin-top-right`}
         >
-          {/* Using motion for smoothing expansion */}
-          <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-1.5 shadow-2xl overflow-hidden min-w-[max-content]">
+          <AnimatePresence mode="popLayout">
             {!isTimeExpanded ? (
-               <button
+               <motion.button
+                 key="pill"
+                 layoutId="time-system-container"
                  onClick={() => setIsTimeExpanded(true)}
-                 className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 rounded-xl transition-colors group"
+                 className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-1.5 shadow-2xl overflow-hidden flex items-center gap-3 px-4 py-2 hover:bg-white/10 transition-colors group"
+                 initial={{ opacity: 0, scale: 0.9 }}
+                 animate={{ opacity: 1, scale: 1 }}
+                 exit={{ opacity: 0, scale: 0.9 }}
+                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
                >
-                 <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                 <span className="text-xs font-mono text-white/80 group-hover:text-white transition-colors">
+                 <motion.div layout className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                 <motion.span layout className="text-xs font-mono text-white/80 group-hover:text-white transition-colors">
                    {formatTime(timeOfDay)}
-                 </span>
-                 <span className="text-[10px] text-white/30 font-bold uppercase tracking-wider">System</span>
-               </button>
+                 </motion.span>
+                 <motion.span layout className="text-[10px] text-white/30 font-bold uppercase tracking-wider">System</motion.span>
+               </motion.button>
             ) : (
-              <div className="p-3 min-w-[220px]">
+              <motion.div 
+                key="panel"
+                layoutId="time-system-container"
+                className="bg-black/40 backdrop-blur-md border border-white/20 rounded-2xl p-4 shadow-2xl overflow-hidden min-w-[240px]"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              >
                 <div className="flex justify-between items-center mb-4">
-                  <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Atmosphere</span>
+                  <motion.span layout className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Atmospheric Control</motion.span>
                   <button 
                     onClick={() => setIsTimeExpanded(false)}
                     className="p-1 hover:bg-white/10 rounded-lg text-white/40 hover:text-white transition-all"
@@ -297,7 +310,7 @@ export default function Scene() {
                   </button>
                 </div>
                 <div className="mb-4">
-                   <div className="text-2xl font-mono text-blue-400 mb-2">{formatTime(timeOfDay)}</div>
+                   <motion.div layout className="text-3xl font-mono text-blue-400 mb-2">{formatTime(timeOfDay)}</motion.div>
                    <input 
                     type="range" 
                     min="0" 
@@ -305,18 +318,18 @@ export default function Scene() {
                     step="0.1" 
                     value={timeOfDay} 
                     onChange={(e) => setTimeOfDay(parseFloat(e.target.value))}
-                    className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all font-mono"
+                    className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all"
                   />
                 </div>
-                <div className="flex justify-between text-[8px] text-white/30 font-bold uppercase tracking-tighter">
+                <motion.div layout className="flex justify-between text-[8px] text-white/30 font-bold uppercase tracking-tighter">
                   <span>Dawn</span>
                   <span>Noon</span>
                   <span>Dusk</span>
                   <span>Night</span>
-                </div>
-              </div>
+                </motion.div>
+              </motion.div>
             )}
-          </div>
+          </AnimatePresence>
         </div>
       )}
     </div>
