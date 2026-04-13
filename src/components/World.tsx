@@ -23,11 +23,8 @@ const Window3D = ({ position, width = 1.2, height = 1.8 }: { position: [number, 
       <boxGeometry args={[0.2, height + 0.1, width + 0.1]} />
       <meshStandardMaterial color="#2d2d2d" />
     </mesh>
-    {/* Glass (Recessed) */}
-    <mesh position={[0.05, 0, 0]}>
-      <planeGeometry args={[width, height]} />
-      <meshStandardMaterial color="#0f172a" roughness={0.1} metalness={0.8} />
-    </mesh>
+    {/* Glass (Recessed & Dynamic) */}
+    <WindowGlass width={width} height={height} />
     {/* Sill */}
     <mesh position={[0.1, -height/2 - 0.05, 0]}>
       <boxGeometry args={[0.2, 0.1, width + 0.2]} />
@@ -35,6 +32,28 @@ const Window3D = ({ position, width = 1.2, height = 1.8 }: { position: [number, 
     </mesh>
   </group>
 );
+
+const WindowGlass = ({ width, height }: { width: number, height: number }) => {
+  const [flavor] = useState(() => {
+    const r = Math.random();
+    if (r > 0.8) return '#fde68a'; // Warm
+    if (r > 0.6) return '#bfdbfe'; // TV Blue
+    return '#050505'; // Off
+  });
+  
+  return (
+    <mesh position={[0.05, 0, 0]}>
+      <planeGeometry args={[width, height]} />
+      <meshStandardMaterial 
+        color={flavor} 
+        emissive={flavor !== '#050505' ? flavor : '#000'}
+        emissiveIntensity={flavor !== '#050505' ? 0.6 : 0}
+        roughness={0.1}
+        metalness={0.8}
+      />
+    </mesh>
+  );
+};
 
 // Building 1: Classic Brownstone
 const BuildingOneClassicBrownstone = ({ position, streetWidth = 7.5 }: { position: [number, number, number], streetWidth?: number }) => {
