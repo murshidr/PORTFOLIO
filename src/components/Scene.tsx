@@ -11,6 +11,8 @@ import OnboardingOverlay from './OnboardingOverlay';
 import AudioManager from './AudioManager';
 import { useLocation } from 'react-router-dom';
 import { EffectComposer, Bloom, Vignette, Noise, ChromaticAberration } from '@react-three/postprocessing';
+import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
 import { BlendFunction } from 'postprocessing';
 
 // --- WEATHER SYSTEM ---
@@ -172,6 +174,8 @@ export default function Scene() {
     }
   }, [location]);
 
+  const [isTimeExpanded, setIsTimeExpanded] = useState(false);
+
   const handleLanded = useCallback(() => {
     console.log("Camera landed!");
     setCameraLanded(true);
@@ -187,6 +191,12 @@ export default function Scene() {
   const handleCharacterClick = useCallback(() => {
     if (cameraLanded) setMenuOpen((prev) => !prev);
   }, [cameraLanded]);
+
+  const formatTime = (t: number) => {
+    const hours = Math.floor(t % 24);
+    const minutes = Math.floor((t % 1) * 60);
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  };
 
   return (
     <div className="fixed inset-0 w-full h-full z-0 font-sans">
@@ -257,31 +267,55 @@ export default function Scene() {
         />
       )}
 
-      {/* Day/Night System Controller */}
+      {/* Day/Night System Controller (Collapsible & Responsive) */}
       {cameraLanded && location.pathname === '/' && (
-        <div className="absolute top-6 right-6 z-50 flex flex-col gap-2 scale-90 md:scale-100 origin-top-right">
-          <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-2xl min-w-[200px]">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Time System</span>
-              <span className="text-[10px] font-mono text-blue-400">
-                {Math.floor(timeOfDay).toString().padStart(2, '0')}:{(Math.floor((timeOfDay % 1) * 60)).toString().padStart(2, '0')}
-              </span>
-            </div>
-            <input 
-              type="range" 
-              min="0" 
-              max="24" 
-              step="0.1" 
-              value={timeOfDay} 
-              onChange={(e) => setTimeOfDay(parseFloat(e.target.value))}
-              className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all"
-            />
-            <div className="flex justify-between mt-2 text-[8px] text-white/30 font-bold uppercase tracking-tighter">
-              <span>Dawn</span>
-              <span>Noon</span>
-              <span>Dusk</span>
-              <span>Night</span>
-            </div>
+        <div 
+          className={`absolute ${isMobile ? 'top-[120px]' : 'top-6'} right-6 z-50 flex flex-col gap-2 origin-top-right transition-all duration-500`}
+        >
+          {/* Using motion for smoothing expansion */}
+          <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-1.5 shadow-2xl overflow-hidden min-w-[max-content]">
+            {!isTimeExpanded ? (
+               <button
+                 onClick={() => setIsTimeExpanded(true)}
+                 className="flex items-center gap-3 px-4 py-2 hover:bg-white/5 rounded-xl transition-colors group"
+               >
+                 <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                 <span className="text-xs font-mono text-white/80 group-hover:text-white transition-colors">
+                   {formatTime(timeOfDay)}
+                 </span>
+                 <span className="text-[10px] text-white/30 font-bold uppercase tracking-wider">System</span>
+               </button>
+            ) : (
+              <div className="p-3 min-w-[220px]">
+                <div className="flex justify-between items-center mb-4">
+                  <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Atmosphere</span>
+                  <button 
+                    onClick={() => setIsTimeExpanded(false)}
+                    className="p-1 hover:bg-white/10 rounded-lg text-white/40 hover:text-white transition-all"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+                <div className="mb-4">
+                   <div className="text-2xl font-mono text-blue-400 mb-2">{formatTime(timeOfDay)}</div>
+                   <input 
+                    type="range" 
+                    min="0" 
+                    max="24" 
+                    step="0.1" 
+                    value={timeOfDay} 
+                    onChange={(e) => setTimeOfDay(parseFloat(e.target.value))}
+                    className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all font-mono"
+                  />
+                </div>
+                <div className="flex justify-between text-[8px] text-white/30 font-bold uppercase tracking-tighter">
+                  <span>Dawn</span>
+                  <span>Noon</span>
+                  <span>Dusk</span>
+                  <span>Night</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
