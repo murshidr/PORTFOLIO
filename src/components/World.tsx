@@ -295,10 +295,6 @@ const BuildingFiveFarEnd = ({ position, color, hasGhostSign }: { position: [numb
 // --- STREET DETAILS ---
 
 const PavementSlabs = ({ width, length, x }: { width: number, length: number, x: number }) => {
-  const slabSize = 1.5;
-  const slabsX = Math.round(width / slabSize);
-  const slabsZ = Math.round(length / slabSize);
-
   return (
     <group position={[x, 0.1, 0]}>
       {/* Main Base */}
@@ -306,46 +302,11 @@ const PavementSlabs = ({ width, length, x }: { width: number, length: number, x:
         <planeGeometry args={[width, length]} />
         <meshStandardMaterial color="#94a3b8" roughness={0.7} />
       </mesh>
-      {/* Cracks and joints simulated with simple lines if needed, but here we just use the base for performance and add a few specific detailed slabs */}
+      {/* Texture Details */}
       <mesh position={[0, 0.01, -20]} rotation={[-Math.PI / 2, 0, 0.5]}>
          <planeGeometry args={[1, 0.02]} />
          <meshBasicMaterial color="#333" />
       </mesh>
-    </group>
-  );
-};
-
-const Manhole = ({ position }: { position: [number, number, number] }) => {
-  const steamRef = useRef<THREE.Group>(null);
-  
-  useFrame((state) => {
-    if (steamRef.current) {
-      steamRef.current.children.forEach((p, i) => {
-        p.position.y += 0.02;
-        p.scale.x = p.scale.y = 1 + p.position.y * 2;
-        if (p.position.y > 2) {
-          p.position.y = 0;
-          p.position.x = (Math.random() - 0.5) * 0.2;
-          p.position.z = (Math.random() - 0.5) * 0.2;
-        }
-      });
-    }
-  });
-
-  return (
-    <group position={position}>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.05, 0]}>
-        <circleGeometry args={[0.5, 32]} />
-        <meshStandardMaterial color="#333" roughness={0.4} />
-      </mesh>
-      <group ref={steamRef} position={[0.6, 0.1, 0]}>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <mesh key={i} position={[0, Math.random() * 2, 0]} rotation={[-Math.PI/2, 0, 0]}>
-            <planeGeometry args={[0.4, 0.4]} />
-            <meshStandardMaterial color="#fff" transparent opacity={0.2} depthWrite={false} />
-          </mesh>
-        ))}
-      </group>
     </group>
   );
 };
@@ -437,7 +398,7 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
       {useMemo(() => {
         const buildings = [];
         let curZ = -140;
-        const spacing = 0.5;
+        const spacing = 1.5; // Increased spacing to prevent all overlaps
         let index = 0;
         while (curZ < 140) {
           const type = (index * 7 + 3) % 4; 
@@ -458,7 +419,7 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
       {useMemo(() => {
         const buildings = [];
         let curZ = -140;
-        const spacing = 0.5;
+        const spacing = 1.5; // Increased spacing to prevent all overlaps
         let index = 0;
         while (curZ < 140) {
           const type = (index * 13 + 5) % 4; 
@@ -501,8 +462,7 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
       </mesh>
 
       {/* Trees & Details */}
-      <Manhole position={[1, 0, -10]} />
-      <Manhole position={[-2, 0, 20]} />
+      {/* Manholes removed as requested */}
       
       {/* London Plane Trees */}
       <LondonPlaneTree position={[-(DIMENSIONS.ROAD_WIDTH/2 + 1), 0, -20]} />

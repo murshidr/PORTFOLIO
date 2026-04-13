@@ -237,7 +237,7 @@ export default function Scene() {
         
         <OrbitControls 
           makeDefault 
-          target={[0, 1.5, 0]} 
+          target={[7.35, 1.5, 0]} 
         />
 
         <group position={[0, 0, 0]}>

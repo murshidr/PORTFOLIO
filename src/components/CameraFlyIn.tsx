@@ -34,14 +34,14 @@ export default function CameraFlyIn({ onLanded }: CameraFlyInProps) {
 
     // SMOOTH CONTINUOUS FLIGHT
     timeline.current.to(camera.position, {
-      x: 0,
+      x: 7.35,
       y: 1.7,
       z: -7,
       duration: 5,
       ease: "power2.inOut",
       onUpdate: () => {
         // Dynamic lookAt: gradually focus from general origin to character's head
-        const targetX = 0;
+        const targetX = 7.35;
         const targetY = 1.5;
         const targetZ = 0;
         camera.lookAt(targetX, targetY, targetZ);

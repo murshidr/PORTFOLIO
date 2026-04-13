@@ -15,6 +15,13 @@ interface CharacterProps {
 export default function Character({ onClick, isMenuOpen, onCloseMenu, isWalking = false }: CharacterProps): React.ReactElement {
   const [narrativeState, setNarrativeState] = useState<'WALKING'>('WALKING');
   const group = useRef<THREE.Group>(null);
+
+  // Initial sidewalk position
+  React.useEffect(() => {
+    if (group.current) {
+      group.current.position.x = 7.35;
+    }
+  }, []);
   const [hovered, setHovered] = useState(false);
   const { camera } = useThree();
   
@@ -65,7 +72,7 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu, isWalking 
         // When menu is open, the camera swings to the FRONT to look at the character
         const frontZ = group.current.position.z - 5; 
         const frontY = 2; // slightly elevated
-        const frontX = 17.5; 
+        const frontX = 7.35; 
 
         camera.position.z = THREE.MathUtils.lerp(camera.position.z, frontZ, 0.05);
         camera.position.y = THREE.MathUtils.lerp(camera.position.y, frontY, 0.05);
@@ -76,7 +83,7 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu, isWalking 
             // Look straight at character head level
             controls.target.z = THREE.MathUtils.lerp(controls.target.z, group.current.position.z, 0.1);
             controls.target.y = THREE.MathUtils.lerp(controls.target.y, 1.5, 0.1);
-            controls.target.x = THREE.MathUtils.lerp(controls.target.x, 17.5, 0.1);
+            controls.target.x = THREE.MathUtils.lerp(controls.target.x, 7.35, 0.1);
             controls.update();
         }
 
@@ -145,7 +152,7 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu, isWalking 
       }
 
       // --- 3rd Person Camera Follow (Walking) ---
-      const targetX = 17.5;
+      const targetX = 7.35;
       const lerpFactor = 0.1;
       const controls = state.controls as any;
 
@@ -156,12 +163,12 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu, isWalking 
         const lerpVal = 0.05;
         
         // Follow the character's position
-        controls.target.x = THREE.MathUtils.lerp(controls.target.x, 0, lerpVal);
+        controls.target.x = THREE.MathUtils.lerp(controls.target.x, 7.35, lerpVal);
         controls.target.y = THREE.MathUtils.lerp(controls.target.y, 1.5, lerpVal);
         controls.target.z = THREE.MathUtils.lerp(controls.target.z, group.current.position.z, lerpVal);
         
         // Follow the camera position
-        camera.position.x = THREE.MathUtils.lerp(camera.position.x, 0, lerpVal);
+        camera.position.x = THREE.MathUtils.lerp(camera.position.x, 7.35, lerpVal);
         camera.position.y = THREE.MathUtils.lerp(camera.position.y, idealY, lerpVal);
         camera.position.z = THREE.MathUtils.lerp(camera.position.z, idealZ, lerpVal);
         
