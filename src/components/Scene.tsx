@@ -220,23 +220,22 @@ export default function Scene() {
         </group>
 
         <CameraFlyIn onLanded={handleLanded} />
-        <AudioManager weather={weather} />
+        <AudioManager />
 
         {/* Cinematic Post-Processing */}
         <EffectComposer>
           <Bloom 
-            intensity={weather === 'CLEAR' ? 0.25 : 0.15} 
+            intensity={0.25} 
             luminanceThreshold={0.95} 
             luminanceSmoothing={0.05} 
             mipmapBlur 
           />
           <Vignette eskil={false} offset={0.1} darkness={isMobile ? 0.5 : 0.8} /> {/* Reduced from 1.1 to fix black edges */}
           <Noise opacity={0.03} />
-          {weather === 'STORM' && <ChromaticAberration offset={new THREE.Vector2(0.004, 0.004)} />}
         </EffectComposer>
 
         <Suspense fallback={null}>
-          <Cloud opacity={0.4} speed={0.2} bounds={[40, 10, 20]} segments={20} position={[0, 20, -30]} color={weather === 'CLEAR' ? "#fff" : "#64748b"} />
+          <Cloud opacity={0.4} speed={0.2} bounds={[40, 10, 20]} segments={20} position={[0, 20, -30]} color="#fff" />
           <Environment preset="city" background={false} />
         </Suspense>
       </Canvas>
