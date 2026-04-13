@@ -119,13 +119,13 @@ const EnvironmentManager = ({
 
     // Dynamic 24h Atmosphere Mapping
     let targetSky, targetLight;
-    if (timeOfDay >= 5 && timeOfDay < 7) { // Sunrise
-        targetSky = '#fca5a5'; targetLight = '#fdba74';
-    } else if (timeOfDay >= 7 && timeOfDay < 17) { // Noon
+    if (timeOfDay >= 5 && timeOfDay < 7.5) { // Early Morning Golden Hour
+        targetSky = '#fde68a'; targetLight = '#fbbf24'; // Warm gold
+    } else if (timeOfDay >= 7.5 && timeOfDay < 17) { // Day
         targetSky = '#38bdf8'; targetLight = '#ffffff';
-    } else if (timeOfDay >= 17 && timeOfDay < 19) { // Golden Hour
+    } else if (timeOfDay >= 17 && timeOfDay < 19) { // Sunset
         targetSky = '#f43f5e'; targetLight = '#fb923c';
-    } else if (timeOfDay >= 19 && timeOfDay < 21) { // Dusk/Blue Hour
+    } else if (timeOfDay >= 19 && timeOfDay < 21) { // Dusk
         targetSky = '#1e3a8a'; targetLight = '#475569';
     } else { // Night
         targetSky = '#020617'; targetLight = '#1e293b';
@@ -172,7 +172,7 @@ const EnvironmentManager = ({
 };
 
 export default function Scene() {
-  const [timeOfDay, setTimeOfDay] = useState(17.5); // 5:30 PM — golden hour
+  const [timeOfDay, setTimeOfDay] = useState(6.75); // 6:45 AM — early morning golden hour
   const [menuOpen, setMenuOpen] = useState(false);
   const [cameraLanded, setCameraLanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -231,20 +231,20 @@ export default function Scene() {
         camera={{ position: [0, 50, 50], fov: 45 }}
         performance={{ min: 0.5 }}
       >
-        <fog attach="fog" args={['#f5e6c8', 80, 280]} />
+        <fog attach="fog" args={['#2563eb', 60, 250]} /> {/* Cool blue morning fog */}
         <EnvironmentManager weather={weather} timeOfDay={timeOfDay} setTimeOfDay={setTimeOfDay} />
         {(weather === 'RAIN' || weather === 'STORM') && <Rain />}
         
         <OrbitControls 
           makeDefault 
-          target={[17.5, 1.5, 0]} 
+          target={[0, 1.5, 0]} 
         />
 
         <group position={[0, -1, 0]}>
           <World isMobile={isMobile} weather={weather} timeOfDay={timeOfDay} />
           <CityLife paused={menuOpen} isMobile={isMobile} weather={weather} />
           
-          <group position={[17.5, 0, 0]}>
+          <group position={[0, 0, 0]}>
             <Character 
               onClick={handleCharacterClick} 
               isMenuOpen={menuOpen}

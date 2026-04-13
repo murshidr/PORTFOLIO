@@ -19,9 +19,9 @@ export default function CameraFlyIn({ onLanded }: CameraFlyInProps) {
     setIsIntroActive(true);
     setTimeout(() => setIsIntroActive(false), 3500);
     
-    // Initial position: 100m above the city/road
-    camera.position.set(40, 100, -30);
-    camera.lookAt(17.5, 0, 0);
+    // Initial position: Rooftop level (approx 40m high), looking down the street
+    camera.position.set(0, 40, -100);
+    camera.lookAt(0, 0, 0);
 
     timeline.current = gsap.timeline({
       onComplete: () => {
@@ -32,27 +32,27 @@ export default function CameraFlyIn({ onLanded }: CameraFlyInProps) {
       }
     });
 
-    // 0.0 - 2.5s: Dramatic Dive from the sky
+    // 0.0 - 3.0s: Glide down along the street corridor
     timeline.current.to(camera.position, {
-      x: 15,
-      y: 10,
-      z: 10,
-      duration: 2.5,
+      x: 0,
+      y: 15,
+      z: -40,
+      duration: 3.0,
       ease: "power2.inOut",
       onUpdate: () => {
-         camera.lookAt(17.5, 0, 10);
+         camera.lookAt(0, 5, 20);
       }
     });
 
-    // 2.5 - 5.0s: Level out and settle behind character
+    // 3.0 - 5.5s: Skim above road surface and rise to eye level facing character at centre
     timeline.current.to(camera.position, {
-      x: 17.5, 
-      y: 1.8, 
-      z: -6,
+      x: 0, 
+      y: 1.7, 
+      z: -5,
       duration: 2.5,
       ease: "power3.out",
       onUpdate: () => {
-        camera.lookAt(17.5, 1.8, 20);
+        camera.lookAt(0, 1.7, 5); // Looking towards where the character will be
       }
     });
 
