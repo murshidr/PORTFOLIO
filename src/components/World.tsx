@@ -139,6 +139,7 @@ const BuildingTwoBrickApartment = ({ position }: { position: [number, number, nu
                 <meshStandardMaterial color="#fbbf24" emissive="#fbbf24" emissiveIntensity={0.5} toneMapped={false} />
              </mesh>
            );
+        }
         return null;
       })}
       
