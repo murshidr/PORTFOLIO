@@ -139,7 +139,9 @@ const BuildingTwoBrickApartment = ({ position }: { position: [number, number, nu
                 <meshStandardMaterial color="#fbbf24" emissive="#fbbf24" emissiveIntensity={0.5} toneMapped={false} />
              </mesh>
            );
-        }
+        return null;
+      })}
+      
       {/* Satellite Dish on 6th floor */}
       <group position={[width/2, DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR * 5 + 1.5, 2]} rotation={[0, Math.PI/2, -0.4]}>
          <mesh><sphereGeometry args={[0.5, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshStandardMaterial color="#94a3b8" /></mesh>
