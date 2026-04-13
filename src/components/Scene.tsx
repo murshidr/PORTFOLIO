@@ -146,14 +146,14 @@ const EnvironmentManager = ({
       <directionalLight
         ref={lightRef}
         castShadow
-        shadow-mapSize={isMobile ? [512, 512] : [1024, 1024]}
+        shadow-mapSize={isMobile ? [512, 512] : [2048, 2048]}
         shadow-camera-near={1}
         shadow-camera-far={300}
         shadow-camera-left={-150}
         shadow-camera-right={150}
         shadow-camera-top={150}
         shadow-camera-bottom={-150}
-        shadow-bias={-0.0005}
+        shadow-bias={-0.001}
       />
       
       {/* Stars and Sky dynamics */}

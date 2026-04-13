@@ -14,6 +14,27 @@ const DIMENSIONS = {
 
 // --- BUILDING COMPONENTS ---
 
+// Helper for 3D Windows
+const Window3D = ({ position, width = 1.2, height = 1.8 }: { position: [number, number, number], width?: number, height?: number }) => (
+  <group position={position}>
+    {/* Frame */}
+    <mesh castShadow>
+      <boxGeometry args={[width + 0.1, height + 0.1, 0.1]} />
+      <meshStandardMaterial color="#2d2d2d" />
+    </mesh>
+    {/* Glass (Recessed) */}
+    <mesh position={[0, 0, -0.05]}>
+      <planeGeometry args={[width, height]} />
+      <meshStandardMaterial color="#0f172a" roughness={0.1} metalness={0.8} />
+    </mesh>
+    {/* Sill */}
+    <mesh position={[0, -height/2 - 0.05, 0.05]}>
+      <boxGeometry args={[width + 0.2, 0.1, 0.2]} />
+      <meshStandardMaterial color="#475569" />
+    </mesh>
+  </group>
+);
+
 // Building 1: Classic Brownstone
 const BuildingOneClassicBrownstone = ({ position }: { position: [number, number, number] }) => {
   const width = 7.5;
@@ -23,70 +44,57 @@ const BuildingOneClassicBrownstone = ({ position }: { position: [number, number,
 
   return (
     <group position={position}>
-      {/* Facade - Red-brown sandstone */}
+      {/* Facade */}
       <mesh castShadow receiveShadow position={[0, height / 2, 0]}>
         <boxGeometry args={[width, height, depth]} />
-        <meshStandardMaterial color="#8b4513" roughness={0.9} />
+        <meshStandardMaterial color="#7c2d12" roughness={0.9} />
       </mesh>
 
-      {/* Stoop - front steps */}
+      {/* Floor Bands (Ledges) */}
+      {Array.from({ length: floors }).map((_, i) => (
+        <mesh key={i} position={[0, i * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR, depth/2 + 0.1]}>
+          <boxGeometry args={[width + 0.1, 0.2, 0.2]} />
+          <meshStandardMaterial color="#431407" />
+        </mesh>
+      ))}
+
+      {/* Stoop */}
       <group position={[width/4, 0.15, depth/2 + 0.5]}>
         {Array.from({ length: 6 }).map((_, i) => (
           <mesh key={i} position={[0, i * 0.2, -i * 0.3]}>
             <boxGeometry args={[2.5, 0.2, 0.4]} />
-            <meshStandardMaterial color="#a0522d" />
+            <meshStandardMaterial color="#451a03" />
           </mesh>
         ))}
-        {/* Railing */}
-        <mesh position={[1.3, 0.8, -0.6]} rotation={[0.5, 0, 0]}>
-           <boxGeometry args={[0.05, 0.05, 2.5]} />
-           <meshStandardMaterial color="#111" />
+        {/* Iron Railing */}
+        <mesh position={[1.3, 0.6, -0.6]} rotation={[0.5, 0, 0]}>
+          <boxGeometry args={[0.05, 0.05, 2.5]} />
+          <meshStandardMaterial color="#111" />
         </mesh>
-        <mesh position={[-1.3, 0.8, -0.6]} rotation={[0.5, 0, 0]}>
-           <boxGeometry args={[0.05, 0.05, 2.5]} />
-           <meshStandardMaterial color="#111" />
+        <mesh position={[-1.3, 0.6, -0.6]} rotation={[0.5, 0, 0]}>
+          <boxGeometry args={[0.05, 0.05, 2.5]} />
+          <meshStandardMaterial color="#111" />
         </mesh>
       </group>
 
-      {/* Fire Escape - Zigzag iron */}
-      <group position={[-width/4, height/2, depth/2 + 0.1]}>
-        {Array.from({ length: 3 }).map((_, i) => (
-          <mesh key={i} position={[0, i * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR - 2, 0.3]}>
-            <boxGeometry args={[2, 0.1, 0.8]} />
-            <meshStandardMaterial color="#111" />
-          </mesh>
-        ))}
-        {/* Vertical ladders and rails simulated with box */}
-        <mesh position={[0.9, 0, 0.3]}>
-           <boxGeometry args={[0.05, height * 0.8, 0.05]} />
-           <meshStandardMaterial color="#111" />
-        </mesh>
-      </group>
-
-      {/* Decorative Cornice */}
-      <mesh position={[0, height, 0.2]}>
-        <boxGeometry args={[width + 0.2, 0.6, depth + 0.2]} />
-        <meshStandardMaterial color="#7a3a0e" />
+      {/* Cornice */}
+      <mesh position={[0, height, depth/2 + 0.2]}>
+        <boxGeometry args={[width + 0.4, 0.8, 0.6]} />
+        <meshStandardMaterial color="#431407" />
       </mesh>
 
-      {/* Windows - Sash type */}
+      {/* 3D Windows */}
       {Array.from({ length: floors }).map((_, f) => (
-        <group key={f} position={[0, f * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR + 1.6, depth/2 + 0.05]}>
-           <mesh position={[-width/4, 0, 0]}>
-             <planeGeometry args={[1.2, 1.8]} />
-             <meshStandardMaterial color="#111" roughness={0.1} />
-           </mesh>
-           <mesh position={[width/4, 0, 0]}>
-             <planeGeometry args={[1.2, 1.8]} />
-             <meshStandardMaterial color="#111" roughness={0.1} />
-           </mesh>
-           {/* Random AC unit */}
-           {f === 2 && (
-             <mesh position={[width/4, -0.4, 0.15]}>
-               <boxGeometry args={[0.8, 0.6, 0.5]} />
-               <meshStandardMaterial color="#cbd5e1" />
-             </mesh>
-           )}
+        <group key={f} position={[0, f * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR + 1.8, depth/2 + 0.05]}>
+          <Window3D position={[-width/4, 0, 0]} />
+          <Window3D position={[width/4, 0, 0]} />
+          {/* AC Unit */}
+          {f === 2 && (
+            <mesh position={[width/4, -0.4, 0.3]}>
+              <boxGeometry args={[0.8, 0.6, 0.6]} />
+              <meshStandardMaterial color="#cbd5e1" />
+            </mesh>
+          )}
         </group>
       ))}
     </group>
@@ -102,56 +110,35 @@ const BuildingTwoBrickApartment = ({ position }: { position: [number, number, nu
 
   return (
     <group position={position}>
+      {/* Facade */}
       <mesh castShadow receiveShadow position={[0, height / 2, 0]}>
         <boxGeometry args={[width, height, depth]} />
         <meshStandardMaterial color="#572810" roughness={0.8} />
       </mesh>
-      
-      {/* AC Units in many windows */}
-      {Array.from({ length: floors * 3 }).map((_, i) => {
-        if (Math.random() > 0.3) {
-           const f = Math.floor(i / 3);
-           const c = i % 3;
-           return (
-             <mesh key={i} position={[(c - 1) * 3, f * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR + 1.2, depth/2 + 0.25]}>
-                <boxGeometry args={[0.7, 0.5, 0.4]} />
-                <meshStandardMaterial color="#94a3b8" />
-             </mesh>
-           );
-        }
-        return null;
-      })}
+
+      {/* Vertical Concrete Ribs (Stylistic) */}
+      <mesh position={[width/2, height/2, depth/2 + 0.1]}>
+        <boxGeometry args={[0.4, height, 0.2]} />
+        <meshStandardMaterial color="#94a3b8" />
+      </mesh>
+      <mesh position={[-width/2, height/2, depth/2 + 0.1]}>
+        <boxGeometry args={[0.4, height, 0.2]} />
+        <meshStandardMaterial color="#94a3b8" />
+      </mesh>
+
+      {/* 3D Windows & ACs */}
+      {Array.from({ length: floors }).map((_, f) => (
+        <group key={f} position={[0, f * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR + 1.8, depth/2 + 0.05]}>
+          {[-3, 0, 3].map((off, i) => (
+            <Window3D key={i} position={[off, 0, 0]} width={1.8} />
+          ))}
+        </group>
+      ))}
       
       {/* Entrance Canopy */}
-      <mesh position={[0, 3, depth/2 + 1]}>
-        <boxGeometry args={[4, 0.2, 2.5]} />
-        <meshStandardMaterial color="#334155" />
-      </mesh>
-      
-      {/* Scattered Light in Windows */}
-      {Array.from({ length: floors * 3 }).map((_, i) => {
-        if (Math.random() > 0.6) {
-           const f = Math.floor(i / 3);
-           const c = i % 3;
-           return (
-             <mesh key={`light-${i}`} position={[(c - 1) * 3, f * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR + 1.8, depth/2 + 0.02]}>
-                <planeGeometry args={[1.5, 2]} />
-                <meshStandardMaterial color="#fbbf24" emissive="#fbbf24" emissiveIntensity={0.5} toneMapped={false} />
-             </mesh>
-           );
-        }
-        return null;
-      })}
-      
-      {/* Satellite Dish on 6th floor */}
-      <group position={[width/2, DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR * 5 + 1.5, 2]} rotation={[0, Math.PI/2, -0.4]}>
-         <mesh><sphereGeometry args={[0.5, 16, 16, 0, Math.PI * 2, 0, Math.PI / 2]} /><meshStandardMaterial color="#94a3b8" /></mesh>
-         <mesh position={[0, 0.4, 0]}><boxGeometry args={[0.02, 0.8, 0.02]} /><meshStandardMaterial color="#111" /></mesh>
-      </group>
-      {/* Intercom Panel */}
-      <mesh position={[0, 1.2, depth/2 + 0.02]}>
-         <boxGeometry args={[0.2, 0.4, 0.05]} />
-         <meshStandardMaterial color="#d1d5db" metalness={0.9} />
+      <mesh position={[0, 3.2, depth/2 + 1.2]} castShadow>
+        <boxGeometry args={[5, 0.3, 3]} />
+        <meshStandardMaterial color="#1e293b" />
       </mesh>
     </group>
   );
@@ -166,40 +153,45 @@ const BuildingThreePreWarLimestone = ({ position }: { position: [number, number,
 
   return (
     <group position={position}>
+      {/* Facade */}
       <mesh castShadow receiveShadow position={[0, height / 2, 0]}>
         <boxGeometry args={[width, height, depth]} />
-        <meshStandardMaterial color="#e2e8f0" roughness={0.6} />
+        <meshStandardMaterial color="#f1f5f9" roughness={0.4} />
       </mesh>
       
+      {/* Horizontal Stone Bands */}
+      {Array.from({ length: floors }).map((_, i) => (
+        <mesh key={i} position={[0, i * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR, depth/2 + 0.1]}>
+          <boxGeometry args={[width + 0.2, 0.4, 0.3]} />
+          <meshStandardMaterial color="#cbd5e1" />
+        </mesh>
+      ))}
+
       {/* Arched windows on 2nd floor */}
       {Array.from({ length: 4 }).map((_, i) => (
         <group key={i} position={[(i - 1.5) * 2.5, DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR + 1.8, depth/2 + 0.1]}>
-           <mesh>
-             <planeGeometry args={[1.5, 2.5]} />
-             <meshStandardMaterial color="#1e293b" />
-           </mesh>
+           <Window3D position={[0, 0, 0]} width={1.8} />
            <mesh position={[0, 1.25, 0]}>
-             <circleGeometry args={[0.75, 16, 0, Math.PI]} />
-             <meshStandardMaterial color="#1e293b" />
+             <circleGeometry args={[0.95, 16, 0, Math.PI]} />
+             <meshStandardMaterial color="#2d2d2d" />
            </mesh>
+        </group>
+      ))}
+
+      {/* Standard windows upper floors */}
+      {Array.from({ length: floors - 2 }).map((_, f) => (
+        <group key={f} position={[0, (f + 2) * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR + 1.8, depth/2 + 0.15]}>
+          {[-3, 0, 3].map((off, i) => (
+            <Window3D key={i} position={[off, 0, 0]} width={1.6} />
+          ))}
         </group>
       ))}
       
       {/* Doorman Awning */}
-      <mesh position={[0, 2.2, depth/2 + 2]} rotation={[0.2, 0, 0]}>
-        <boxGeometry args={[3, 0.1, 4]} />
+      <mesh position={[0, 2.5, depth/2 + 2.5]} rotation={[0.1, 0, 0]} castShadow>
+        <boxGeometry args={[4, 0.2, 5]} />
         <meshStandardMaterial color="#064e3b" />
       </mesh>
-      <group position={[0, 2.2, depth/2 + 4]}>
-        <mesh position={[-1.45, -1.1, 0]}>
-           <cylinderGeometry args={[0.05, 0.05, 2.2]} />
-           <meshStandardMaterial color="#d4d4d8" />
-        </mesh>
-        <mesh position={[1.45, -1.1, 0]}>
-           <cylinderGeometry args={[0.05, 0.05, 2.2]} />
-           <meshStandardMaterial color="#d4d4d8" />
-        </mesh>
-      </group>
     </group>
   );
 };
@@ -214,58 +206,61 @@ const BuildingFourConvertedIndustrial = ({ position }: { position: [number, numb
 
   return (
     <group position={position}>
+      {/* Facade */}
       <mesh castShadow receiveShadow position={[0, height / 2, 0]}>
         <boxGeometry args={[width, height, depth]} />
-        <meshStandardMaterial color="#7f1d1d" roughness={0.9} />
+        <meshStandardMaterial color="#450a0a" roughness={1.0} />
       </mesh>
+
+      {/* String Courses (Brick rows) */}
+      {Array.from({ length: floors }).map((_, i) => (
+        <mesh key={i} position={[0, i * floorHeight, depth/2 + 0.1]}>
+          <boxGeometry args={[width + 0.1, 0.3, 0.2]} />
+          <meshStandardMaterial color="#111" />
+        </mesh>
+      ))}
       
       {/* Rooftop Water Tower */}
       <group position={[0, height + 1, 0]}>
-         <mesh position={[0, 1.5, 0]}>
+         <mesh position={[0, 1.5, 0]} castShadow>
            <cylinderGeometry args={[2, 2, 3, 12]} />
-           <meshStandardMaterial color="#5c4033" />
+           <meshStandardMaterial color="#422006" />
          </mesh>
          <mesh position={[0, 3, 0]}>
            <coneGeometry args={[2.2, 1, 12]} />
-           <meshStandardMaterial color="#5c4033" />
+           <meshStandardMaterial color="#422006" />
          </mesh>
          {/* Legs */}
          {[[-1,0,-1],[1,0,-1],[-1,0,1],[1,0,1]].map((p, i) => (
            <mesh key={i} position={[p[0]*1.2, 0, p[2]*1.2]}>
               <cylinderGeometry args={[0.1, 0.1, 2]} />
-              <meshStandardMaterial color="#333" />
+              <meshStandardMaterial color="#111" />
            </mesh>
          ))}
       </group>
       
-      {/* Large steel frame windows */}
-      {Array.from({ length: floors * 3 }).map((_, i) => {
-        const f = Math.floor(i / 3);
-        const c = i % 3;
-        return (
-          <mesh key={i} position={[(c - 1) * 4.5, f * floorHeight + 2.2, depth/2 + 0.05]}>
-             <planeGeometry args={[3.2, 3]} />
-             <meshStandardMaterial color="#0f172a" roughness={0.2} metalness={0.8} />
-          </mesh>
-        );
-      })}
-      {/* Bike locked to railing */}
-      <group position={[width/2 - 1, 0, depth/2 + 0.5]} rotation={[0, 0.2, 0]}>
-         <mesh position={[0, 0.5, 0]}>
-            <torusGeometry args={[0.4, 0.05, 8, 16]} />
-            <meshStandardMaterial color="#111" />
-         </mesh>
-         <mesh position={[0, 0.5, 1]} rotation={[0, 0, 0]}>
-            <torusGeometry args={[0.4, 0.05, 8, 16]} />
-            <meshStandardMaterial color="#111" />
-         </mesh>
-         <mesh position={[0, 0.8, 0.5]}><boxGeometry args={[0.05, 0.8, 1]} /><meshStandardMaterial color="#2563eb" /></mesh>
-      </group>
+      {/* Large steel frame windows with recessed glass */}
+      {Array.from({ length: floors }).map((_, f) => (
+        <group key={f} position={[0, f * floorHeight + 2.2, depth/2 + 0.1]}>
+          {[-4.5, 0, 4.5].map((off, i) => (
+             <group key={i} position={[off, 0, 0]}>
+                <mesh castShadow>
+                  <boxGeometry args={[3.5, 3.2, 0.2]} />
+                  <meshStandardMaterial color="#0f172a" metalness={0.9} />
+                </mesh>
+                <mesh position={[0, 0, -0.1]}>
+                  <planeGeometry args={[3.3, 3]} />
+                  <meshStandardMaterial color="#1e293b" roughness={0.1} />
+                </mesh>
+             </group>
+          ))}
+        </group>
+      ))}
     </group>
   );
 };
 
-// Building 5: Far End (Simplified)
+// Building 5: Far End (Simplified but with windows)
 const BuildingFiveFarEnd = ({ position, color, hasGhostSign }: { position: [number, number, number], color: string, hasGhostSign?: boolean }) => {
   const width = 15;
   const height = 40 + Math.random() * 20;
@@ -277,6 +272,19 @@ const BuildingFiveFarEnd = ({ position, color, hasGhostSign }: { position: [numb
         <boxGeometry args={[width, height, depth]} />
         <meshStandardMaterial color={color} roughness={1} />
       </mesh>
+      
+      {/* Distant Window Grid */}
+      {Array.from({ length: 15 }).map((_, f) => (
+        <group key={f} position={[0, f * 4 + 4, depth/2 + 0.1]}>
+          {[-5, 0, 5].map((off, i) => (
+            <mesh key={i} position={[off, 0, 0]}>
+              <planeGeometry args={[2.5, 2]} />
+              <meshStandardMaterial color="#0f172a" opacity={0.6} transparent />
+            </mesh>
+          ))}
+        </group>
+      ))}
+
       {hasGhostSign && (
          <group position={[width/2 + 0.1, height * 0.7, 0]}>
             <mesh rotation={[0, Math.PI/2, 0]}>
