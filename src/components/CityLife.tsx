@@ -92,31 +92,34 @@ export default function CityLife({ paused, isMobile, weather }: { paused: boolea
     <group>
       {/* Parked Cars - NYC specified mix */}
       {/* Right Curb */}
-      <NYCVehicle type="taxi" color="#fbbf24" position={[4.5, 0, -10]} rotation={[0, 0.05, 0]} /> {/* NYC Taxi (off duty) */}
-      <NYCVehicle type="car" color="#111" position={[4.6, 0, -25]} rotation={[0, -0.02, 0]} /> {/* Black town car */}
-      <NYCVehicle type="car" color="#475569" position={[4.4, 0, -40]} rotation={[0, 0.03, 0]} /> {/* Beat-up Honda Civic */}
+      <NYCVehicle type="taxi" color="#fbbf24" position={[4.5, 0, -10]} rotation={[0, 0.05, 0]} />
+      <NYCVehicle type="car" color="#111" position={[4.6, 0, -25]} rotation={[0, -0.02, 0]} />
+      <NYCVehicle type="car" color="#475569" position={[4.4, 0, -40]} rotation={[0, 0.03, 0]} />
+      <NYCVehicle type="car" color="#2d3748" position={[4.5, 0, 15]} rotation={[0, 0.01, 0]} />
+      <NYCVehicle type="car" color="#e2e8f0" position={[4.6, 0, 35]} rotation={[0, -0.04, 0]} />
       
       {/* Left Curb */}
-      <NYCVehicle type="van" color="#f8fafc" position={[-4.5, 0, -15]} rotation={[0, Math.PI + 0.02, 0]} /> {/* White delivery van */}
+      <NYCVehicle type="van" color="#f8fafc" position={[-4.5, 0, -15]} rotation={[0, Math.PI + 0.02, 0]} />
       <NYCVehicle type="car" color="#334155" position={[-4.6, 0, -35]} rotation={[0, Math.PI - 0.05, 0]} />
+      <NYCVehicle type="car" color="#718096" position={[-4.5, 0, 5]} rotation={[0, Math.PI + 0.03, 0]} />
+      <NYCVehicle type="car" color="#1a202c" position={[-4.4, 0, 25]} rotation={[0, Math.PI - 0.02, 0]} />
       
       {/* Double-parked / Hazards truck in background */}
       <NYCVehicle type="truck" color="#d1d5db" position={[3, 0, 80]} rotation={[0, 0, 0]} hazards={true} />
 
-      {/* NPCs - Max 12 visible localized crowd */}
+      {/* NPCs - Exactly 12 visible localized crowd */}
       <ManhattanNPC position={[7, 0, -20]} color="#1e3a8a" speed={1.2} offset={0} />
       <ManhattanNPC position={[7.5, 0, 5]} color="#9f1239" speed={0.8} offset={2} />
       <ManhattanNPC position={[-7, 0, -15]} color="#14532d" speed={-1.5} offset={4} />
       <ManhattanNPC position={[-7.5, 0, 20]} color="#f59e0b" speed={1.0} offset={1} />
-      
-      {!isMobile && (
-        <>
-          <ManhattanNPC position={[8, 0, -50]} color="#000" speed={1.3} offset={5} />
-          <ManhattanNPC position={[-8, 0, -60]} color="#555" speed={-0.9} offset={3} />
-          <ManhattanNPC position={[6.5, 0, -80]} color="#2563eb" speed={1.6} offset={6} />
-          <ManhattanNPC position={[-6.5, 0, -100]} color="#dc2626" speed={-1.1} offset={0.5} />
-        </>
-      )}
+      <ManhattanNPC position={[8, 0, -50]} color="#111" speed={1.3} offset={5} />
+      <ManhattanNPC position={[-8, 0, -60]} color="#555" speed={-0.9} offset={3} />
+      <ManhattanNPC position={[6.5, 0, -80]} color="#2563eb" speed={1.6} offset={6} />
+      <ManhattanNPC position={[-6.5, 0, -100]} color="#dc2626" speed={-1.1} offset={0.5} />
+      <ManhattanNPC position={[7.2, 0, -120]} color="#065f46" speed={1.4} offset={2.5} />
+      <ManhattanNPC position={[-7.8, 0, -140]} color="#7c2d12" speed={-0.8} offset={1.5} />
+      <ManhattanNPC position={[6.8, 0, 45]} color="#4c1d95" speed={1.1} offset={3.5} />
+      <ManhattanNPC position={[-7.2, 0, 65]} color="#be185d" speed={-1.2} offset={4.5} />
     </group>
   );
 }

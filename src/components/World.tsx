@@ -429,25 +429,55 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
          <meshBasicMaterial color="#a16207" transparent opacity={0.4} />
       </mesh>
 
-      {/* Sidewalks */}
+      {/* Sidewalks with Curb Details */}
       <PavementSlabs width={DIMENSIONS.SIDEWALK_WIDTH} length={roadLength} x={-(DIMENSIONS.ROAD_WIDTH/2 + DIMENSIONS.SIDEWALK_WIDTH/2)} />
       <PavementSlabs width={DIMENSIONS.SIDEWALK_WIDTH} length={roadLength} x={(DIMENSIONS.ROAD_WIDTH/2 + DIMENSIONS.SIDEWALK_WIDTH/2)} />
 
-      {/* Buildings - Left Side */}
-      <group position={[-(DIMENSIONS.ROAD_WIDTH/2 + DIMENSIONS.SIDEWALK_WIDTH + 7.5), 0, 0]}>
-         <BuildingOneClassicBrownstone position={[0, 0, -30]} />
-         <BuildingTwoBrickApartment position={[0, 0, -10]} />
-         <BuildingFiveFarEnd position={[0, 0, 40]} color="#451a03" />
-         <BuildingFiveFarEnd position={[0, 0, 80]} color="#334155" hasGhostSign />
-      </group>
+      {/* Procedural Building Canyon - Left Side */}
+      {useMemo(() => {
+        const buildings = [];
+        let curZ = -140;
+        const spacing = 0.1;
+        while (curZ < 140) {
+          const type = Math.floor(Math.random() * 4);
+          const width = type === 0 ? 7.5 : (type === 3 ? 15 : 12);
+          const posZ = curZ + width / 2;
+          const posX = -(DIMENSIONS.ROAD_WIDTH / 2 + DIMENSIONS.SIDEWALK_WIDTH + width / 2);
+          
+          if (type === 0) buildings.push(<BuildingOneClassicBrownstone key={`l-${curZ}`} position={[posX, 0, posZ]} />);
+          else if (type === 1) buildings.push(<BuildingTwoBrickApartment key={`l-${curZ}`} position={[posX, 0, posZ]} />);
+          else if (type === 2) buildings.push(<BuildingThreePreWarLimestone key={`l-${curZ}`} position={[posX, 0, posZ]} />);
+          else buildings.push(<BuildingFourConvertedIndustrial key={`l-${curZ}`} position={[posX, 0, posZ]} />);
+          
+          curZ += width + spacing;
+        }
+        return buildings;
+      }, [])}
 
-      {/* Buildings - Right Side */}
-      <group position={[(DIMENSIONS.ROAD_WIDTH/2 + DIMENSIONS.SIDEWALK_WIDTH + 7.5), 0, 0]}>
-         <BuildingThreePreWarLimestone position={[0, 0, -30]} />
-         <BuildingFourConvertedIndustrial position={[0, 0, -5]} />
-         <BuildingFiveFarEnd position={[0, 0, 50]} color="#57534e" />
-         <BuildingFiveFarEnd position={[0, 0, 100]} color="#1e293b" />
-      </group>
+      {/* Procedural Building Canyon - Right Side */}
+      {useMemo(() => {
+        const buildings = [];
+        let curZ = -140;
+        const spacing = 0.1;
+        while (curZ < 140) {
+          const type = Math.floor(Math.random() * 4);
+          const width = type === 0 ? 7.5 : (type === 3 ? 15 : 12);
+          const posZ = curZ + width / 2;
+          const posX = (DIMENSIONS.ROAD_WIDTH / 2 + DIMENSIONS.SIDEWALK_WIDTH + width / 2);
+          
+          if (type === 0) buildings.push(<BuildingOneClassicBrownstone key={`r-${curZ}`} position={[posX, 0, posZ]} />);
+          else if (type === 1) buildings.push(<BuildingTwoBrickApartment key={`r-${curZ}`} position={[posX, 0, posZ]} />);
+          else if (type === 2) buildings.push(<BuildingThreePreWarLimestone key={`r-${curZ}`} position={[posX, 0, posZ]} />);
+          else buildings.push(<BuildingFourConvertedIndustrial key={`r-${curZ}`} position={[posX, 0, posZ]} />);
+          
+          curZ += width + spacing;
+        }
+        return buildings;
+      }, [])}
+
+      {/* Additional Distant Blocks for Verticality */}
+      <BuildingFiveFarEnd position={[-(DIMENSIONS.ROAD_WIDTH + 30), 0, 160]} color="#1e293b" />
+      <BuildingFiveFarEnd position={[(DIMENSIONS.ROAD_WIDTH + 30), 0, 160]} color="#334155" hasGhostSign />
 
       {/* Road Patches */}
       <mesh position={[2, 0.03, -15]} rotation={[-Math.PI/2, 0, 0]}>

@@ -132,7 +132,7 @@ const EnvironmentManager = ({
     }
 
     scene.background = colorObj.set(targetSky).clone();
-    scene.fog = new THREE.FogExp2(targetSky, 0.012);
+    scene.fog = new THREE.FogExp2(targetSky, 0.005); // Reduced density from 0.012
     
     if (lightRef.current) lightRef.current.color.lerp(colorObj.set(targetLight), 0.05);
   });
@@ -264,7 +264,7 @@ export default function Scene() {
             luminanceSmoothing={0.05} 
             mipmapBlur 
           />
-          <Vignette eskil={false} offset={0.1} darkness={1.1} />
+          <Vignette eskil={false} offset={0.1} darkness={isMobile ? 0.5 : 0.8} /> {/* Reduced from 1.1 to fix black edges */}
           <Noise opacity={0.03} />
           {weather === 'STORM' && <ChromaticAberration offset={new THREE.Vector2(0.004, 0.004)} />}
         </EffectComposer>
