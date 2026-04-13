@@ -9,17 +9,16 @@ const AUDIO_FILES = {
   templeBell: 'https://assets.mixkit.co/active_storage/sfx/2516/2516-preview.mp3'
 };
 
-export default function AudioManager({ weather }: { weather: string }) {
+export default function AudioManager() {
   const { camera } = useThree();
   const listener = useRef(new THREE.AudioListener());
   const ambientSound = useRef<THREE.Audio | null>(null);
-  const rainSound = useRef<THREE.Audio | null>(null);
 
   useEffect(() => {
     camera.add(listener.current);
     const audioLoader = new THREE.AudioLoader();
 
-    // Ocean Base
+    // Ocean/Wind Base
     const ocean = new THREE.Audio(listener.current);
     audioLoader.load(AUDIO_FILES.ocean, (buffer) => {
       ocean.setBuffer(buffer);
@@ -38,37 +37,12 @@ export default function AudioManager({ weather }: { weather: string }) {
       atmosphere.play();
     });
 
-    // Rain Layer
-    const rain = new THREE.Audio(listener.current);
-    audioLoader.load(AUDIO_FILES.rain, (buffer) => {
-      rain.setBuffer(buffer);
-      rain.setLoop(true);
-      rain.setVolume(0);
-      rain.play();
-    });
-    rainSound.current = rain;
-
     return () => {
       camera.remove(listener.current);
       ocean.stop();
-      rain.stop();
+      atmosphere.stop();
     };
   }, [camera]);
-
-  useEffect(() => {
-    if (rainSound.current) {
-      const isRaining = weather === 'RAIN' || weather === 'STORM';
-      rainSound.current.setVolume(isRaining ? 0.6 : 0);
-    }
-    
-    // RDR2 Spec: 6:15 PM Temple Bell
-    const bellInterval = setInterval(() => {
-       // Logic for triggering bell if time hits 18.25
-       // This will be expanded once we have the high-quality assets
-    }, 5000);
-
-    return () => clearInterval(bellInterval);
-  }, [weather]);
 
   return null;
 }

@@ -55,53 +55,30 @@ const Rain = () => {
   );
 };
 
-// --- WEATHER & ATMOSPHERE ENGINE ---
-export type WeatherState = 'CLEAR' | 'CLOUDY' | 'OVERCAST' | 'RAIN' | 'STORM' | 'MISTY';
-
-const WEATHER_CONFIG: Record<WeatherState, any> = {
-  CLEAR: { sky: '#38bdf8', fog: '#e0f2fe', light: '#ffffff', intensity: 1.5, fogDensity: 0.008 },
-  CLOUDY: { sky: '#94a3b8', fog: '#cbd5e1', light: '#f1f5f9', intensity: 1.0, fogDensity: 0.012 },
-  OVERCAST: { sky: '#64748b', fog: '#94a3b8', light: '#94a3b8', intensity: 0.6, fogDensity: 0.015 },
-  RAIN: { sky: '#475569', fog: '#64748b', light: '#94a3b8', intensity: 0.4, fogDensity: 0.025 },
-  STORM: { sky: '#1e293b', fog: '#334155', light: '#64748b', intensity: 0.3, fogDensity: 0.035 },
-  MISTY: { sky: '#cbd5e1', fog: '#e2e8f0', light: '#f1f5f9', intensity: 0.8, fogDensity: 0.045 },
-};
+// --- ENVIRONMENT & ATMOSPHERE ENGINE ---
 
 const EnvironmentManager = ({ 
-  weather, 
-  timeSpeed = 0.005, 
   timeOfDay, 
   setTimeOfDay 
 }: { 
-  weather: WeatherState, 
-  timeSpeed?: number, 
   timeOfDay: number, 
   setTimeOfDay: (v: number | ((prev: number) => number)) => void 
 }) => {
-  const [cloudDimmness, setCloudDimmness] = useState(1);
   const lightRef = useRef<THREE.DirectionalLight>(null);
   const colorObj = useMemo(() => new THREE.Color(), []);
   const { scene } = useThree();
 
   useEffect(() => {
+    // Stop the automatic cycle when the user has manual control via slider
     const timer = setInterval(() => {
       setTimeOfDay(prev => {
-        const next = prev + 0.01; // Cycle speed
+        const next = prev + 0.005; // Very slow natural drift
         if (next > 24) return 0; 
         return next;
       });
-    }, 500); 
+    }, 1000); 
 
-    // Cloud Pass (Simulate cloud covering sun)
-    const cloudTimer = setInterval(() => {
-      setCloudDimmness(0.5);
-      setTimeout(() => setCloudDimmness(1), 8000);
-    }, 45000);
-
-    return () => {
-      clearInterval(timer);
-      clearInterval(cloudTimer);
-    };
+    return () => clearInterval(timer);
   }, []);
 
   useFrame((state, delta) => {
@@ -113,7 +90,7 @@ const EnvironmentManager = ({
 
     if (lightRef.current) {
       lightRef.current.position.set(sunX, sunY, sunZ);
-      const intensity = Math.max(0, Math.sin(angle)) * 1.5 * cloudDimmness;
+      const intensity = Math.max(0, Math.sin(angle)) * 1.5;
       lightRef.current.intensity = THREE.MathUtils.lerp(lightRef.current.intensity, intensity, 0.05);
     }
 
@@ -161,8 +138,8 @@ const EnvironmentManager = ({
       {!isNight && (
         <Sky 
           sunPosition={[Math.cos(((timeOfDay - 6) / 24) * Math.PI * 2) * 100, Math.sin(((timeOfDay - 6) / 24) * Math.PI * 2) * 100, 0]} 
-          turbidity={weather === 'MISTY' ? 20 : 6} 
-          rayleigh={weather === 'CLEAR' ? 1.5 : 0.8}
+          turbidity={6} 
+          rayleigh={1.5}
           mieCoefficient={0.005}
           mieDirectionalG={0.8}
         />
@@ -176,7 +153,6 @@ export default function Scene() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [cameraLanded, setCameraLanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [weather, setWeather] = useState<WeatherState>('CLEAR');
   const [showOnboarding, setShowOnboarding] = useState(true);
   const location = useLocation();
 
@@ -188,16 +164,6 @@ export default function Scene() {
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
-
-  const weatherCycle: WeatherState[] = ['CLEAR', 'CLOUDY', 'MISTY', 'RAIN', 'STORM'];
-  const nextWeather = () => {
-    const currentIndex = weatherCycle.indexOf(weather);
-    setWeather(weatherCycle[(currentIndex + 1) % weatherCycle.length]);
-  };
-
-  useEffect(() => {
-    console.log("Scene mounted. Weather:", weather);
-  }, [weather]);
 
   // Reset menu state when navigating away from home
   useEffect(() => {
@@ -232,8 +198,7 @@ export default function Scene() {
         performance={{ min: 0.5 }}
       >
         <fog attach="fog" args={['#2563eb', 60, 250]} /> {/* Cool blue morning fog */}
-        <EnvironmentManager weather={weather} timeOfDay={timeOfDay} setTimeOfDay={setTimeOfDay} />
-        {(weather === 'RAIN' || weather === 'STORM') && <Rain />}
+        <EnvironmentManager timeOfDay={timeOfDay} setTimeOfDay={setTimeOfDay} />
         
         <OrbitControls 
           makeDefault 
@@ -241,8 +206,8 @@ export default function Scene() {
         />
 
         <group position={[0, 0, 0]}>
-          <World isMobile={isMobile} weather={weather} timeOfDay={timeOfDay} />
-          <CityLife paused={menuOpen || !cameraLanded} isMobile={isMobile} weather={weather} />
+          <World isMobile={isMobile} timeOfDay={timeOfDay} />
+          <CityLife paused={menuOpen || !cameraLanded} isMobile={isMobile} />
           
           <group position={[0, 0, 0]}>
             <Character 
@@ -282,7 +247,7 @@ export default function Scene() {
       
       {!cameraLanded && (
         <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 text-white/50 text-sm animate-pulse font-mono tracking-widest pointer-events-none uppercase">
-          Initializing Environment — {weather}
+          Initializing Environment
         </div>
       )}
 
@@ -293,16 +258,32 @@ export default function Scene() {
         />
       )}
 
-      {/* Advanced Weather Controller */}
+      {/* Day/Night System Controller */}
       {cameraLanded && location.pathname === '/' && (
         <div className="absolute top-6 right-6 z-50 flex flex-col gap-2 scale-90 md:scale-100 origin-top-right">
-          <button 
-            onClick={nextWeather}
-            className="bg-black/40 text-white px-5 py-2.5 rounded-full backdrop-blur-md border border-white/20 text-xs font-bold hover:bg-white/20 hover:scale-105 transition-all shadow-lg flex items-center gap-2 group"
-          >
-            <span className="opacity-60 group-hover:opacity-100 transition-opacity">Weather:</span>
-            <span className="text-yellow-400">{weather}</span>
-          </button>
+          <div className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-4 shadow-2xl min-w-[200px]">
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Time System</span>
+              <span className="text-[10px] font-mono text-blue-400">
+                {Math.floor(timeOfDay).toString().padStart(2, '0')}:{(Math.floor((timeOfDay % 1) * 60)).toString().padStart(2, '0')}
+              </span>
+            </div>
+            <input 
+              type="range" 
+              min="0" 
+              max="24" 
+              step="0.1" 
+              value={timeOfDay} 
+              onChange={(e) => setTimeOfDay(parseFloat(e.target.value))}
+              className="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-blue-500 hover:accent-blue-400 transition-all"
+            />
+            <div className="flex justify-between mt-2 text-[8px] text-white/30 font-bold uppercase tracking-tighter">
+              <span>Dawn</span>
+              <span>Noon</span>
+              <span>Dusk</span>
+              <span>Night</span>
+            </div>
+          </div>
         </div>
       )}
     </div>

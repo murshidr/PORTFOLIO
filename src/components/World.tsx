@@ -1,4 +1,4 @@
-import { useMemo, useRef, useEffect } from 'react';
+import { useMemo, useRef, useEffect, useState } from 'react';
 import { useFrame } from '@react-three/fiber';
 import { Text } from '@react-three/drei';
 import * as THREE from 'three';
@@ -364,7 +364,7 @@ const TrashBags = ({ position }: { position: [number, number, number] }) => (
 );
 
 
-export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boolean, weather?: string, timeOfDay?: number }) {
+export default function World({ isMobile, timeOfDay }: { isMobile: boolean, timeOfDay: number }) {
   const roadLength = 300;
   
   return (

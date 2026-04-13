@@ -211,7 +211,7 @@ const ManhattanNPC = ({ color, position, speed, offset, playerPos }: any) => {
   );
 };
 
-export default function CityLife({ paused, isMobile, weather }: { paused: boolean, isMobile?: boolean, weather?: string }) {
+export default function CityLife({ paused, isMobile }: { paused: boolean, isMobile?: boolean }) {
   // Use a simple state or global sync for player pos (simulated here at center sidewalk)
   const playerPos = new THREE.Vector3(7.35, 0, 0);
 
