@@ -240,15 +240,16 @@ export default function Scene() {
           target={[0, 1.5, 0]} 
         />
 
-        <group position={[0, -1, 0]}>
+        <group position={[0, 0, 0]}>
           <World isMobile={isMobile} weather={weather} timeOfDay={timeOfDay} />
-          <CityLife paused={menuOpen} isMobile={isMobile} weather={weather} />
+          <CityLife paused={menuOpen || !cameraLanded} isMobile={isMobile} weather={weather} />
           
           <group position={[0, 0, 0]}>
             <Character 
               onClick={handleCharacterClick} 
               isMenuOpen={menuOpen}
               onCloseMenu={() => setMenuOpen(false)}
+              isWalking={cameraLanded && !menuOpen}
             />
           </group>
         </group>

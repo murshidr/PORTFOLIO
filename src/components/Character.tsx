@@ -9,9 +9,10 @@ interface CharacterProps {
   onClick: () => void;
   isMenuOpen: boolean;
   onCloseMenu: () => void;
+  isWalking?: boolean;
 }
 
-export default function Character({ onClick, isMenuOpen, onCloseMenu }: CharacterProps): React.ReactElement {
+export default function Character({ onClick, isMenuOpen, onCloseMenu, isWalking = false }: CharacterProps): React.ReactElement {
   const [narrativeState, setNarrativeState] = useState<'WALKING'>('WALKING');
   const group = useRef<THREE.Group>(null);
   const [hovered, setHovered] = useState(false);
@@ -125,7 +126,9 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu }: Characte
       group.current.rotation.y = Math.PI + Math.sin(t * stride) * 0.08;
 
       // --- Forward Movement ---
-      group.current.position.z -= walkSpeed * delta;
+      if (isWalking) {
+        group.current.position.z -= walkSpeed * delta;
+      }
 
       // Infinite Loop Logic
       if (group.current.position.z < -140) {
@@ -146,19 +149,21 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu }: Characte
       const lerpFactor = 0.1;
       const controls = state.controls as any;
 
-      if (controls) {
-        // --- Tethered Follow Logic (v1.3) ---
-        const idealZ = group.current.position.z + 5; // Fixed 5 unit offset behind
-        const idealY = 1.8; // Head level focus
+      if (controls && isWalking) {
+        // --- Tethered Follow Logic (v1.5) - Smoother Transitions ---
+        const idealZ = group.current.position.z + 7; 
+        const idealY = 1.8;
+        const lerpVal = 0.05;
         
-        // Move the target to the character's new position
-        controls.target.z = THREE.MathUtils.lerp(controls.target.z, group.current.position.z, lerpFactor); 
-        controls.target.x = THREE.MathUtils.lerp(controls.target.x, targetX, lerpFactor);
-        controls.target.y = THREE.MathUtils.lerp(controls.target.y, 1.6, lerpFactor); 
+        // Follow the character's position
+        controls.target.x = THREE.MathUtils.lerp(controls.target.x, 0, lerpVal);
+        controls.target.y = THREE.MathUtils.lerp(controls.target.y, 1.5, lerpVal);
+        controls.target.z = THREE.MathUtils.lerp(controls.target.z, group.current.position.z, lerpVal);
         
-        // Move the camera to the tethered ideal position (Smooth lerp)
-        camera.position.z = THREE.MathUtils.lerp(camera.position.z, idealZ, 0.1);
-        camera.position.y = THREE.MathUtils.lerp(camera.position.y, idealY, 0.1);
+        // Follow the camera position
+        camera.position.x = THREE.MathUtils.lerp(camera.position.x, 0, lerpVal);
+        camera.position.y = THREE.MathUtils.lerp(camera.position.y, idealY, lerpVal);
+        camera.position.z = THREE.MathUtils.lerp(camera.position.z, idealZ, lerpVal);
         
         controls.update(); 
       }

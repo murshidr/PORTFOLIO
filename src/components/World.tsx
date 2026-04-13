@@ -433,44 +433,44 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
       <PavementSlabs width={DIMENSIONS.SIDEWALK_WIDTH} length={roadLength} x={-(DIMENSIONS.ROAD_WIDTH/2 + DIMENSIONS.SIDEWALK_WIDTH/2)} />
       <PavementSlabs width={DIMENSIONS.SIDEWALK_WIDTH} length={roadLength} x={(DIMENSIONS.ROAD_WIDTH/2 + DIMENSIONS.SIDEWALK_WIDTH/2)} />
 
-      {/* Procedural Building Canyon - Left Side */}
+      {/* Procedural Building Canyon - Left Side (Deterministic) */}
       {useMemo(() => {
         const buildings = [];
         let curZ = -140;
-        const spacing = 0.1;
+        const spacing = 0.5;
+        let index = 0;
         while (curZ < 140) {
-          const type = Math.floor(Math.random() * 4);
+          const type = (index * 7 + 3) % 4; 
           const width = type === 0 ? 7.5 : (type === 3 ? 15 : 12);
           const posZ = curZ + width / 2;
           const posX = -(DIMENSIONS.ROAD_WIDTH / 2 + DIMENSIONS.SIDEWALK_WIDTH + width / 2);
-          
-          if (type === 0) buildings.push(<BuildingOneClassicBrownstone key={`l-${curZ}`} position={[posX, 0, posZ]} />);
-          else if (type === 1) buildings.push(<BuildingTwoBrickApartment key={`l-${curZ}`} position={[posX, 0, posZ]} />);
-          else if (type === 2) buildings.push(<BuildingThreePreWarLimestone key={`l-${curZ}`} position={[posX, 0, posZ]} />);
-          else buildings.push(<BuildingFourConvertedIndustrial key={`l-${curZ}`} position={[posX, 0, posZ]} />);
-          
+          if (type === 0) buildings.push(<BuildingOneClassicBrownstone key={`l-${index}`} position={[posX, 0, posZ]} />);
+          else if (type === 1) buildings.push(<BuildingTwoBrickApartment key={`l-${index}`} position={[posX, 0, posZ]} />);
+          else if (type === 2) buildings.push(<BuildingThreePreWarLimestone key={`l-${index}`} position={[posX, 0, posZ]} />);
+          else buildings.push(<BuildingFourConvertedIndustrial key={`l-${index}`} position={[posX, 0, posZ]} />);
           curZ += width + spacing;
+          index++;
         }
         return buildings;
       }, [])}
 
-      {/* Procedural Building Canyon - Right Side */}
+      {/* Procedural Building Canyon - Right Side (Deterministic) */}
       {useMemo(() => {
         const buildings = [];
         let curZ = -140;
-        const spacing = 0.1;
+        const spacing = 0.5;
+        let index = 0;
         while (curZ < 140) {
-          const type = Math.floor(Math.random() * 4);
+          const type = (index * 13 + 5) % 4; 
           const width = type === 0 ? 7.5 : (type === 3 ? 15 : 12);
           const posZ = curZ + width / 2;
           const posX = (DIMENSIONS.ROAD_WIDTH / 2 + DIMENSIONS.SIDEWALK_WIDTH + width / 2);
-          
-          if (type === 0) buildings.push(<BuildingOneClassicBrownstone key={`r-${curZ}`} position={[posX, 0, posZ]} />);
-          else if (type === 1) buildings.push(<BuildingTwoBrickApartment key={`r-${curZ}`} position={[posX, 0, posZ]} />);
-          else if (type === 2) buildings.push(<BuildingThreePreWarLimestone key={`r-${curZ}`} position={[posX, 0, posZ]} />);
-          else buildings.push(<BuildingFourConvertedIndustrial key={`r-${curZ}`} position={[posX, 0, posZ]} />);
-          
+          if (type === 0) buildings.push(<BuildingOneClassicBrownstone key={`r-${index}`} position={[posX, 0, posZ]} />);
+          else if (type === 1) buildings.push(<BuildingTwoBrickApartment key={`r-${index}`} position={[posX, 0, posZ]} />);
+          else if (type === 2) buildings.push(<BuildingThreePreWarLimestone key={`r-${index}`} position={[posX, 0, posZ]} />);
+          else buildings.push(<BuildingFourConvertedIndustrial key={`r-${index}`} position={[posX, 0, posZ]} />);
           curZ += width + spacing;
+          index++;
         }
         return buildings;
       }, [])}
@@ -479,7 +479,7 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
       <BuildingFiveFarEnd position={[-(DIMENSIONS.ROAD_WIDTH + 30), 0, 160]} color="#1e293b" />
       <BuildingFiveFarEnd position={[(DIMENSIONS.ROAD_WIDTH + 30), 0, 160]} color="#334155" hasGhostSign />
 
-      {/* Road Patches */}
+      {/* Road Details */}
       <mesh position={[2, 0.03, -15]} rotation={[-Math.PI/2, 0, 0]}>
          <planeGeometry args={[3, 4]} />
          <meshStandardMaterial color="#0a0a0a" roughness={0.5} />
@@ -487,6 +487,11 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
       <mesh position={[-3, 0.03, 10]} rotation={[-Math.PI/2, 0, 0]}>
          <planeGeometry args={[4, 2]} />
          <meshStandardMaterial color="#0f172a" roughness={0.6} />
+      </mesh>
+      {/* Center Line Patches */}
+      <mesh position={[0, 0.04, -50]} rotation={[-Math.PI/2, 0, 0]}>
+         <planeGeometry args={[0.2, 5]} />
+         <meshBasicMaterial color="#fbbf24" transparent opacity={0.6} />
       </mesh>
 
       {/* Storm Drain */}
@@ -512,6 +517,29 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
 
       <StreetSigns position={[-(DIMENSIONS.ROAD_WIDTH/2 + 0.5), 0, -35]} />
       
+      {/* USPS Mailbox (Classic Blue) */}
+      <group position={[DIMENSIONS.ROAD_WIDTH/2 + 1.2, 0, -5]}>
+         <mesh position={[0, 0.6, 0]} castShadow>
+            <boxGeometry args={[0.6, 1.2, 0.6]} />
+            <meshStandardMaterial color="#1e3a8a" />
+         </mesh>
+         <mesh position={[0, 1.2, 0]}>
+            <sphereGeometry args={[0.3, 16, 16, 0, Math.PI * 2, 0, Math.PI/2]} />
+            <meshStandardMaterial color="#1e3a8a" />
+         </mesh>
+      </group>
+
+      {/* Scaffolding - Common in Manhattan */}
+      <group position={[-(DIMENSIONS.ROAD_WIDTH/2 + 2), 0, 15]}>
+         {Array.from({ length: 4 }).map((_, i) => (
+            <mesh key={i} position={[0, 2.5, i * 4]}>
+               <boxGeometry args={[0.1, 5, 0.1]} />
+               <meshStandardMaterial color="#94a3b8" />
+            </mesh>
+         ))}
+         <mesh position={[0.5, 5, 6]}><boxGeometry args={[4, 0.1, 16]} /><meshStandardMaterial color="#554433" /></mesh>
+      </group>
+
       <TrashBags position={[-(DIMENSIONS.ROAD_WIDTH/2 + 2), 0, -5]} />
       <TrashBags position={[(DIMENSIONS.ROAD_WIDTH/2 + 2), 0, 15]} />
 
