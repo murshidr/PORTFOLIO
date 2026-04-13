@@ -16,85 +16,69 @@ const DIMENSIONS = {
 
 // Helper for 3D Windows
 const Window3D = ({ position, width = 1.2, height = 1.8 }: { position: [number, number, number], width?: number, height?: number }) => (
+  // position[0] is X (extension), position[1] is Y (up), position[2] is Z (along street)
   <group position={position}>
     {/* Frame */}
     <mesh castShadow>
-      <boxGeometry args={[width + 0.1, height + 0.1, 0.1]} />
+      <boxGeometry args={[0.2, height + 0.1, width + 0.1]} />
       <meshStandardMaterial color="#2d2d2d" />
     </mesh>
     {/* Glass (Recessed) */}
-    <mesh position={[0, 0, -0.05]}>
+    <mesh position={[0.05, 0, 0]}>
       <planeGeometry args={[width, height]} />
       <meshStandardMaterial color="#0f172a" roughness={0.1} metalness={0.8} />
     </mesh>
     {/* Sill */}
-    <mesh position={[0, -height/2 - 0.05, 0.05]}>
-      <boxGeometry args={[width + 0.2, 0.1, 0.2]} />
+    <mesh position={[0.1, -height/2 - 0.05, 0]}>
+      <boxGeometry args={[0.2, 0.1, width + 0.2]} />
       <meshStandardMaterial color="#475569" />
     </mesh>
   </group>
 );
 
 // Building 1: Classic Brownstone
-const BuildingOneClassicBrownstone = ({ position }: { position: [number, number, number] }) => {
-  const width = 7.5;
+const BuildingOneClassicBrownstone = ({ position, streetWidth = 7.5 }: { position: [number, number, number], streetWidth?: number }) => {
   const floors = 5;
   const height = floors * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR;
-  const depth = 15;
+  const blockDepth = 15; // X-axis extension
 
   return (
     <group position={position}>
       {/* Facade */}
       <mesh castShadow receiveShadow position={[0, height / 2, 0]}>
-        <boxGeometry args={[width, height, depth]} />
+        <boxGeometry args={[blockDepth, height, streetWidth]} />
         <meshStandardMaterial color="#7c2d12" roughness={0.9} />
       </mesh>
 
       {/* Floor Bands (Ledges) */}
       {Array.from({ length: floors }).map((_, i) => (
-        <mesh key={i} position={[0, i * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR, depth/2 + 0.1]}>
-          <boxGeometry args={[width + 0.1, 0.2, 0.2]} />
+        <mesh key={i} position={[blockDepth/2 + 0.1, i * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR, 0]}>
+          <boxGeometry args={[0.2, 0.2, streetWidth + 0.1]} />
           <meshStandardMaterial color="#431407" />
         </mesh>
       ))}
 
       {/* Stoop */}
-      <group position={[width/4, 0.15, depth/2 + 0.5]}>
+      <group position={[blockDepth/2 + 0.5, 0.15, streetWidth/4]}>
         {Array.from({ length: 6 }).map((_, i) => (
-          <mesh key={i} position={[0, i * 0.2, -i * 0.3]}>
-            <boxGeometry args={[2.5, 0.2, 0.4]} />
+          <mesh key={i} position={[-i * 0.3, i * 0.2, 0]}>
+            <boxGeometry args={[0.4, 0.2, 2.5]} />
             <meshStandardMaterial color="#451a03" />
           </mesh>
         ))}
-        {/* Iron Railing */}
-        <mesh position={[1.3, 0.6, -0.6]} rotation={[0.5, 0, 0]}>
-          <boxGeometry args={[0.05, 0.05, 2.5]} />
-          <meshStandardMaterial color="#111" />
-        </mesh>
-        <mesh position={[-1.3, 0.6, -0.6]} rotation={[0.5, 0, 0]}>
-          <boxGeometry args={[0.05, 0.05, 2.5]} />
-          <meshStandardMaterial color="#111" />
-        </mesh>
       </group>
 
       {/* Cornice */}
-      <mesh position={[0, height, depth/2 + 0.2]}>
-        <boxGeometry args={[width + 0.4, 0.8, 0.6]} />
+      <mesh position={[blockDepth/2 + 0.2, height, 0]}>
+        <boxGeometry args={[0.6, 0.8, streetWidth + 0.4]} />
         <meshStandardMaterial color="#431407" />
       </mesh>
 
       {/* 3D Windows */}
       {Array.from({ length: floors }).map((_, f) => (
-        <group key={f} position={[0, f * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR + 1.8, depth/2 + 0.05]}>
-          <Window3D position={[-width/4, 0, 0]} />
-          <Window3D position={[width/4, 0, 0]} />
-          {/* AC Unit */}
-          {f === 2 && (
-            <mesh position={[width/4, -0.4, 0.3]}>
-              <boxGeometry args={[0.8, 0.6, 0.6]} />
-              <meshStandardMaterial color="#cbd5e1" />
-            </mesh>
-          )}
+        <group key={f} position={[blockDepth/2, f * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR + 1.8, 0]}>
+          <Window3D position={[0.05, 0, -streetWidth/4]} />
+          <Window3D position={[0.05, 0, streetWidth/4]} />
         </group>
       ))}
     </group>
@@ -102,42 +86,31 @@ const BuildingOneClassicBrownstone = ({ position }: { position: [number, number,
 };
 
 // Building 2: 1960s Brick Apartment
-const BuildingTwoBrickApartment = ({ position }: { position: [number, number, number] }) => {
-  const width = 12;
+const BuildingTwoBrickApartment = ({ position, streetWidth = 12 }: { position: [number, number, number], streetWidth?: number }) => {
   const floors = 8;
   const height = floors * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR;
-  const depth = 15;
+  const blockDepth = 15;
 
   return (
     <group position={position}>
       {/* Facade */}
       <mesh castShadow receiveShadow position={[0, height / 2, 0]}>
-        <boxGeometry args={[width, height, depth]} />
+        <boxGeometry args={[blockDepth, height, streetWidth]} />
         <meshStandardMaterial color="#572810" roughness={0.8} />
-      </mesh>
-
-      {/* Vertical Concrete Ribs (Stylistic) */}
-      <mesh position={[width/2, height/2, depth/2 + 0.1]}>
-        <boxGeometry args={[0.4, height, 0.2]} />
-        <meshStandardMaterial color="#94a3b8" />
-      </mesh>
-      <mesh position={[-width/2, height/2, depth/2 + 0.1]}>
-        <boxGeometry args={[0.4, height, 0.2]} />
-        <meshStandardMaterial color="#94a3b8" />
       </mesh>
 
       {/* 3D Windows & ACs */}
       {Array.from({ length: floors }).map((_, f) => (
-        <group key={f} position={[0, f * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR + 1.8, depth/2 + 0.05]}>
-          {[-3, 0, 3].map((off, i) => (
-            <Window3D key={i} position={[off, 0, 0]} width={1.8} />
+        <group key={f} position={[blockDepth/2, f * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR + 1.8, 0]}>
+          {[-streetWidth/3, 0, streetWidth/3].map((off, i) => (
+            <Window3D key={i} position={[0.05, 0, off]} width={1.8} />
           ))}
         </group>
       ))}
       
       {/* Entrance Canopy */}
-      <mesh position={[0, 3.2, depth/2 + 1.2]} castShadow>
-        <boxGeometry args={[5, 0.3, 3]} />
+      <mesh position={[blockDepth/2 + 1.2, 3.2, 0]} castShadow>
+        <boxGeometry args={[3, 0.3, 5]} />
         <meshStandardMaterial color="#1e293b" />
       </mesh>
     </group>
@@ -145,51 +118,46 @@ const BuildingTwoBrickApartment = ({ position }: { position: [number, number, nu
 };
 
 // Building 3: Pre-war Limestone
-const BuildingThreePreWarLimestone = ({ position }: { position: [number, number, number] }) => {
-  const width = 12;
+const BuildingThreePreWarLimestone = ({ position, streetWidth = 12 }: { position: [number, number, number], streetWidth?: number }) => {
   const floors = 6;
   const height = floors * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR;
-  const depth = 15;
+  const blockDepth = 15;
 
   return (
     <group position={position}>
       {/* Facade */}
       <mesh castShadow receiveShadow position={[0, height / 2, 0]}>
-        <boxGeometry args={[width, height, depth]} />
+        <boxGeometry args={[blockDepth, height, streetWidth]} />
         <meshStandardMaterial color="#f1f5f9" roughness={0.4} />
       </mesh>
       
       {/* Horizontal Stone Bands */}
       {Array.from({ length: floors }).map((_, i) => (
-        <mesh key={i} position={[0, i * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR, depth/2 + 0.1]}>
-          <boxGeometry args={[width + 0.2, 0.4, 0.3]} />
+        <mesh key={i} position={[blockDepth/2 + 0.1, i * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR, 0]}>
+          <boxGeometry args={[0.3, 0.4, streetWidth + 0.2]} />
           <meshStandardMaterial color="#cbd5e1" />
         </mesh>
       ))}
 
       {/* Arched windows on 2nd floor */}
       {Array.from({ length: 4 }).map((_, i) => (
-        <group key={i} position={[(i - 1.5) * 2.5, DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR + 1.8, depth/2 + 0.1]}>
-           <Window3D position={[0, 0, 0]} width={1.8} />
-           <mesh position={[0, 1.25, 0]}>
-             <circleGeometry args={[0.95, 16, 0, Math.PI]} />
-             <meshStandardMaterial color="#2d2d2d" />
-           </mesh>
+        <group key={i} position={[blockDepth/2 + 0.1, DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR + 1.8, (i - 1.5) * (streetWidth/4)]}>
+           <Window3D position={[0, 0, 0]} width={streetWidth/5} />
         </group>
       ))}
 
       {/* Standard windows upper floors */}
       {Array.from({ length: floors - 2 }).map((_, f) => (
-        <group key={f} position={[0, (f + 2) * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR + 1.8, depth/2 + 0.15]}>
-          {[-3, 0, 3].map((off, i) => (
-            <Window3D key={i} position={[off, 0, 0]} width={1.6} />
+        <group key={f} position={[blockDepth/2 + 0.15, (f + 2) * DIMENSIONS.BUILDING_HEIGHT_PER_FLOOR + 1.8, 0]}>
+          {[-streetWidth/4, 0, streetWidth/4].map((off, i) => (
+            <Window3D key={i} position={[0, 0, off]} width={1.6} />
           ))}
         </group>
       ))}
       
       {/* Doorman Awning */}
-      <mesh position={[0, 2.5, depth/2 + 2.5]} rotation={[0.1, 0, 0]} castShadow>
-        <boxGeometry args={[4, 0.2, 5]} />
+      <mesh position={[blockDepth/2 + 2.5, 2.5, 0]} rotation={[0, 0, 0.1]} castShadow>
+        <boxGeometry args={[5, 0.2, 4]} />
         <meshStandardMaterial color="#064e3b" />
       </mesh>
     </group>
@@ -197,25 +165,24 @@ const BuildingThreePreWarLimestone = ({ position }: { position: [number, number,
 };
 
 // Building 4: Converted Industrial
-const BuildingFourConvertedIndustrial = ({ position }: { position: [number, number, number] }) => {
-  const width = 15;
+const BuildingFourConvertedIndustrial = ({ position, streetWidth = 15 }: { position: [number, number, number], streetWidth?: number }) => {
   const floors = 5;
   const floorHeight = 4.5;
   const height = floors * floorHeight;
-  const depth = 15;
+  const blockDepth = 15;
 
   return (
     <group position={position}>
       {/* Facade */}
       <mesh castShadow receiveShadow position={[0, height / 2, 0]}>
-        <boxGeometry args={[width, height, depth]} />
+        <boxGeometry args={[blockDepth, height, streetWidth]} />
         <meshStandardMaterial color="#450a0a" roughness={1.0} />
       </mesh>
 
       {/* String Courses (Brick rows) */}
       {Array.from({ length: floors }).map((_, i) => (
-        <mesh key={i} position={[0, i * floorHeight, depth/2 + 0.1]}>
-          <boxGeometry args={[width + 0.1, 0.3, 0.2]} />
+        <mesh key={i} position={[blockDepth/2 + 0.1, i * floorHeight, 0]}>
+          <boxGeometry args={[0.2, 0.3, streetWidth + 0.1]} />
           <meshStandardMaterial color="#111" />
         </mesh>
       ))}
@@ -241,15 +208,15 @@ const BuildingFourConvertedIndustrial = ({ position }: { position: [number, numb
       
       {/* Large steel frame windows with recessed glass */}
       {Array.from({ length: floors }).map((_, f) => (
-        <group key={f} position={[0, f * floorHeight + 2.2, depth/2 + 0.1]}>
-          {[-4.5, 0, 4.5].map((off, i) => (
-             <group key={i} position={[off, 0, 0]}>
+        <group key={f} position={[blockDepth/2 + 0.1, f * floorHeight + 2.2, 0]}>
+          {[-streetWidth/3, 0, streetWidth/3].map((off, i) => (
+             <group key={i} position={[0, 0, off]}>
                 <mesh castShadow>
-                  <boxGeometry args={[3.5, 3.2, 0.2]} />
+                  <boxGeometry args={[0.2, 3.2, 3.5]} />
                   <meshStandardMaterial color="#0f172a" metalness={0.9} />
                 </mesh>
-                <mesh position={[0, 0, -0.1]}>
-                  <planeGeometry args={[3.3, 3]} />
+                <mesh position={[0.05, 0, 0]} rotation={[0, Math.PI/2, 0]}>
+                  <planeGeometry args={[3, 3]} />
                   <meshStandardMaterial color="#1e293b" roughness={0.1} />
                 </mesh>
              </group>
@@ -406,18 +373,21 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
       {useMemo(() => {
         const buildings = [];
         let curZ = -140;
-        const spacing = 1.5; // Increased spacing to prevent all overlaps
+        const spacing = 1.0; 
         let index = 0;
         while (curZ < 140) {
           const type = (index * 7 + 3) % 4; 
-          const width = type === 0 ? 7.5 : (type === 3 ? 15 : 12);
-          const posZ = curZ + width / 2;
-          const posX = -(DIMENSIONS.ROAD_WIDTH / 2 + DIMENSIONS.SIDEWALK_WIDTH + width / 2);
-          if (type === 0) buildings.push(<BuildingOneClassicBrownstone key={`l-${index}`} position={[posX, 0, posZ]} />);
-          else if (type === 1) buildings.push(<BuildingTwoBrickApartment key={`l-${index}`} position={[posX, 0, posZ]} />);
-          else if (type === 2) buildings.push(<BuildingThreePreWarLimestone key={`l-${index}`} position={[posX, 0, posZ]} />);
-          else buildings.push(<BuildingFourConvertedIndustrial key={`l-${index}`} position={[posX, 0, posZ]} />);
-          curZ += width + spacing;
+          const sWidth = type === 0 ? 7.5 : (type === 3 ? 15 : 12);
+          const posZ = curZ + sWidth / 2;
+          const blockDepth = 15;
+          const posX = -(DIMENSIONS.ROAD_WIDTH / 2 + DIMENSIONS.SIDEWALK_WIDTH + blockDepth / 2);
+          
+          if (type === 0) buildings.push(<BuildingOneClassicBrownstone key={`l-${index}`} position={[posX, 0, posZ]} streetWidth={sWidth} />);
+          else if (type === 1) buildings.push(<BuildingTwoBrickApartment key={`l-${index}`} position={[posX, 0, posZ]} streetWidth={sWidth} />);
+          else if (type === 2) buildings.push(<BuildingThreePreWarLimestone key={`l-${index}`} position={[posX, 0, posZ]} streetWidth={sWidth} />);
+          else buildings.push(<BuildingFourConvertedIndustrial key={`l-${index}`} position={[posX, 0, posZ]} streetWidth={sWidth} />);
+          
+          curZ += sWidth + spacing;
           index++;
         }
         return buildings;
@@ -427,18 +397,24 @@ export default function World({ isMobile, weather, timeOfDay }: { isMobile?: boo
       {useMemo(() => {
         const buildings = [];
         let curZ = -140;
-        const spacing = 1.5; // Increased spacing to prevent all overlaps
+        const spacing = 1.0; 
         let index = 0;
         while (curZ < 140) {
           const type = (index * 13 + 5) % 4; 
-          const width = type === 0 ? 7.5 : (type === 3 ? 15 : 12);
-          const posZ = curZ + width / 2;
-          const posX = (DIMENSIONS.ROAD_WIDTH / 2 + DIMENSIONS.SIDEWALK_WIDTH + width / 2);
-          if (type === 0) buildings.push(<BuildingOneClassicBrownstone key={`r-${index}`} position={[posX, 0, posZ]} />);
-          else if (type === 1) buildings.push(<BuildingTwoBrickApartment key={`r-${index}`} position={[posX, 0, posZ]} />);
-          else if (type === 2) buildings.push(<BuildingThreePreWarLimestone key={`r-${index}`} position={[posX, 0, posZ]} />);
-          else buildings.push(<BuildingFourConvertedIndustrial key={`r-${index}`} position={[posX, 0, posZ]} />);
-          curZ += width + spacing;
+          const sWidth = type === 0 ? 7.5 : (type === 3 ? 15 : 12);
+          const posZ = curZ + sWidth / 2;
+          const blockDepth = 15;
+          const posX = (DIMENSIONS.ROAD_WIDTH / 2 + DIMENSIONS.SIDEWALK_WIDTH + blockDepth / 2);
+          
+          // Rotate 180 degrees (Math.PI) so facades face the street
+          const rotation = [0, Math.PI, 0] as [number, number, number];
+          
+          if (type === 0) buildings.push(<group key={`r-${index}`} position={[posX, 0, posZ]} rotation={rotation}><BuildingOneClassicBrownstone position={[0,0,0]} streetWidth={sWidth} /></group>);
+          else if (type === 1) buildings.push(<group key={`r-${index}`} position={[posX, 0, posZ]} rotation={rotation}><BuildingTwoBrickApartment position={[0,0,0]} streetWidth={sWidth} /></group>);
+          else if (type === 2) buildings.push(<group key={`r-${index}`} position={[posX, 0, posZ]} rotation={rotation}><BuildingThreePreWarLimestone position={[0,0,0]} streetWidth={sWidth} /></group>);
+          else buildings.push(<group key={`r-${index}`} position={[posX, 0, posZ]} rotation={rotation}><BuildingFourConvertedIndustrial position={[0,0,0]} streetWidth={sWidth} /></group>);
+          
+          curZ += sWidth + spacing;
           index++;
         }
         return buildings;
