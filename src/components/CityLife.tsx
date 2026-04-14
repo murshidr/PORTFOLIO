@@ -167,97 +167,140 @@ const DrivingVehicle = ({ color, speed, zStart, xOffset, type = 'car' }: any) =>
   );
 };
 
-// --- NPC SYSTEM (Max 12 localized) ---
+// --- OPTIMIZED INSTANCED NPC SYSTEM ---
 
-const ManhattanNPC = ({ color, position, speed, offset, playerPos }: any) => {
-  const ref = useRef<THREE.Group>(null);
-  const headRef = useRef<THREE.Group>(null);
-  const leftLeg = useRef<THREE.Mesh>(null);
-  const rightLeg = useRef<THREE.Mesh>(null);
+const NPC_COUNT = 60;
+const NPC_DATA = Array.from({ length: NPC_COUNT }).map((_, i) => ({
+  speed: (Math.random() - 0.5) * 4, // Some walk forward, some back
+  x: i % 2 === 0 ? 7.35 + (Math.random() - 0.5) * 1 : -7.35 + (Math.random() - 0.5) * 1,
+  z: (Math.random() - 0.5) * 600,
+  color: new THREE.Color().setHSL(Math.random(), 0.5, 0.5),
+  stride: 5 + Math.random() * 5,
+  offset: Math.random() * Math.PI * 2,
+  type: Math.random() > 0.8 ? 'static' : 'walking'
+}));
+
+const InstancedNPCs = ({ paused, playerPos }: { paused: boolean, playerPos: THREE.Vector3 }) => {
+  const headMesh = useRef<THREE.InstancedMesh>(null);
+  const torsoMesh = useRef<THREE.InstancedMesh>(null);
+  const legMesh = useRef<THREE.InstancedMesh>(null);
+  
+  const dummy = useMemo(() => new THREE.Object3D(), []);
+  
+  useEffect(() => {
+    if (!headMesh.current || !torsoMesh.current || !legMesh.current) return;
+    NPC_DATA.forEach((npc, i) => {
+      headMesh.current!.setColorAt(i, new THREE.Color("#ffdbac"));
+      torsoMesh.current!.setColorAt(i, npc.color);
+      legMesh.current!.setColorAt(i, new THREE.Color("#0f172a"));
+    });
+    headMesh.current.instanceColor!.needsUpdate = true;
+    torsoMesh.current.instanceColor!.needsUpdate = true;
+    legMesh.current.instanceColor!.needsUpdate = true;
+  }, []);
 
   useFrame((state, delta) => {
-    if (ref.current) {
-      ref.current.position.z += speed * delta;
-      if (Math.abs(ref.current.position.z) > 150) ref.current.position.z = -150 * (speed > 0 ? 1 : -1);
-      
-      const t = state.clock.elapsedTime * 6 + offset;
-      if (leftLeg.current) leftLeg.current.rotation.x = Math.sin(t) * 0.5;
-      if (rightLeg.current) rightLeg.current.rotation.x = Math.sin(t + Math.PI) * 0.5;
+    if (paused) return;
+    if (!headMesh.current || !torsoMesh.current || !legMesh.current) return;
 
-      // --- Head Tracking ---
-      if (headRef.current && playerPos) {
-        const dist = ref.current.position.distanceTo(playerPos);
-        if (dist < 6) {
-           headRef.current.lookAt(playerPos.x, 1.7, playerPos.z);
-        } else {
-           headRef.current.rotation.set(0, 0, 0);
-        }
+    const time = state.clock.elapsedTime;
+
+    NPC_DATA.forEach((npc, i) => {
+      if (npc.type === 'walking') {
+        npc.z += npc.speed * delta;
+        if (Math.abs(npc.z) > 400) npc.z = -400 * (npc.speed > 0 ? 1 : -1);
       }
-    }
+
+      const t = time * npc.stride + npc.offset;
+      const legSwing = Math.sin(t) * 0.5;
+
+      // Update Body
+      dummy.position.set(npc.x, 1.0, npc.z);
+      dummy.rotation.set(0, npc.speed > 0 ? 0 : Math.PI, 0);
+      dummy.updateMatrix();
+      torsoMesh.current!.setMatrixAt(i, dummy.matrix);
+
+      // Update Head (with look-at logic if near player)
+      const distToPlayer = playerPos.distanceTo(new THREE.Vector3(npc.x, 0, npc.z));
+      dummy.position.set(npc.x, 1.6, npc.z);
+      if (distToPlayer < 6) {
+         dummy.lookAt(playerPos.x, 1.7, playerPos.z);
+      } else {
+         dummy.rotation.set(0, npc.speed > 0 ? 0 : Math.PI, 0);
+      }
+      dummy.updateMatrix();
+      headMesh.current!.setMatrixAt(i, dummy.matrix);
+
+      // Update Legs (Grouped logic - simplified for instancing)
+      // Left Leg
+      dummy.position.set(npc.x - 0.15, 0.5, npc.z);
+      dummy.rotation.set(legSwing, npc.speed > 0 ? 0 : Math.PI, 0);
+      dummy.updateMatrix();
+      legMesh.current!.setMatrixAt(i * 2, dummy.matrix);
+      // Right Leg
+      dummy.position.set(npc.x + 0.15, 0.5, npc.z);
+      dummy.rotation.set(-legSwing, npc.speed > 0 ? 0 : Math.PI, 0);
+      dummy.updateMatrix();
+      legMesh.current!.setMatrixAt(i * 2 + 1, dummy.matrix);
+    });
+
+    headMesh.current.instanceMatrix.needsUpdate = true;
+    torsoMesh.current.instanceMatrix.needsUpdate = true;
+    legMesh.current.instanceMatrix.needsUpdate = true;
   });
 
   return (
-    <group ref={ref} position={position}>
-      {/* Head */}
-      <group ref={headRef} position={[0, 1.6, 0]}>
-         <mesh><boxGeometry args={[0.3, 0.35, 0.3]} /><meshStandardMaterial color="#d4a574" /></mesh>
-      </group>
-      {/* Torso */}
-      <mesh position={[0, 1.0, 0]}><boxGeometry args={[0.5, 0.8, 0.3]} /><meshStandardMaterial color={color} /></mesh>
-      {/* Legs */}
-      <mesh ref={leftLeg} position={[-0.15, 0.5, 0]}><boxGeometry args={[0.18, 0.8, 0.18]} /><meshStandardMaterial color="#1e293b" /></mesh>
-      <mesh ref={rightLeg} position={[0.15, 0.5, 0]}><boxGeometry args={[0.18, 0.8, 0.18]} /><meshStandardMaterial color="#1e293b" /></mesh>
+    <group>
+      <instancedMesh ref={headMesh} args={[undefined, undefined, NPC_COUNT]} castShadow>
+        <boxGeometry args={[0.3, 0.35, 0.3]} />
+        <meshStandardMaterial />
+      </instancedMesh>
+      <instancedMesh ref={torsoMesh} args={[undefined, undefined, NPC_COUNT]} castShadow>
+        <boxGeometry args={[0.5, 0.8, 0.3]} />
+        <meshStandardMaterial />
+      </instancedMesh>
+      <instancedMesh ref={legMesh} args={[undefined, undefined, NPC_COUNT * 2]} castShadow>
+        <boxGeometry args={[0.18, 0.8, 0.18]} />
+        <meshStandardMaterial />
+      </instancedMesh>
     </group>
   );
 };
 
 export default function CityLife({ paused, isMobile }: { paused: boolean, isMobile?: boolean }) {
-  // Use a simple state or global sync for player pos (simulated here at center sidewalk)
   const playerPos = new THREE.Vector3(7.35, 0, 0);
 
   return (
     <group>
       {/* Driving Traffic */}
-      {!isMobile && (
-        <group>
-          <DrivingVehicle type="taxi" color="#fbbf24" zStart={80} speed={12} xOffset={-2.5} />
-          <DrivingVehicle type="car" color="#111" zStart={20} speed={10} xOffset={2.5} />
-          <DrivingVehicle type="truck" color="#cbd5e1" zStart={-40} speed={8} xOffset={-2} />
-        </group>
-      )}
+      <group>
+        <DrivingVehicle type="taxi" color="#fbbf24" zStart={200} speed={12} xOffset={-2.5} />
+        <DrivingVehicle type="car" color="#111" zStart={50} speed={10} xOffset={2.5} />
+        <DrivingVehicle type="truck" color="#cbd5e1" zStart={-100} speed={8} xOffset={-2} />
+        {!isMobile && (
+          <>
+            <DrivingVehicle type="taxi" color="#fbbf24" zStart={-250} speed={11} xOffset={2.2} />
+            <DrivingVehicle type="car" color="#475569" zStart={150} speed={14} xOffset={-2.8} />
+            <DrivingVehicle type="car" color="#fff" zStart={350} speed={9} xOffset={-2.4} />
+          </>
+        )}
+      </group>
 
       {/* Atmospheric Effects */}
-      {!isMobile && (
-        <>
-          <WindDebris />
-          <PigeonFlock />
-        </>
-      )}
+      <WindDebris />
+      {!isMobile && <PigeonFlock />}
 
-      {/* Parked Cars - NYC specified mix */}
-      {/* Right Curb */}
+      {/* Parked Cars */}
       <NYCVehicle type="taxi" color="#fbbf24" position={[5.4, 0, -10]} rotation={[0, 0.05, 0]} />
       <NYCVehicle type="car" color="#111" position={[5.5, 0, -25]} rotation={[0, -0.02, 0]} />
       <NYCVehicle type="car" color="#475569" position={[5.3, 0, -40]} rotation={[0, 0.03, 0]} />
       <NYCVehicle type="car" color="#2d3748" position={[5.4, 0, 15]} rotation={[0, 0.01, 0]} />
-      <NYCVehicle type="car" color="#e2e8f0" position={[5.5, 0, 35]} rotation={[0, -0.04, 0]} />
+      <NYCVehicle type="car" color="#e2e8f0" position={[5.5, 0, 85]} rotation={[0, -0.04, 0]} />
       
-      {/* Left Curb */}
-      <NYCVehicle type="car" color="#5a1010" position={[-5.4, 0, -5]} rotation={[0, 0.02, 0]} />
-      <NYCVehicle type="car" color="#1a202c" position={[-5.5, 0, -20]} rotation={[0, -0.03, 0]} />
-      <NYCVehicle type="car" color="#94a3b8" position={[-5.3, 0, 10]} rotation={[0, 0.01, 0]} />
-
-      {/* Walking NPCs */}
-      <ManhattanNPC color="#2563eb" position={[7, 0, -50]} speed={1.2} offset={0} playerPos={playerPos} />
-      <ManhattanNPC color="#dc2626" position={[7.5, 0, -80]} speed={0.8} offset={Math.PI/2} playerPos={playerPos} />
-      <ManhattanNPC color="#059669" position={[-7.4, 0, -30]} speed={-1.5} offset={Math.PI} playerPos={playerPos} />
-      {!isMobile && (
-        <>
-          <ManhattanNPC color="#7c3aed" position={[7.2, 0, 20]} speed={1.1} offset={3} playerPos={playerPos} />
-          <ManhattanNPC color="#ea580c" position={[-7.6, 0, 60]} speed={-0.9} offset={5} playerPos={playerPos} />
-          <ManhattanNPC color="#be185d" position={[-7.2, 0, 90]} speed={-1.2} offset={4} playerPos={playerPos} />
-        </>
-      )}
+      {/* Optimized Crowd */}
+      <InstancedNPCs paused={paused} playerPos={playerPos} />
     </group>
   );
 }
+
+

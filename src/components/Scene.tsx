@@ -233,15 +233,19 @@ export default function Scene() {
         <AudioManager />
 
         {/* Cinematic Post-Processing */}
-        <EffectComposer>
+        <EffectComposer disableNormalPass>
           <Bloom 
-            intensity={0.25} 
-            luminanceThreshold={0.95} 
-            luminanceSmoothing={0.05} 
+            intensity={0.4} 
+            luminanceThreshold={0.9} 
+            luminanceSmoothing={0.1} 
             mipmapBlur 
           />
-          <Vignette eskil={false} offset={0.1} darkness={isMobile ? 0.5 : 0.8} /> {/* Reduced from 1.1 to fix black edges */}
-          <Noise opacity={0.03} />
+          <ChromaticAberration 
+            blendFunction={BlendFunction.NORMAL} 
+            offset={new THREE.Vector2(0.001, 0.001)} 
+          />
+          <Vignette eskil={false} offset={0.1} darkness={isMobile ? 0.4 : 0.7} />
+          <Noise opacity={0.02} />
         </EffectComposer>
 
         <Suspense fallback={null}>
@@ -270,7 +274,7 @@ export default function Scene() {
       {/* Day/Night System Controller (Collapsible & Responsive) */}
       {cameraLanded && location.pathname === '/' && (
         <div 
-          className={`absolute ${isMobile ? 'top-[120px]' : 'top-6'} right-6 z-50 flex flex-col gap-2 origin-top-right`}
+          className="absolute top-6 right-6 z-50 flex flex-col gap-2 origin-top-right"
         >
           <AnimatePresence mode="popLayout">
             {!isTimeExpanded ? (
@@ -278,7 +282,7 @@ export default function Scene() {
                  key="pill"
                  layoutId="time-system-container"
                  onClick={() => setIsTimeExpanded(true)}
-                 className="bg-black/40 backdrop-blur-md border border-white/10 rounded-2xl p-1.5 shadow-2xl overflow-hidden flex items-center gap-3 px-4 py-2 hover:bg-white/10 transition-colors group"
+                 className="bg-black/40 backdrop-blur-md border border-white/10 rounded-full p-1 shadow-2xl overflow-hidden flex items-center gap-2 px-3 py-1.5 hover:bg-white/10 transition-colors group"
                  initial={{ opacity: 0, scale: 0.9 }}
                  animate={{ opacity: 1, scale: 1 }}
                  exit={{ opacity: 0, scale: 0.9 }}

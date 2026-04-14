@@ -138,8 +138,9 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu, isWalking 
       }
 
       // Infinite Loop Logic
-      if (group.current.position.z < -140) {
-        const jumpDistance = 280;
+      // Infinite Loop Logic
+      if (group.current.position.z < -480) {
+        const jumpDistance = 960;
         group.current.position.z += jumpDistance;
         camera.position.z += jumpDistance;
         
@@ -150,6 +151,7 @@ export default function Character({ onClick, isMenuOpen, onCloseMenu, isWalking 
           controls.update();
         }
       }
+
 
       // --- 3rd Person Camera Follow (Walking) ---
       const targetX = 7.35;

@@ -18,29 +18,28 @@ export default function AudioManager() {
     camera.add(listener.current);
     const audioLoader = new THREE.AudioLoader();
 
-    // Ocean/Wind Base
-    const ocean = new THREE.Audio(listener.current);
-    audioLoader.load(AUDIO_FILES.ocean, (buffer) => {
-      ocean.setBuffer(buffer);
-      ocean.setLoop(true);
-      ocean.setVolume(0.4);
-      ocean.play();
+    // Manhattan Traffic Base
+    const traffic = new THREE.Audio(listener.current);
+    audioLoader.load('https://www.soundjay.com/ambient/sounds/city-street-1.mp3', (buffer) => {
+      traffic.setBuffer(buffer);
+      traffic.setLoop(true);
+      traffic.setVolume(0.15);
+      traffic.play();
     });
-    ambientSound.current = ocean;
 
-    // Background Atmosphere (Crows/Life)
-    const atmosphere = new THREE.Audio(listener.current);
-    audioLoader.load('https://assets.mixkit.co/active_storage/sfx/2517/2517-preview.mp3', (buffer) => {
-      atmosphere.setBuffer(buffer);
-      atmosphere.setLoop(true);
-      atmosphere.setVolume(0.1);
-      atmosphere.play();
+    // Distant Siren / Emergency Environment
+    const siren = new THREE.Audio(listener.current);
+    audioLoader.load('https://www.soundjay.com/transportation/sounds/emergency-siren-1.mp3', (buffer) => {
+      siren.setBuffer(buffer);
+      siren.setLoop(true);
+      siren.setVolume(0.02); // Very distant
+      siren.play();
     });
 
     return () => {
       camera.remove(listener.current);
-      ocean.stop();
-      atmosphere.stop();
+      traffic.stop();
+      siren.stop();
     };
   }, [camera]);
 
