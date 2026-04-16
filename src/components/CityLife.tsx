@@ -57,8 +57,8 @@ const NYCVehicle = ({ color, position, rotation = [0, 0, 0], type = 'car', hazar
 };
 // --- ENVIRONMENT DETAILS (Wind & Birds) ---
 
-const WindDebris = () => {
-  const count = 15;
+const WindDebris = ({ isMobile }: { isMobile: boolean }) => {
+  const count = isMobile ? 5 : 15;
   const particles = useMemo(() => {
     return Array.from({ length: count }).map(() => ({
       position: new THREE.Vector3((Math.random() - 0.5) * 15, Math.random() * 0.5, (Math.random() - 0.5) * 100),
@@ -68,7 +68,7 @@ const WindDebris = () => {
     }));
   }, []);
 
-  const refs = useRef<THREE.Group[]>([]);
+  const refs = useRef<(THREE.Mesh | null)[]>([]);
 
   useFrame((state, delta) => {
     refs.current.forEach((ref, i) => {
@@ -84,7 +84,7 @@ const WindDebris = () => {
   return (
     <group>
       {particles.map((p, i) => (
-        <mesh key={i} ref={el => refs.current[i] = el!} position={p.position} rotation={p.rotation} scale={p.scale}>
+        <mesh key={i} ref={(el) => { refs.current[i] = el; }} position={p.position} rotation={p.rotation} scale={p.scale}>
           <planeGeometry args={[1, 1]} />
           <meshStandardMaterial color="#f8fafc" transparent opacity={0.6} side={THREE.DoubleSide} />
         </mesh>
@@ -93,8 +93,8 @@ const WindDebris = () => {
   );
 };
 
-const PigeonFlock = () => {
-  const count = 8;
+const PigeonFlock = ({ isMobile }: { isMobile: boolean }) => {
+  const count = isMobile ? 0 : 4; // Disable pigeons on mobile
   const birds = useMemo(() => {
     return Array.from({ length: count }).map(() => ({
         phase: Math.random() * Math.PI * 2,
@@ -169,8 +169,11 @@ const DrivingVehicle = ({ color, speed, zStart, xOffset, type = 'car' }: any) =>
 
 // --- OPTIMIZED INSTANCED NPC SYSTEM ---
 
-const NPC_COUNT = 60;
-const NPC_DATA = Array.from({ length: NPC_COUNT }).map((_, i) => ({
+const getNPCCount = (isMobile: boolean) => isMobile ? 25 : 60;
+
+// Default NPC data - will be filtered based on device
+const DEFAULT_NPC_COUNT = 60;
+const NPC_DATA = Array.from({ length: DEFAULT_NPC_COUNT }).map((_, i) => ({
   speed: (Math.random() - 0.5) * 4, // Some walk forward, some back
   x: i % 2 === 0 ? 7.35 + (Math.random() - 0.5) * 1 : -7.35 + (Math.random() - 0.5) * 1,
   z: (Math.random() - 0.5) * 600,
@@ -180,16 +183,20 @@ const NPC_DATA = Array.from({ length: NPC_COUNT }).map((_, i) => ({
   type: Math.random() > 0.8 ? 'static' : 'walking'
 }));
 
-const InstancedNPCs = ({ paused, playerPos }: { paused: boolean, playerPos: THREE.Vector3 }) => {
+const InstancedNPCs = ({ paused, playerPos, isMobile }: { paused: boolean, playerPos: THREE.Vector3, isMobile: boolean }) => {
+  const NPC_COUNT = getNPCCount(isMobile);
   const headMesh = useRef<THREE.InstancedMesh>(null);
   const torsoMesh = useRef<THREE.InstancedMesh>(null);
   const legMesh = useRef<THREE.InstancedMesh>(null);
   
   const dummy = useMemo(() => new THREE.Object3D(), []);
   
+  // Only use subset of NPC data based on device
+  const activeNPCs = useMemo(() => NPC_DATA.slice(0, NPC_COUNT), [NPC_COUNT]);
+  
   useEffect(() => {
     if (!headMesh.current || !torsoMesh.current || !legMesh.current) return;
-    NPC_DATA.forEach((npc, i) => {
+    activeNPCs.forEach((npc, i) => {
       headMesh.current!.setColorAt(i, new THREE.Color("#ffdbac"));
       torsoMesh.current!.setColorAt(i, npc.color);
       legMesh.current!.setColorAt(i, new THREE.Color("#0f172a"));
@@ -197,7 +204,7 @@ const InstancedNPCs = ({ paused, playerPos }: { paused: boolean, playerPos: THRE
     headMesh.current.instanceColor!.needsUpdate = true;
     torsoMesh.current.instanceColor!.needsUpdate = true;
     legMesh.current.instanceColor!.needsUpdate = true;
-  }, []);
+  }, [activeNPCs]);
 
   useFrame((state, delta) => {
     if (paused) return;
@@ -205,7 +212,7 @@ const InstancedNPCs = ({ paused, playerPos }: { paused: boolean, playerPos: THRE
 
     const time = state.clock.elapsedTime;
 
-    NPC_DATA.forEach((npc, i) => {
+    activeNPCs.forEach((npc, i) => {
       if (npc.type === 'walking') {
         npc.z += npc.speed * delta;
         if (Math.abs(npc.z) > 400) npc.z = -400 * (npc.speed > 0 ? 1 : -1);
@@ -276,9 +283,9 @@ export default function CityLife({ paused, isMobile }: { paused: boolean, isMobi
       <group>
         <DrivingVehicle type="taxi" color="#fbbf24" zStart={200} speed={12} xOffset={-2.5} />
         <DrivingVehicle type="car" color="#111" zStart={50} speed={10} xOffset={2.5} />
-        <DrivingVehicle type="truck" color="#cbd5e1" zStart={-100} speed={8} xOffset={-2} />
         {!isMobile && (
           <>
+            <DrivingVehicle type="truck" color="#cbd5e1" zStart={-100} speed={8} xOffset={-2} />
             <DrivingVehicle type="taxi" color="#fbbf24" zStart={-250} speed={11} xOffset={2.2} />
             <DrivingVehicle type="car" color="#475569" zStart={150} speed={14} xOffset={-2.8} />
             <DrivingVehicle type="car" color="#fff" zStart={350} speed={9} xOffset={-2.4} />
@@ -287,8 +294,8 @@ export default function CityLife({ paused, isMobile }: { paused: boolean, isMobi
       </group>
 
       {/* Atmospheric Effects */}
-      <WindDebris />
-      {!isMobile && <PigeonFlock />}
+      <WindDebris isMobile={isMobile ?? false} />
+      {!isMobile && <PigeonFlock isMobile={isMobile ?? false} />}
 
       {/* Parked Cars */}
       <NYCVehicle type="taxi" color="#fbbf24" position={[5.4, 0, -10]} rotation={[0, 0.05, 0]} />
@@ -298,7 +305,7 @@ export default function CityLife({ paused, isMobile }: { paused: boolean, isMobi
       <NYCVehicle type="car" color="#e2e8f0" position={[5.5, 0, 85]} rotation={[0, -0.04, 0]} />
       
       {/* Optimized Crowd */}
-      <InstancedNPCs paused={paused} playerPos={playerPos} />
+      <InstancedNPCs paused={paused} playerPos={playerPos} isMobile={isMobile ?? false} />
     </group>
   );
 }

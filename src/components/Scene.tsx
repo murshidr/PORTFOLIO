@@ -16,8 +16,8 @@ import { X } from 'lucide-react';
 import { BlendFunction } from 'postprocessing';
 
 // --- WEATHER SYSTEM ---
-const Rain = () => {
-  const count = 5000;
+const Rain = ({ isMobile }: { isMobile: boolean }) => {
+  const count = isMobile ? 1500 : 2500;
   const mesh = useRef<THREE.InstancedMesh>(null);
   
   const dummy = useMemo(() => new THREE.Object3D(), []);
@@ -61,14 +61,23 @@ const Rain = () => {
 
 const EnvironmentManager = ({ 
   timeOfDay, 
-  setTimeOfDay 
+  setTimeOfDay,
+  isMobile
 }: { 
   timeOfDay: number, 
-  setTimeOfDay: (v: number | ((prev: number) => number)) => void 
+  setTimeOfDay: (v: number | ((prev: number) => number)) => void,
+  isMobile: boolean
 }) => {
   const lightRef = useRef<THREE.DirectionalLight>(null);
   const colorObj = useMemo(() => new THREE.Color(), []);
+  const fogRef = useRef<THREE.FogExp2 | null>(null);
   const { scene } = useThree();
+
+  // Initialize fog once and reuse
+  useEffect(() => {
+    fogRef.current = new THREE.FogExp2('#2563eb', 0.005);
+    scene.fog = fogRef.current;
+  }, [scene]);
 
   useEffect(() => {
     // Stop the automatic cycle when the user has manual control via slider
@@ -111,13 +120,17 @@ const EnvironmentManager = ({
     }
 
     scene.background = colorObj.set(targetSky).clone();
-    scene.fog = new THREE.FogExp2(targetSky, 0.005); // Reduced density from 0.012
+    // Update fog color without recreating object
+    if (fogRef.current) {
+      fogRef.current.color.set(targetSky);
+      fogRef.current.density = isMobile ? 0.008 : 0.005;
+    }
     
     if (lightRef.current) lightRef.current.color.lerp(colorObj.set(targetLight), 0.05);
   });
 
+
   const isNight = timeOfDay > 19 || timeOfDay < 5;
-  const isMobile = window.innerWidth < 768;
 
   return (
     <>
@@ -201,14 +214,13 @@ export default function Scene() {
   return (
     <div className="fixed inset-0 w-full h-full z-0 font-sans">
       <Canvas 
-        shadows="soft" 
-        dpr={isMobile ? [1, 1] : [1, 1.5]}
-        gl={{ antialias: !isMobile, powerPreference: "high-performance" }}
+        shadows={isMobile ? false : "soft"} 
+        dpr={[1, 1]} // Cap at 1.0 for all devices for performance
+        gl={{ antialias: false, powerPreference: "high-performance" }}
         camera={{ position: [0, 50, 50], fov: 45 }}
         performance={{ min: 0.5 }}
       >
-        <fog attach="fog" args={['#2563eb', 60, 250]} /> {/* Cool blue morning fog */}
-        <EnvironmentManager timeOfDay={timeOfDay} setTimeOfDay={setTimeOfDay} />
+        <EnvironmentManager timeOfDay={timeOfDay} setTimeOfDay={setTimeOfDay} isMobile={isMobile} />
         
         <OrbitControls 
           makeDefault 
@@ -218,6 +230,7 @@ export default function Scene() {
         <group position={[0, 0, 0]}>
           <World isMobile={isMobile} timeOfDay={timeOfDay} />
           <CityLife paused={menuOpen || !cameraLanded} isMobile={isMobile} />
+          <Rain isMobile={isMobile} />
           
           <group position={[0, 0, 0]}>
             <Character 
@@ -232,21 +245,23 @@ export default function Scene() {
         <CameraFlyIn onLanded={handleLanded} />
         <AudioManager />
 
-        {/* Cinematic Post-Processing */}
-        <EffectComposer disableNormalPass>
-          <Bloom 
-            intensity={0.4} 
-            luminanceThreshold={0.9} 
-            luminanceSmoothing={0.1} 
-            mipmapBlur 
-          />
-          <ChromaticAberration 
-            blendFunction={BlendFunction.NORMAL} 
-            offset={new THREE.Vector2(0.001, 0.001)} 
-          />
-          <Vignette eskil={false} offset={0.1} darkness={isMobile ? 0.4 : 0.7} />
-          <Noise opacity={0.02} />
-        </EffectComposer>
+        {/* Cinematic Post-Processing - Disabled on mobile for performance */}
+        {!isMobile && (
+          <EffectComposer disableNormalPass>
+            <Bloom 
+              intensity={0.3} 
+              luminanceThreshold={0.9} 
+              luminanceSmoothing={0.1} 
+              mipmapBlur 
+            />
+            <ChromaticAberration 
+              blendFunction={BlendFunction.NORMAL} 
+              offset={new THREE.Vector2(0.001, 0.001)} 
+            />
+            <Vignette eskil={false} offset={0.1} darkness={0.7} />
+            <Noise opacity={0.02} />
+          </EffectComposer>
+        )}
 
         <Suspense fallback={null}>
           <Cloud opacity={0.4} speed={0.2} bounds={[40, 10, 20]} segments={20} position={[0, 20, -30]} color="#fff" />
