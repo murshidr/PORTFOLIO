@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { ArrowLeft, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import VisitorCounter from './VisitorCounter';
 
 interface PageLayoutProps {
   title: string;
@@ -31,7 +32,7 @@ export default function PageLayout({ title, children }: PageLayoutProps) {
               <ArrowLeft size={20} />
             </div>
             <span className="text-sm font-mono tracking-widest uppercase opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all duration-300">
-              Return to Scene
+              Return to Portfolio
             </span>
           </Link>
 
@@ -59,6 +60,8 @@ export default function PageLayout({ title, children }: PageLayoutProps) {
             {children}
           </motion.div>
         </main>
+
+        <VisitorCounter />
       </div>
     </motion.div>
   );

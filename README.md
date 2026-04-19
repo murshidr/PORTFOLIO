@@ -26,16 +26,16 @@ I specialize in **Deep Learning for Aerospace Applications**, Real-Time Systems,
 
 | Project | Description | Tech Stack |
 |---------|-------------|------------|
-| **Vynta** | AI-powered task scheduler using natural language processing with energy level optimization | Jetpack Compose, Llama 3, MVVM, Google Calendar API |
-| **Sentinel** | Execution Intelligence Platform with AI-driven commitment extraction and risk scoring | React 19, FastAPI, Groq AI, Supabase, Llama 3.3 |
-| **Smart Attendance System** | Desktop application with dual-mode architecture and automated calculations | Python, CustomTkinter, SQLite, Pandas |
-| **Enterprise Data Pipeline** | Self-service analytical pipeline transforming raw CSV to interactive dashboards | Python, Pandas, Streamlit, Plotly |
-| **Combustion Instability Prediction** | TCN-based real-time prediction system achieving 92% accuracy | Python, PyTorch, Temporal Convolutional Networks |
-| **Ground Station Dashboard** | High-frequency telemetry dashboard for rocket sensor data | Python, Flask, WebSockets, Real-Time |
-| **DocuMind** | Mental state prediction using stacked LSTM architecture | TensorFlow, LSTM, NLP |
-| **CarbonCut** | AI-powered sustainability system with CNN-based waste classification | TensorFlow, React, Firebase |
-| **AIDEN AI** | Intelligent mental health & academic assistant | Transformers, NLP, Flask |
-| **Crop Health Monitoring** | Hyperspectral AI analytics for crop disease prediction | Scikit-learn, OpenCV, Hyperspectral Imaging |
+| **Vynta** | AI-powered task scheduler that uses natural language to schedule tasks based on energy levels. Built with Jetpack Compose, MVVM, Room, and Groq (Llama 3) for the AI engine, with Google Calendar sync. | Jetpack Compose, Llama 3, MVVM, Android, Google Calendar API |
+| **Sentinel** | Execution Intelligence Platform. Passes Slack/Gmail threads through Llama 3.3 70B to extract commitments, scores them with a 4-factor risk engine, and alerts owners before deadlines slip. Features a live dependency graph. | React 19, FastAPI, Groq AI, Supabase, Llama 3.3 |
+| **Smart Attendance System** | A robust desktop application built with Python and CustomTkinter. Features a dual-mode architecture (Admin/Terminal), automated late arrival calculations, and local SQLite data security. Replaces paper logs with a premium dark-mode interface. | Python, CustomTkinter, SQLite, Pandas |
+| **Enterprise Data Automation Pipeline** | A fully automated self-service pipeline that transforms fragmented CSV exports into production-ready analytical dashboards. Features automated validation, vectorized cleaning with Pandas, and interactive Streamlit BI visualizations. | Python, Pandas, Streamlit, Plotly |
+| **Combustion Instability Prediction** | Developed Temporal Convolutional Network (TCN) achieving 92% accuracy in real-time combustion instability prediction for hybrid rocket engines. Outperformed baseline LSTM methods. | Python, PyTorch, TCN, Aerospace |
+| **DocuMind** | Proactive Mental State Prediction using Deep Learning. Implemented Stacked LSTM architecture to predict mental health states from social media metrics with 81% recall. | TensorFlow, LSTM, Mental Health, Data Science |
+| **Ground Station Dashboard** | Production-grade telemetry dashboard processing live data from 8+ sensor channels at 1000 Hz with <100ms latency. Used for INSPACe Model Rocketry Competition. | Python, Flask, WebSockets, Real-Time |
+| **CarbonCut** | AI-Powered Sustainability & Waste Management system. CNN-based image recognition for waste classification (94% accuracy) and CO2 emission estimation. | TensorFlow, React, Firebase, Sustainability |
+| **AIDEN AI** | Intelligent Mental Health & Academic Assistant. Conversational AI combining mood detection and adaptive academic guidance. | Transformers, NLP, Flask, SQLite |
+| **Crop Health Monitoring** | Hyperspectral AI Analytics for automated crop health assessment. Machine learning ensemble (Random Forest + SVM) for disease prediction. | Scikit-learn, OpenCV, Hyperspectral, AgriTech |
 
 ---
 
@@ -47,10 +47,12 @@ I specialize in **Deep Learning for Aerospace Applications**, Real-Time Systems,
 - **@react-three/drei** — Useful helpers for R3F
 - **@react-three/postprocessing** — Cinematic post-processing effects (Bloom, Chromatic Aberration, Vignette)
 - **GSAP** — High-performance animations
+- **maath** — Math utilities for 3D
 
 ### UI & Styling
 - **TailwindCSS v4** — Utility-first CSS framework
 - **Framer Motion** — Declarative animations
+- **Framer Motion 3D** — 3D animations for React Three Fiber
 - **Lucide React** — Icon library
 
 ### Backend & APIs
@@ -66,6 +68,8 @@ I specialize in **Deep Learning for Aerospace Applications**, Real-Time Systems,
 - **Vite** — Fast build tool
 - **TypeScript** — Type safety
 - **React Router v7** — Client-side routing
+- **tsx** — TypeScript execute
+- **concurrently** — Run multiple dev servers
 
 ---
 
