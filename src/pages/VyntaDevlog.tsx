@@ -1,7 +1,6 @@
 import PageLayout from '../components/PageLayout';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Calendar, Brain, Rocket, Bug, Terminal, ChevronRight, Settings, Type, Sun, Moon, Maximize2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Calendar, Brain, Rocket, Bug, Terminal, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import VyntaSignupForm from '../components/VyntaSignupForm';
 
@@ -116,19 +115,8 @@ export default function VyntaDevlog() {
         </div>
       </div>
 
-      {/* Full-Page Theme Background Wrapper */}
-      <div className={`transition-colors duration-700 min-h-screen relative overflow-hidden ${getThemeClasses()}`}>
-        <article className={`max-w-4xl mx-auto px-6 sm:px-10 lg:px-12 pb-48 pt-20 transition-all duration-500 ${getFontClasses()}`}>
-          {/* Back Navigation */}
-          <Link 
-            to="/devlogs" 
-            className={`inline-flex items-center gap-2 mb-20 group text-sm font-bold transition-all ${theme === 'sepia' ? 'text-[#5b4636] hover:translate-x-[-4px]' : 'text-blue-400/80 hover:text-blue-400 hover:translate-x-[-4px]'}`}
-          >
-            <ArrowLeft size={18} />
-            Back to Journal
-          </Link>
-
-          {/* Hero Header */}
+      {/* Full-Page Theme Background Wrapper applied directly on article */}
+      <article className={`max-w-4xl mx-auto px-6 sm:px-10 lg:px-12 pb-48 pt-8 transition-all duration-500 ${getFontClasses()} ${getThemeClasses()}`}>
           <header className="mb-24">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -287,7 +275,6 @@ export default function VyntaDevlog() {
 
           </div>
         </article>
-      </div>
     </PageLayout>
   );
 }

@@ -247,7 +247,7 @@ export default function Scene() {
 
         {/* Cinematic Post-Processing - Disabled on mobile for performance */}
         {!isMobile && (
-          <EffectComposer disableNormalPass>
+          <EffectComposer enableNormalPass={false}>
             <Bloom 
               intensity={0.3} 
               luminanceThreshold={0.9} 

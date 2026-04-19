@@ -18,20 +18,25 @@ function AnimatedRoutes() {
   const location = useLocation();
   
   return (
-    <AnimatePresence mode="wait">
-      <Routes location={location} key={location.pathname}>
-        <Route path="/" element={<div />} /> {/* Home is just the scene */}
-        <Route path="/about" element={<About />} />
-        <Route path="/projects" element={<Projects />} />
-        <Route path="/devlogs" element={<Devlogs />} />
-        <Route path="/devlog/vynta" element={<VyntaDevlog />} />
-        <Route path="/achievements" element={<Achievements />} />
-        <Route path="/awards" element={<Awards />} />
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/github" element={<Github />} />
-      </Routes>
-    </AnimatePresence>
+    <>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<div />} /> {/* Home is just the scene */}
+          <Route path="/about" element={<About />} />
+          <Route path="/projects" element={<Projects />} />
+          <Route path="/devlogs" element={<Devlogs />} />
+          <Route path="/devlog/vynta" element={<VyntaDevlog />} />
+          <Route path="/achievements" element={<Achievements />} />
+          <Route path="/awards" element={<Awards />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/github" element={<Github />} />
+        </Routes>
+      </AnimatePresence>
+
+      {/* Show visitor counter only on the main scene/world */}
+      {location.pathname === '/' && <VisitorCounter />}
+    </>
   );
 }
 
@@ -49,7 +54,6 @@ export default function App() {
           <>
             <Scene />
             <AnimatedRoutes />
-            <VisitorCounter />
           </>
         )}
       </div>
