@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-espresso: #1C1410;
+  --color-walnut: #6B4226;
+  --color-clay: #A0522D;
+  --color-sand: #C8A882;
+  --color-cream: #F5EFE6;
+
+  --font-serif: var(--font-serif);
+  --font-sans: var(--font-sans);
+
+  --animate-pulse-slow: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+:root {
+  --background: #F5EFE6;
+  --foreground: #1C1410;
+}
+
+@layer base {
+  body {
+    @apply bg-cream text-espresso font-sans antialiased selection:bg-clay/20 selection:text-espresso overflow-x-hidden;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif font-light;
+  }
+
+  p {
+    @apply leading-relaxed;
+  }
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
