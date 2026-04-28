@@ -14,6 +14,7 @@ const navLinks = [
   { name: "Work", href: "/work" },
   { name: "Blog", href: "/blog" },
   { name: "Guestbook", href: "/guestbook" },
+  { name: "Uses", href: "/uses" },
   { name: "Contact", href: "/contact" },
 ];
 
