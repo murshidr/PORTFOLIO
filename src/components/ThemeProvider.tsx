@@ -32,7 +32,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const newTheme = theme === "light" ? "dark" : "light";
     
     // Reveal Animation Logic
-    if (!document.startViewTransition) {
+    if (!(document as any).startViewTransition) {
       // Fallback for browsers that don't support View Transitions API
       setTheme(newTheme);
       document.documentElement.setAttribute("data-theme", newTheme);
@@ -47,7 +47,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       Math.max(y, window.innerHeight - y)
     );
 
-    const transition = document.startViewTransition(() => {
+    const transition = (document as any).startViewTransition(() => {
       setTheme(newTheme);
       document.documentElement.setAttribute("data-theme", newTheme);
       localStorage.setItem("theme", newTheme);
@@ -91,14 +91,4 @@ export function useTheme() {
     throw new Error("useTheme must be used within a ThemeProvider");
   }
   return context;
-}
-
-// Add types for View Transitions API
-declare global {
-  interface Document {
-    startViewTransition(callback: () => void): ViewTransition;
-  }
-  interface ViewTransition {
-    ready: Promise<void>;
-  }
 }
