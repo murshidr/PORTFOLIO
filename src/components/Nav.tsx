@@ -6,6 +6,8 @@ import Link from "next/link";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+import ThemeToggle from "./ThemeToggle";
+
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -43,7 +45,7 @@ export default function Nav() {
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex space-x-12">
+        <div className="hidden md:flex items-center space-x-12">
           {navLinks.map((link) => (
             <Link
               key={link.name}
@@ -54,17 +56,21 @@ export default function Nav() {
               <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-clay transition-all duration-300 group-hover:w-full" />
             </Link>
           ))}
+          <ThemeToggle />
         </div>
 
-        {/* Mobile Toggle */}
-        <button
-          className="md:hidden flex flex-col space-y-1.5 z-50"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          <span className={cn("w-6 h-[1px] bg-espresso transition-all", mobileMenuOpen && "rotate-45 translate-y-2")} />
-          <span className={cn("w-6 h-[1px] bg-espresso transition-all", mobileMenuOpen && "opacity-0")} />
-          <span className={cn("w-6 h-[1px] bg-espresso transition-all", mobileMenuOpen && "-rotate-45 -translate-y-2")} />
-        </button>
+        {/* Mobile Toggle & Theme Toggle */}
+        <div className="md:hidden flex items-center space-x-6">
+          <ThemeToggle />
+          <button
+            className="flex flex-col space-y-1.5 z-50"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            <span className={cn("w-6 h-[1px] bg-espresso transition-all", mobileMenuOpen && "rotate-45 translate-y-2")} />
+            <span className={cn("w-6 h-[1px] bg-espresso transition-all", mobileMenuOpen && "opacity-0")} />
+            <span className={cn("w-6 h-[1px] bg-espresso transition-all", mobileMenuOpen && "-rotate-45 -translate-y-2")} />
+          </button>
+        </div>
       </div>
 
       {/* Mobile Menu Overlay */}

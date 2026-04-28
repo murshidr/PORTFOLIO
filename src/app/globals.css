@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-espresso: #1C1410;
-  --color-walnut: #6B4226;
-  --color-clay: #A0522D;
-  --color-sand: #C8A882;
-  --color-cream: #F5EFE6;
+  --color-espresso: var(--espresso);
+  --color-walnut: var(--walnut);
+  --color-clay: var(--clay);
+  --color-sand: var(--sand);
+  --color-cream: var(--cream);
 
   --font-serif: var(--font-serif);
   --font-sans: var(--font-sans);
@@ -14,13 +14,30 @@
 }
 
 :root {
-  --background: #F5EFE6;
-  --foreground: #1C1410;
+  --cream: #F5EFE6;
+  --espresso: #1C1410;
+  --walnut: #6B4226;
+  --clay: #A0522D;
+  --sand: #C8A882;
+  
+  --background: var(--cream);
+  --foreground: var(--espresso);
+}
+
+[data-theme='dark'] {
+  --cream: #1C1410;      /* Dark background */
+  --espresso: #F5EFE6;   /* Light text */
+  --walnut: #8B5E3C;     /* Lightened walnut */
+  --clay: #E2875E;       /* Glowy clay */
+  --sand: #8D7456;       /* Stone sand */
+  
+  --background: var(--cream);
+  --foreground: var(--espresso);
 }
 
 @layer base {
   body {
-    @apply bg-cream text-espresso font-sans antialiased selection:bg-clay/20 selection:text-espresso overflow-x-hidden;
+    @apply bg-cream text-espresso font-sans antialiased selection:bg-clay/20 selection:text-espresso overflow-x-hidden transition-colors duration-500;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E");
   }
 

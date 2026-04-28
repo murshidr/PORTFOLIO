@@ -20,6 +20,8 @@ export const metadata: Metadata = {
   description: "A cozy corner of the internet. AI researcher, builder, and creative developer.",
 };
 
+import { ThemeProvider } from "@/components/ThemeProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,9 +31,12 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${cormorant.variable} ${dmSans.variable} antialiased selection:bg-clay/20 selection:text-espresso`}
+      suppressHydrationWarning
     >
       <body className="bg-cream text-espresso min-h-screen">
-        {children}
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
