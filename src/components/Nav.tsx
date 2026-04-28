@@ -40,8 +40,12 @@ export default function Nav() {
       )}
     >
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <Link href="/" className="text-2xl font-serif font-normal text-espresso">
-          M.
+        <Link href="/" className="flex items-center space-x-2">
+          <img 
+            src="/logo.png" 
+            alt="M." 
+            className="h-8 w-auto invert-0 dark:invert-0 transition-transform duration-500 hover:scale-110" 
+          />
         </Link>
 
         {/* Desktop Nav */}
