@@ -63,7 +63,7 @@ export default function AdminDashboard() {
             <h1 className="text-5xl font-serif text-espresso">Studio Dashboard</h1>
             <p className="text-sand text-xs uppercase tracking-widest mt-2">Curation of your present and past</p>
           </div>
-          <div className="flex bg-sand/10 p-1 rounded-sm">
+          <div className="flex bg-border-theme p-1 rounded-sm">
             <button 
               onClick={() => setActiveTab("posts")}
               className={`px-6 py-2 text-[10px] uppercase tracking-widest font-bold transition-all ${activeTab === "posts" ? "bg-cream text-espresso shadow-sm" : "text-sand hover:text-espresso"}`}
@@ -96,7 +96,7 @@ export default function AdminDashboard() {
             ) : (
               <div className="space-y-4">
                 {posts.length === 0 ? (
-                  <div className="border border-dashed border-sand/50 p-20 text-center">
+                  <div className="border border-dashed border-border-theme p-20 text-center">
                     <p className="text-sand font-light italic">No posts yet. Start writing your story.</p>
                   </div>
                 ) : (
@@ -104,7 +104,7 @@ export default function AdminDashboard() {
                     <ScrollReveal 
                       key={post.id} 
                       direction="up" 
-                      className="bg-white/50 border border-sand/20 p-8 flex items-center justify-between group hover:border-clay/30 transition-colors"
+                      className="bg-surface border border-border-theme p-8 flex items-center justify-between group hover:border-clay/30 transition-colors"
                     >
                       <div className="space-y-1">
                         <h3 className="text-2xl font-serif text-espresso group-hover:text-clay transition-colors">{post.title}</h3>

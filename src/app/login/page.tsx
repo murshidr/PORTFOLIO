@@ -36,7 +36,7 @@ export default function LoginPage() {
       <Nav />
       <div className="flex-1 flex items-center justify-center px-6">
         <ScrollReveal direction="up" className="w-full max-w-md">
-          <div className="bg-white/50 backdrop-blur-sm border border-sand/30 p-12 space-y-8 shadow-sm">
+          <div className="bg-surface backdrop-blur-sm border border-border-theme p-12 space-y-8 shadow-sm">
             <div className="space-y-2">
               <h1 className="text-3xl font-serif text-espresso">Studio Login</h1>
               <p className="text-sand text-xs uppercase tracking-widest">Entry for Murshid R.</p>
@@ -49,7 +49,7 @@ export default function LoginPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-cream/50 border border-sand/30 p-4 text-espresso font-sans text-sm focus:outline-none focus:border-clay transition-colors"
+                  className="w-full bg-cream/20 border border-border-theme p-4 text-espresso font-sans text-sm focus:outline-none focus:border-clay transition-colors"
                   required
                 />
               </div>
@@ -59,7 +59,7 @@ export default function LoginPage() {
                   type="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-cream/50 border border-sand/30 p-4 text-espresso font-sans text-sm focus:outline-none focus:border-clay transition-colors"
+                  className="w-full bg-cream/20 border border-border-theme p-4 text-espresso font-sans text-sm focus:outline-none focus:border-clay transition-colors"
                   required
                 />
               </div>

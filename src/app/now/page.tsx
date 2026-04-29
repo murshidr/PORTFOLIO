@@ -6,6 +6,8 @@ import ScrollReveal from "@/components/ScrollReveal";
 import Contact from "@/components/Contact";
 import NowSection from "@/components/NowSection";
 
+import { supabase } from "@/lib/supabase";
+
 export default function NowPage() {
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -13,8 +15,12 @@ export default function NowPage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await fetch("/api/now");
-        const json = await res.json();
+        const { data: json, error } = await supabase
+          .from("now_content")
+          .select("*")
+          .single();
+          
+        if (error && error.code !== "PGRST116") throw error;
         setData(json);
       } catch (err) {
         console.error("Failed to fetch Now content:", err);

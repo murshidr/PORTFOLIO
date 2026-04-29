@@ -6,6 +6,8 @@
   --color-clay: var(--clay);
   --color-sand: var(--sand);
   --color-cream: var(--cream);
+  --color-surface: var(--surface);
+  --color-border-theme: var(--border-color);
 
   --font-serif: var(--font-serif);
   --font-sans: var(--font-sans);
@@ -22,6 +24,8 @@
   
   --background: var(--cream);
   --foreground: var(--espresso);
+  --surface: rgba(255, 255, 255, 0.5);
+  --border-color: rgba(200, 168, 130, 0.3); /* sand with opacity */
 }
 
 [data-theme='dark'] {
@@ -33,6 +37,8 @@
   
   --background: var(--cream);
   --foreground: var(--espresso);
+  --surface: rgba(0, 0, 0, 0.3);
+  --border-color: rgba(141, 116, 86, 0.2);
 }
 
 @layer base {

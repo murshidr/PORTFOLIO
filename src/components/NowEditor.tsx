@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Save, RefreshCw } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function NowEditor() {
   const [content, setContent] = useState({
@@ -21,8 +22,13 @@ export default function NowEditor() {
 
   async function fetchContent() {
     try {
-      const res = await fetch("/api/now");
-      const data = await res.json();
+      const { data, error } = await supabase
+        .from("now_content")
+        .select("*")
+        .single();
+        
+      if (error && error.code !== "PGRST116") throw error; // PGRST116 is "no rows returned"
+
       if (data) {
         setContent({
           building: data.building || "",
@@ -42,18 +48,39 @@ export default function NowEditor() {
     setIsSaving(true);
     setMessage(null);
     try {
-      const res = await fetch("/api/now", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(content),
-      });
+      // Get the existing record first to decide whether to update or insert
+      const { data: existing } = await supabase
+        .from("now_content")
+        .select("id")
+        .maybeSingle();
 
-      if (!res.ok) throw new Error("Failed to save");
+      let error;
+      if (existing) {
+        const result = await supabase
+          .from("now_content")
+          .update({
+            ...content,
+            last_updated: new Date().toISOString(),
+          })
+          .eq("id", existing.id);
+        error = result.error;
+      } else {
+        const result = await supabase
+          .from("now_content")
+          .insert([{
+            ...content,
+            last_updated: new Date().toISOString(),
+          }]);
+        error = result.error;
+      }
+
+      if (error) throw error;
       
       setMessage({ type: "success", text: "Now page updated successfully." });
       setTimeout(() => setMessage(null), 3000);
-    } catch (err) {
-      setMessage({ type: "error", text: "Error saving changes." });
+    } catch (err: any) {
+      console.error("Save error:", err);
+      setMessage({ type: "error", text: `Error: ${err.message}` });
     } finally {
       setIsSaving(false);
     }
@@ -62,14 +89,14 @@ export default function NowEditor() {
   if (isLoading) return <p className="font-serif italic text-sand">Loading editor...</p>;
 
   return (
-    <div className="bg-white/50 border border-sand/20 p-8 space-y-8">
+    <div className="bg-surface border border-border-theme p-8 space-y-8">
       <div className="grid gap-6">
         <div className="space-y-2">
           <label className="text-[10px] uppercase tracking-[0.2em] text-sand font-bold">Building</label>
           <textarea
             value={content.building}
             onChange={(e) => setContent({ ...content, building: e.target.value })}
-            className="w-full bg-cream/50 border border-sand/20 p-4 font-serif text-espresso focus:border-clay outline-none transition-colors h-24 resize-none"
+            className="w-full bg-cream/20 border border-border-theme p-4 font-serif text-espresso focus:border-clay outline-none transition-colors h-24 resize-none"
             placeholder="What projects are consuming your headspace?"
           />
         </div>
@@ -78,7 +105,7 @@ export default function NowEditor() {
           <textarea
             value={content.studying}
             onChange={(e) => setContent({ ...content, studying: e.target.value })}
-            className="w-full bg-cream/50 border border-sand/20 p-4 font-serif text-espresso focus:border-clay outline-none transition-colors h-24 resize-none"
+            className="w-full bg-cream/20 border border-border-theme p-4 font-serif text-espresso focus:border-clay outline-none transition-colors h-24 resize-none"
             placeholder="What are you learning or reading?"
           />
         </div>
@@ -87,7 +114,7 @@ export default function NowEditor() {
           <textarea
             value={content.looking_for}
             onChange={(e) => setContent({ ...content, looking_for: e.target.value })}
-            className="w-full bg-cream/50 border border-sand/20 p-4 font-serif text-espresso focus:border-clay outline-none transition-colors h-24 resize-none"
+            className="w-full bg-cream/20 border border-border-theme p-4 font-serif text-espresso focus:border-clay outline-none transition-colors h-24 resize-none"
             placeholder="Any specific opportunities you are seeking?"
           />
         </div>
@@ -96,7 +123,7 @@ export default function NowEditor() {
           <textarea
             value={content.thinking_about}
             onChange={(e) => setContent({ ...content, thinking_about: e.target.value })}
-            className="w-full bg-cream/50 border border-sand/20 p-4 font-serif text-espresso focus:border-clay outline-none transition-colors h-24 resize-none"
+            className="w-full bg-cream/20 border border-border-theme p-4 font-serif text-espresso focus:border-clay outline-none transition-colors h-24 resize-none"
             placeholder="A question or direction you are considering..."
           />
         </div>
