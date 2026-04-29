@@ -15,16 +15,8 @@ export default function AdminDashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    checkUser();
     fetchPosts();
   }, []);
-
-  async function checkUser() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      router.push("/login");
-    }
-  }
 
   async function fetchPosts() {
     const { data, error } = await supabase

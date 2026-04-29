@@ -19,13 +19,8 @@ export default function NewPost() {
   const router = useRouter();
 
   useEffect(() => {
-    checkUser();
+    // Auth handled by layout
   }, []);
-
-  async function checkUser() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) router.push("/login");
-  }
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();

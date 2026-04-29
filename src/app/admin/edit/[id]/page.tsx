@@ -20,14 +20,8 @@ export default function EditPost({ params }: { params: Promise<{ id: string }> }
   const router = useRouter();
 
   useEffect(() => {
-    checkUser();
     fetchPost();
   }, [id]);
-
-  async function checkUser() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) router.push("/login");
-  }
 
   async function fetchPost() {
     const { data, error } = await supabase
