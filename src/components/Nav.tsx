@@ -13,6 +13,7 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const navLinks = [
+  { name: "Now", href: "/now" },
   { name: "Work", href: "/work" },
   { name: "Blog", href: "/blog" },
   { name: "Guestbook", href: "/guestbook" },
