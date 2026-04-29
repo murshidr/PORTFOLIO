@@ -4,6 +4,7 @@ import ScrollReveal from "@/components/ScrollReveal";
 import Link from "next/link";
 import DetailedAbout from "@/components/DetailedAbout";
 import Contact from "@/components/Contact";
+import Magnetic from "@/components/Magnetic";
 
 const techStack = [
   "PyTorch", "Llama 3.3", "Groq", "FastAPI", "React 19", "TensorFlow", "Space Tech AI", "RAG Systems", "Agentic Workflows"
@@ -27,10 +28,12 @@ export default function Home() {
                 In a world of noise, I build for the <span className="italic">quiet.</span> Systems that don't just process data, but understand intent.
               </h2>
               <div className="flex flex-wrap gap-8">
-                <Link href="/work" className="group flex items-center space-x-3 text-clay text-sm uppercase tracking-widest font-medium">
-                  <span>Explore Projects</span>
-                  <span className="w-8 h-[1px] bg-clay group-hover:w-12 transition-all" />
-                </Link>
+                <Magnetic strength={0.4}>
+                  <Link href="/work" className="group flex items-center space-x-3 text-clay text-sm uppercase tracking-widest font-medium py-2 px-4 border border-clay/10 rounded-full hover:border-clay/30 transition-colors">
+                    <span>Explore Projects</span>
+                    <span className="w-8 h-[1px] bg-clay group-hover:w-12 transition-all" />
+                  </Link>
+                </Magnetic>
               </div>
             </div>
           </div>
@@ -53,10 +56,12 @@ export default function Home() {
               Thoughts on AI, <br />
               <span className="italic">Space & Intent.</span>
             </h2>
-            <Link href="/blog" className="group flex items-center space-x-4 text-clay text-sm uppercase tracking-widest font-bold">
-              <span>View the Archives</span>
-              <div className="w-12 h-[1px] bg-clay group-hover:w-20 transition-all duration-500" />
-            </Link>
+            <Magnetic strength={0.4}>
+              <Link href="/blog" className="group flex items-center space-x-4 text-clay text-sm uppercase tracking-widest font-bold py-2">
+                <span>View the Archives</span>
+                <div className="w-12 h-[1px] bg-clay group-hover:w-20 transition-all duration-500" />
+              </Link>
+            </Magnetic>
           </div>
           <div className="flex-1 md:text-right">
              <p className="text-espresso/60 font-light text-lg leading-relaxed italic max-w-sm ml-auto">

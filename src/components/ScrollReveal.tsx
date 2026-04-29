@@ -41,21 +41,23 @@ export default function ScrollReveal({
       ref={ref}
       initial={{
         opacity: 0,
+        filter: "blur(10px)",
         ...directions[direction],
       }}
       animate={
         inView
           ? {
               opacity: 1,
+              filter: "blur(0px)",
               x: 0,
               y: 0,
             }
           : {}
       }
       transition={{
-        duration: duration,
+        duration: duration + 0.4,
         delay: delay,
-        ease: [0.22, 1, 0.36, 1], // easeOutCubic as requested
+        ease: [0.22, 1, 0.36, 1],
       }}
       className={className}
     >

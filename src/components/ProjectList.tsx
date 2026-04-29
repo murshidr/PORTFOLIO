@@ -153,7 +153,13 @@ export default function ProjectList() {
           {activeProject !== null && (
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
+              animate={{ 
+                opacity: 1, 
+                scale: 1, 
+                y: 0,
+                rotateX: (mousePos.y / 100) * 2,
+                rotateY: (mousePos.x / 100) * 2,
+              }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               style={{
@@ -162,9 +168,11 @@ export default function ProjectList() {
                 top: mousePos.y - 150,
                 pointerEvents: "none",
                 zIndex: 100,
+                perspective: 1000,
               }}
-              className="hidden lg:block w-[400px] bg-cream/95 backdrop-blur-md border border-sand/30 p-8 shadow-2xl"
+              className="hidden lg:block w-[400px] bg-cream/95 backdrop-blur-md border border-sand/30 p-8 shadow-2xl overflow-hidden"
             >
+              <div className="absolute inset-0 bg-gradient-to-br from-sand/10 to-transparent pointer-events-none" />
               <div className="space-y-6">
                  <div className="flex justify-between items-start">
                     <span className="font-serif italic text-clay text-sm">{projects[activeProject].id}</span>

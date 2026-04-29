@@ -7,18 +7,18 @@ export default function Hero() {
     <section className="min-h-screen flex flex-col justify-center px-6 md:px-12 pt-32 pb-16 max-w-7xl mx-auto relative">
       <div className="space-y-6 md:space-y-8">
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 1.2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="text-walnut font-serif italic text-xl md:text-3xl lg:text-4xl font-light"
         >
           builder of quiet, intelligent things.
         </motion.p>
 
         <motion.h1
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          initial={{ opacity: 0, y: 10, filter: "blur(20px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 1.5, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
           className="text-espresso font-serif text-[clamp(64px,10vw,120px)] leading-[0.9] font-semibold uppercase tracking-tight"
         >
           MURSHID R.

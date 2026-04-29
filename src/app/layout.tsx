@@ -21,6 +21,7 @@ export const metadata: Metadata = {
 };
 
 import { ThemeProvider } from "@/components/ThemeProvider";
+import GrainyBackdrop from "@/components/GrainyBackdrop";
 
 export default function RootLayout({
   children,
@@ -33,9 +34,12 @@ export default function RootLayout({
       className={`${cormorant.variable} ${dmSans.variable} antialiased selection:bg-clay/20 selection:text-espresso`}
       suppressHydrationWarning
     >
-      <body className="bg-cream text-espresso min-h-screen">
+      <body className="bg-cream text-espresso min-h-screen relative selection:bg-clay/20 selection:text-espresso">
         <ThemeProvider>
-          {children}
+          <GrainyBackdrop />
+          <div className="relative z-10">
+            {children}
+          </div>
         </ThemeProvider>
       </body>
     </html>

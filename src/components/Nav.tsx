@@ -7,6 +7,7 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 import ThemeToggle from "./ThemeToggle";
+import Magnetic from "./Magnetic";
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -41,25 +42,28 @@ export default function Nav() {
       )}
     >
       <div className="max-w-7xl mx-auto flex justify-between items-center">
-        <Link href="/" className="flex items-center space-x-2">
-          <img 
-            src="/logo.png" 
-            alt="M." 
-            className="h-8 w-auto invert-0 dark:invert-0 transition-transform duration-500 hover:scale-110" 
-          />
-        </Link>
+        <Magnetic strength={0.2}>
+          <Link href="/" className="flex items-center space-x-2">
+            <img 
+              src="/logo.png" 
+              alt="M." 
+              className="h-8 w-auto invert-0 dark:invert-0 transition-transform duration-500 hover:scale-110" 
+            />
+          </Link>
+        </Magnetic>
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center space-x-12">
           {navLinks.map((link) => (
-            <Link
-              key={link.name}
-              href={link.href}
-              className="text-[13px] font-sans font-normal uppercase tracking-[0.15em] text-espresso hover:text-clay transition-colors relative group"
-            >
-              {link.name}
-              <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-clay transition-all duration-300 group-hover:w-full" />
-            </Link>
+            <Magnetic key={link.name} strength={0.3}>
+              <Link
+                href={link.href}
+                className="text-[13px] font-sans font-normal uppercase tracking-[0.15em] text-espresso hover:text-clay transition-colors relative group py-2 px-4"
+              >
+                {link.name}
+                <span className="absolute -bottom-1 left-4 right-4 h-[1px] bg-clay transition-all duration-300 w-0 group-hover:w-[calc(100%-32px)]" />
+              </Link>
+            </Magnetic>
           ))}
           <ThemeToggle />
         </div>
