@@ -71,3 +71,26 @@
 html {
   scroll-behavior: smooth;
 }
+
+/* View Transitions */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* When switching TO light mode (from dark) */
+[data-theme='light']::view-transition-old(root) {
+  z-index: 999;
+}
+[data-theme='light']::view-transition-new(root) {
+  z-index: 1;
+}
+
+/* When switching TO dark mode (from light) */
+[data-theme='dark']::view-transition-old(root) {
+  z-index: 1;
+}
+[data-theme='dark']::view-transition-new(root) {
+  z-index: 999;
+}

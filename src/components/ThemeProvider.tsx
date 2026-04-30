@@ -64,7 +64,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           clipPath: theme === "light" ? clipPath : [...clipPath].reverse(),
         },
         {
-          duration: 700,
+          duration: 500,
           easing: "cubic-bezier(0.4, 0, 0.2, 1)",
           pseudoElement: theme === "light" 
             ? "::view-transition-new(root)" 
