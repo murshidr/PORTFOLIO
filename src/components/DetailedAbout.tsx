@@ -27,115 +27,111 @@ const experience = [
 
 export default function DetailedAbout() {
   return (
-    <div className="max-w-7xl mx-auto px-6 md:px-12 py-20 space-y-32">
+    <div className="max-w-7xl mx-auto px-6 md:px-12 py-40 space-y-48">
       {/* Intro Section */}
-      <section className="grid md:grid-cols-2 gap-16 items-center">
-        <ScrollReveal direction="up" delay={0.1} className="order-2 md:order-1">
-          <h1 className="text-5xl md:text-7xl font-serif text-espresso leading-[0.9] mb-8">
-            AI Research Engineer <br />
-            <span className="italic font-light">Applied Systems.</span>
-          </h1>
-          <div className="space-y-8">
-            <p className="text-xl md:text-2xl font-light text-espresso leading-relaxed">
-              B.Tech CS (Data Science & AI) student with a focus on deep learning for aerospace, 
-              LLM-powered agentic systems, and real-time AI pipelines.
-            </p>
-            <p className="text-espresso/70 font-light leading-relaxed">
-              I've spent my time building SENTINEL—an LLM commitment extraction platform—and developing 
-              Temporal Convolutional Networks that predict combustion instability in rocket engines. 
-              I think at the intersection of intelligence and performance.
-            </p>
+      <section className="grid md:grid-cols-[1.5fr_1fr] gap-24 items-start relative">
+         <div className="absolute -left-12 -top-12 text-[12rem] font-serif font-light text-sand/10 pointer-events-none select-none hidden md:block">
+            01
+         </div>
+        <ScrollReveal direction="up" delay={0.1}>
+          <div className="space-y-12">
+            <div className="flex items-center space-x-4">
+              <div className="w-8 h-[1px] bg-clay" />
+              <span className="text-label text-clay">The Story</span>
+            </div>
+            <h2 className="text-editorial-h2 text-espresso">
+              AI Research Engineer <br />
+              <span className="text-editorial-display text-clay">Applied Systems.</span>
+            </h2>
+            <div className="grid md:grid-cols-2 gap-12 pt-8">
+               <p className="text-xl font-light text-espresso leading-relaxed">
+                  B.Tech CS (Data Science & AI) student with a focus on deep learning for aerospace, 
+                  LLM-powered agentic systems, and real-time AI pipelines.
+               </p>
+               <p className="text-espresso/70 font-light leading-relaxed">
+                  I've spent my time building SENTINEL—an LLM commitment extraction platform—and developing 
+                  Temporal Convolutional Networks that predict combustion instability in rocket engines. 
+                  I think at the intersection of intelligence and performance.
+               </p>
+            </div>
           </div>
         </ScrollReveal>
         
-        <ScrollReveal direction="up" delay={0.3} className="order-1 md:order-2">
-          <div className="relative aspect-[4/5] w-full max-w-md mx-auto group">
-            <div className="absolute inset-0 bg-clay/10 translate-x-4 translate-y-4 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform duration-500" />
-            <div className="relative w-full h-full overflow-hidden border border-sand/30">
+        <ScrollReveal direction="up" delay={0.3}>
+          <div className="relative group">
+            <div className="absolute inset-0 border border-sand/30 translate-x-4 translate-y-4 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform duration-700" />
+            <div className="relative aspect-[3/4] overflow-hidden grayscale contrast-125 bg-espresso">
               <Image
                 src="/profile.jpeg"
                 alt="Murshid R."
                 fill
-                className="object-cover grayscale hover:grayscale-0 transition-all duration-700 scale-105 hover:scale-100"
+                className="object-cover transition-all duration-1000 scale-110 group-hover:scale-100 opacity-90 group-hover:opacity-100"
                 priority
               />
-              <div className="absolute inset-0 bg-espresso/10 mix-blend-overlay" />
             </div>
+             <p className="text-label text-sand mt-8 text-right">Portrait / 2024</p>
           </div>
         </ScrollReveal>
       </section>
 
-      {/* Education Section */}
-      <section className="space-y-12">
-        <ScrollReveal direction="up">
-          <h2 className="text-sm font-serif italic text-clay uppercase tracking-[0.2em]">Education</h2>
-        </ScrollReveal>
-        <div className="grid md:grid-cols-2 gap-16 border-t border-sand/30 pt-8">
-          <ScrollReveal direction="up" delay={0.1}>
-            <h3 className="text-2xl font-serif text-espresso">Dr. M.G.R Educational and Research Institute</h3>
-            <p className="text-sand uppercase tracking-widest text-[10px] mt-2">B.Tech — CSE (DS & AI) · 2023 – Present</p>
-          </ScrollReveal>
-          <ScrollReveal direction="up" delay={0.2}>
-             <div className="space-y-4">
-                <p className="text-espresso font-light">Current GPA: <span className="font-semibold text-clay text-xl">8.60</span>/10.00</p>
-                <div className="flex items-end space-x-2 h-16">
-                  {[7.38, 7.71, 8.14, 8.60].map((gpa, i) => (
-                    <div key={i} className="flex-1 bg-sand/20 group relative" style={{ height: `${(gpa/10)*100}%` }}>
-                       <div className="absolute -top-6 left-1/2 -translate-x-1/2 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity font-bold">{gpa}</div>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-[10px] text-sand uppercase tracking-widest">GPA Trajectory · Semester 1 to 4</p>
-             </div>
-          </ScrollReveal>
-        </div>
-      </section>
-
-      {/* Skills Section */}
-      <section className="space-y-12">
-        <ScrollReveal direction="up">
-          <h2 className="text-sm font-serif italic text-clay uppercase tracking-[0.2em]">Expertise</h2>
-        </ScrollReveal>
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-12 border-t border-sand/30 pt-8">
-          {Object.entries(skills).map(([category, items], i) => (
-            <ScrollReveal key={category} direction="up" delay={0.1 + i * 0.05}>
-              <h4 className="text-[10px] uppercase tracking-[0.2em] text-sand font-bold mb-4">{category}</h4>
-              <ul className="space-y-2">
-                {items.map(item => (
-                  <li key={item} className="text-espresso text-sm font-light hover:text-clay transition-colors">{item}</li>
-                ))}
-              </ul>
-            </ScrollReveal>
-          ))}
-        </div>
-      </section>
-
       {/* Experience Section */}
-      <section className="space-y-12">
-        <ScrollReveal direction="up">
-          <h2 className="text-sm font-serif italic text-clay uppercase tracking-[0.2em]">Experience</h2>
-        </ScrollReveal>
-        <div className="space-y-16 border-t border-sand/30 pt-8">
-          {experience.map((exp, i) => (
-            <ScrollReveal key={i} direction="up" delay={0.2}>
-              <div className="grid md:grid-cols-[1fr_2fr] gap-8">
-                <div>
-                  <h3 className="text-2xl font-serif text-espresso">{exp.company}</h3>
-                  <p className="text-sand text-xs uppercase tracking-widest mt-1">{exp.role}</p>
-                  <p className="text-sand text-[10px] mt-4 italic">{exp.period}</p>
+      <section className="relative">
+         <div className="absolute -right-12 -top-12 text-[12rem] font-serif font-light text-sand/10 pointer-events-none select-none hidden md:block">
+            02
+         </div>
+        <div className="space-y-16">
+          <ScrollReveal direction="up">
+            <div className="flex items-center space-x-4">
+              <div className="w-8 h-[1px] bg-clay" />
+              <span className="text-label text-clay">Experience</span>
+            </div>
+          </ScrollReveal>
+          <div className="space-y-32">
+            {experience.map((exp, i) => (
+              <ScrollReveal key={i} direction="up" delay={0.2}>
+                <div className="grid md:grid-cols-[1fr_2fr] gap-12 md:gap-24 items-start border-t border-sand/20 pt-12">
+                  <div>
+                    <h3 className="text-3xl font-serif text-espresso leading-none">{exp.company}</h3>
+                    <p className="text-sand text-[10px] uppercase tracking-[0.2em] mt-4 font-bold">{exp.role}</p>
+                    <p className="text-sand text-[10px] mt-2 italic">{exp.period}</p>
+                  </div>
+                  <ul className="space-y-6">
+                    {exp.points.map((point, j) => (
+                      <li key={j} className="text-espresso/80 font-light leading-relaxed flex items-start text-lg">
+                        <span className="text-clay mr-6 font-serif">/</span>
+                        {point}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <ul className="space-y-4">
-                  {exp.points.map((point, j) => (
-                    <li key={j} className="text-espresso font-light leading-relaxed flex items-start">
-                      <span className="text-clay mr-4">·</span>
-                      {point}
+              </ScrollReveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Expertise Section */}
+      <section className="relative">
+        <ScrollReveal direction="up" className="space-y-16">
+          <div className="flex items-center space-x-4">
+            <div className="w-8 h-[1px] bg-clay" />
+            <span className="text-label text-clay">The Toolkit</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-20">
+            {Object.entries(skills).map(([category, items], i) => (
+              <div key={category} className="space-y-8">
+                <h4 className="text-label text-sand border-b border-sand/20 pb-4">{category}</h4>
+                <ul className="space-y-3">
+                  {items.map(item => (
+                    <li key={item} className="text-espresso font-light text-sm hover:text-clay transition-colors duration-300">
+                      {item}
                     </li>
                   ))}
                 </ul>
               </div>
-            </ScrollReveal>
-          ))}
-        </div>
+            ))}
+          </div>
+        </ScrollReveal>
       </section>
     </div>
   );

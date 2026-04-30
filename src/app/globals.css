@@ -65,6 +65,35 @@
   .perspective-1000 {
     perspective: 1000px;
   }
+
+  .border-hairline {
+    border-width: 0.5px;
+  }
+
+  .text-label {
+    @apply font-sans uppercase tracking-[0.3em] text-[10px] font-bold;
+  }
+
+  .text-editorial-h1 {
+    @apply font-serif text-[clamp(4rem,10vw,12rem)] leading-[0.85] font-light tracking-[-0.03em];
+  }
+
+  .text-editorial-h2 {
+    @apply font-serif text-[clamp(2.5rem,6vw,6rem)] leading-[0.95] font-light;
+  }
+
+  .text-editorial-display {
+    @apply font-serif text-[clamp(3rem,8vw,10rem)] leading-none italic font-light;
+  }
+}
+
+/* Custom Cursor Utilities */
+@media (pointer: fine) {
+  .custom-cursor-active,
+  .custom-cursor-active a,
+  .custom-cursor-active button {
+    cursor: none !important;
+  }
 }
 
 /* Smooth Scrolling */

@@ -22,6 +22,7 @@ export const metadata: Metadata = {
 
 import { ThemeProvider } from "@/components/ThemeProvider";
 import GrainyBackdrop from "@/components/GrainyBackdrop";
+import CustomCursor from "@/components/CustomCursor";
 
 export default function RootLayout({
   children,
@@ -36,6 +37,7 @@ export default function RootLayout({
     >
       <body className="bg-cream text-espresso min-h-screen relative selection:bg-clay/20 selection:text-espresso">
         <ThemeProvider>
+          <CustomCursor />
           <GrainyBackdrop />
           <div className="relative z-10">
             {children}

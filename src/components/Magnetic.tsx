@@ -16,12 +16,15 @@ export default function Magnetic({ children, strength = 0.5, className = "" }: M
   const mouseY = useMotionValue(0);
 
   // Smooth out the motion with spring physics
-  const springOptions = { damping: 15, stiffness: 150, mass: 0.1 };
+  const springOptions = { damping: 25, stiffness: 200, mass: 0.5 };
   const x = useSpring(mouseX, springOptions);
   const y = useSpring(mouseY, springOptions);
+  
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!ref.current) return;
+    setIsHovered(true);
     
     const { clientX, clientY } = e;
     const { left, top, width, height } = ref.current.getBoundingClientRect();
@@ -36,6 +39,7 @@ export default function Magnetic({ children, strength = 0.5, className = "" }: M
   };
 
   const handleMouseLeave = () => {
+    setIsHovered(false);
     mouseX.set(0);
     mouseY.set(0);
   };
@@ -46,7 +50,9 @@ export default function Magnetic({ children, strength = 0.5, className = "" }: M
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{ x, y }}
-      className={className}
+      animate={{ scale: isHovered ? 1.05 : 1 }}
+      transition={{ type: "spring", damping: 20, stiffness: 300 }}
+      className={`magnetic-area ${className}`}
     >
       {children}
     </motion.div>
