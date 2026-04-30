@@ -12,14 +12,6 @@ export default function Hero() {
       <div className="max-w-7xl mx-auto w-full relative z-10">
         <div className="grid md:grid-cols-[1fr_auto] items-end gap-12">
           <div className="space-y-8 md:space-y-12">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            >
-               <span className="text-label text-clay">Digital Portfolio / 2024 — Present</span>
-            </motion.div>
-
             <motion.h1
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
@@ -27,7 +19,7 @@ export default function Hero() {
               className="text-editorial-h1 text-espresso"
             >
               Murshid <br />
-              <span className="text-editorial-display text-clay ml-[0.1em]">Reyas.</span>
+              <span className="text-editorial-display text-clay ml-[0.1em]">R.</span>
             </motion.h1>
           </div>
 
