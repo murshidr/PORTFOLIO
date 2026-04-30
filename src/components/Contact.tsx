@@ -34,14 +34,14 @@ export default function Contact() {
               { name: "LinkedIn", href: "https://linkedin.com/in/murshid-r-37088b272" },
               { name: "GitHub", href: "https://github.com/murshidr" },
               { name: "Twitter", href: "https://twitter.com/murshidr" },
-              { name: "Resume PDF", href: "/resume.pdf" },
+              { name: "Resume", href: "/resume" },
             ].map((link, i) => (
               <ScrollReveal key={link.name} direction="up" delay={0.3 + i * 0.1}>
                 <a 
                   href={link.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className={link.name === "Resume PDF" ? "text-clay font-medium uppercase text-xs tracking-widest border-b border-clay/30 hover:border-clay pb-1 transition-all" : "text-sand hover:text-espresso font-sans text-xs uppercase tracking-widest transition-colors"}
+                  className={link.name === "Resume" ? "text-clay font-medium uppercase text-xs tracking-widest border-b border-clay/30 hover:border-clay pb-1 transition-all" : "text-sand hover:text-espresso font-sans text-xs uppercase tracking-widest transition-colors"}
                 >
                   {link.name}
                 </a>
