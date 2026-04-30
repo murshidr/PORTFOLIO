@@ -66,6 +66,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         {
           duration: 500,
           easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+          fill: "both",
           pseudoElement: theme === "light" 
             ? "::view-transition-new(root)" 
             : "::view-transition-old(root)",

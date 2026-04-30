@@ -2,6 +2,7 @@
 
 import ScrollReveal from "./ScrollReveal";
 import { motion } from "framer-motion";
+import Link from "next/link";
 
 export default function Contact() {
   const currentYear = new Date().getFullYear();
@@ -37,14 +38,14 @@ export default function Contact() {
               { name: "Resume", href: "/resume" },
             ].map((link, i) => (
               <ScrollReveal key={link.name} direction="up" delay={0.3 + i * 0.1}>
-                <a 
+                <Link 
                   href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  target={link.name === "Resume" ? undefined : "_blank"}
+                  rel={link.name === "Resume" ? undefined : "noopener noreferrer"}
                   className={link.name === "Resume" ? "text-clay font-medium uppercase text-xs tracking-widest border-b border-clay/30 hover:border-clay pb-1 transition-all" : "text-sand hover:text-espresso font-sans text-xs uppercase tracking-widest transition-colors"}
                 >
                   {link.name}
-                </a>
+                </Link>
               </ScrollReveal>
             ))}
           </div>
