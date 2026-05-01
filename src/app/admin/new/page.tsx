@@ -8,6 +8,9 @@ import Nav from "@/components/Nav";
 import ScrollReveal from "@/components/ScrollReveal";
 import "easymde/dist/easymde.min.css";
 
+import { useMemo } from "react";
+import { uploadBlogImage } from "@/lib/storage";
+
 // Dynamic import for the editor to avoid SSR issues
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), { ssr: false });
 
@@ -18,8 +21,34 @@ export default function NewPost() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    // Auth handled by layout
+  const editorOptions = useMemo(() => {
+    return {
+      spellChecker: false,
+      status: false,
+      placeholder: "Begin your story...",
+      minHeight: "500px",
+      uploadImage: true,
+      imageUploadFunction: async (file: File, onSuccess: (url: string) => void, onError: (err: string) => void) => {
+        try {
+          const url = await uploadBlogImage(file);
+          onSuccess(url);
+        } catch (err: any) {
+          onError(err.message);
+          alert("Upload failed: " + err.message);
+        }
+      },
+      toolbar: [
+        "bold", "italic", "heading", "|", 
+        "quote", "unordered-list", "ordered-list", "|", 
+        "link", "image", "|", 
+        "preview", "side-by-side", "fullscreen", "|", 
+        "guide"
+      ],
+      previewRender: (plainText: string) => {
+        // You could add a custom preview renderer here if needed
+        return null; // returning null uses default
+      }
+    };
   }, []);
 
   const handleSave = async (e: React.FormEvent) => {
@@ -58,55 +87,50 @@ export default function NewPost() {
           <p className="text-sand text-xs uppercase tracking-widest mt-2">Write with intent.</p>
         </ScrollReveal>
 
-        <form onSubmit={handleSave} className="space-y-8">
-          <div className="space-y-2">
+        <form onSubmit={handleSave} className="space-y-12">
+          <div className="space-y-4">
             <label className="text-[10px] uppercase tracking-[0.2em] text-sand font-bold">Title</label>
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="The Architecture of Quiet Intelligence"
-              className="w-full bg-transparent border-b border-sand/30 py-4 text-3xl font-serif text-espresso focus:outline-none focus:border-clay transition-colors placeholder:text-sand/30"
+              className="w-full bg-transparent border-b border-sand/30 py-4 text-3xl md:text-5xl font-serif text-espresso focus:outline-none focus:border-clay transition-colors placeholder:text-sand/10"
               required
             />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-4">
             <label className="text-[10px] uppercase tracking-[0.2em] text-sand font-bold">Excerpt</label>
             <textarea
               value={excerpt}
               onChange={(e) => setExcerpt(e.target.value)}
               placeholder="A short summary of your thoughts..."
-              className="w-full bg-transparent border border-sand/30 p-4 text-espresso font-sans font-light focus:outline-none focus:border-clay transition-colors min-h-[100px]"
+              className="w-full bg-transparent border border-sand/30 p-6 text-espresso font-sans font-light focus:outline-none focus:border-clay transition-all min-h-[120px] text-lg leading-relaxed"
             />
           </div>
 
-          <div className="space-y-2 prose-cozy">
+          <div className="space-y-4 editor-container">
              <label className="text-[10px] uppercase tracking-[0.2em] text-sand font-bold">Content</label>
              <SimpleMDE 
                value={content} 
                onChange={setContent}
-               options={{
-                 spellChecker: false,
-                 status: false,
-                 placeholder: "Begin your story...",
-                 minHeight: "400px"
-               }}
+               options={editorOptions as any}
              />
           </div>
 
-          <div className="flex justify-end space-x-6">
+          <div className="flex justify-end items-center space-x-8 pt-8 border-t border-sand/10">
              <button
                type="button"
                onClick={() => router.back()}
-               className="text-sand hover:text-espresso text-sm uppercase tracking-widest transition-colors"
+               className="text-sand hover:text-espresso text-xs uppercase tracking-[0.2em] font-bold transition-colors"
              >
                Discard
              </button>
              <button
                type="submit"
                disabled={loading}
-               className="bg-espresso text-cream px-12 py-4 font-serif text-lg hover:bg-clay transition-colors disabled:opacity-50"
+               className="bg-espresso text-cream px-16 py-5 font-serif text-xl hover:bg-clay transition-all duration-500 disabled:opacity-50 shadow-xl hover:shadow-clay/20"
              >
                {loading ? "Saving..." : "Save Draft"}
              </button>
@@ -116,20 +140,51 @@ export default function NewPost() {
 
       <style jsx global>{`
         .editor-toolbar {
-          border-color: rgba(200, 168, 130, 0.3) !important;
+          border: 1px solid rgba(200, 168, 130, 0.2) !important;
+          border-bottom: none !important;
           border-radius: 0 !important;
-          background: rgba(255, 255, 255, 0.3);
+          background: rgba(255, 255, 255, 0.4);
+          padding: 10px !important;
+          backdrop-filter: blur(10px);
+        }
+        .editor-toolbar button {
+          color: #1C1410 !important;
+          border-radius: 0 !important;
+          transition: all 0.3s;
+        }
+        .editor-toolbar button:hover {
+          background: rgba(160, 82, 45, 0.1) !important;
+          color: #A0522D !important;
+        }
+        .editor-toolbar button.active {
+          background: #1C1410 !important;
+          color: #F5EFE6 !important;
         }
         .CodeMirror {
-          border-color: rgba(200, 168, 130, 0.3) !important;
+          border: 1px solid rgba(200, 168, 130, 0.2) !important;
           border-radius: 0 !important;
-          background: rgba(255, 255, 255, 0.3) !important;
+          background: rgba(255, 255, 255, 0.2) !important;
           font-family: var(--font-dm-sans), sans-serif !important;
-          font-size: 16px !important;
+          font-size: 18px !important;
+          line-height: 1.8 !important;
+          padding: 20px !important;
+          color: #1C1410 !important;
+          min-height: 500px !important;
         }
-        .editor-preview-side {
-          background: #FDFBF7 !important;
-          font-family: var(--font-dm-sans), sans-serif !important;
+        .CodeMirror-cursor {
+          border-left: 2px solid #A0522D !important;
+        }
+        .editor-preview-side, .editor-preview {
+          background: #F5EFE6 !important;
+          font-family: var(--font-serif), serif !important;
+          color: #1C1410 !important;
+          padding: 40px !important;
+          line-height: 1.8 !important;
+        }
+        .editor-preview h1, .editor-preview h2 {
+          font-family: var(--font-serif), serif !important;
+          margin-top: 2em;
+          margin-bottom: 1em;
         }
       `}</style>
     </main>
