@@ -156,44 +156,44 @@ export default function EditPost({ params }: { params: Promise<{ id: string }> }
 
       <style jsx global>{`
         .editor-toolbar {
-          border: 1px solid rgba(200, 168, 130, 0.2) !important;
+          border: 1px solid var(--border-color) !important;
           border-bottom: none !important;
           border-radius: 0 !important;
-          background: rgba(255, 255, 255, 0.4);
+          background: var(--surface);
           padding: 10px !important;
           backdrop-filter: blur(10px);
         }
         .editor-toolbar button {
-          color: #1C1410 !important;
+          color: var(--foreground) !important;
           border-radius: 0 !important;
           transition: all 0.3s;
         }
         .editor-toolbar button:hover {
           background: rgba(160, 82, 45, 0.1) !important;
-          color: #A0522D !important;
+          color: var(--color-clay) !important;
         }
         .editor-toolbar button.active {
-          background: #1C1410 !important;
-          color: #F5EFE6 !important;
+          background: var(--foreground) !important;
+          color: var(--background) !important;
         }
         .CodeMirror {
-          border: 1px solid rgba(200, 168, 130, 0.2) !important;
+          border: 1px solid var(--border-color) !important;
           border-radius: 0 !important;
-          background: rgba(255, 255, 255, 0.2) !important;
+          background: transparent !important;
           font-family: var(--font-dm-sans), sans-serif !important;
           font-size: 18px !important;
           line-height: 1.8 !important;
           padding: 20px !important;
-          color: #1C1410 !important;
+          color: var(--foreground) !important;
           min-height: 500px !important;
         }
         .CodeMirror-cursor {
-          border-left: 2px solid #A0522D !important;
+          border-left: 2px solid var(--color-clay) !important;
         }
         .editor-preview-side, .editor-preview {
-          background: #F5EFE6 !important;
+          background: var(--background) !important;
           font-family: var(--font-serif), serif !important;
-          color: #1C1410 !important;
+          color: var(--foreground) !important;
           padding: 40px !important;
           line-height: 1.8 !important;
         }
