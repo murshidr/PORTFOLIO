@@ -1,6 +1,7 @@
 import Nav from "@/components/Nav";
 import ProjectList from "@/components/ProjectList";
 import Contact from "@/components/Contact";
+import RecruiterStats from "@/components/RecruiterStats";
 
 export default function WorkPage() {
   return (
@@ -9,6 +10,7 @@ export default function WorkPage() {
       <div className="pt-32">
         <ProjectList />
       </div>
+      <RecruiterStats />
       <Contact />
     </main>
   );

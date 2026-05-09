@@ -5,6 +5,7 @@ import Link from "next/link";
 import DetailedAbout from "@/components/DetailedAbout";
 import Contact from "@/components/Contact";
 import Magnetic from "@/components/Magnetic";
+import TechRadar from "@/components/TechRadar";
 
 const techStack = [
   "PyTorch", "Llama 3.3", "Groq", "FastAPI", "React 19", "TensorFlow", "Space Tech AI", "RAG Systems", "Agentic Workflows"
@@ -39,6 +40,9 @@ export default function Home() {
           </div>
         </ScrollReveal>
       </section>
+
+      {/* Tech Radar Section */}
+      <TechRadar />
 
       {/* Integrated About Section */}
       <section className="bg-sand/5">
