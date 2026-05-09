@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cinematic Portfolio — Intent & Execution
 
-## Getting Started
+A high-end, editorial-style portfolio designed with a focus on **Intent-Driven Engineering** and **Execution Intelligence**. Built for recruiters and collaborators who value clarity, performance, and cinematic aesthetics.
 
-First, run the development server:
+## ✨ Key Features
+
+### 🎞️ The Archive (Work Page)
+A sophisticated vertical list layout replacing traditional grids. Features a **Hover-Reveal system** that unveils high-fidelity, grainy cinematic previews for each project, coupled with **Magnetic Interaction** for a tactile, responsive feel.
+
+### 🌌 Technical DNA (Home Page)
+An interactive **Orbital Visualization** of the tech stack. Skills in AI/ML, Engineering, and Web Development float in cinematic orbits, reflecting the "Space & Intent" theme of the portfolio.
+
+### 📊 Recruiter Dashboard
+A high-impact executive summary section designed for 30-second scanning. Highlights key metrics and provides direct, elegant calls to action:
+- **One-Click CV Download**
+- **Direct Calendly Integration**
+
+### 🕯️ Cinematic Aesthetic
+- **Premium Color Palette**: Espresso, Clay, Walnut, and Sand.
+- **Glassmorphism**: Custom backdrop-blur utilities and hairline borders.
+- **Micro-Animations**: Framer Motion driven scroll reveals and spring physics.
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 16+ (React 19)
+- **Styling**: Tailwind CSS 4 (with @theme inline)
+- **Animations**: Framer Motion 12
+- **Icons**: Lucide React
+- **Typography**: Editorial Serif & Minimal Sans
+
+## 🚀 Getting Started
+
+First, install the dependencies:
+
+```bash
+npm install
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `src/components`: Reusable cinematic components (TechRadar, RecruiterStats, Magnetic).
+- `src/app/work`: Redesigned vertical archive layout.
+- `public/projects`: High-fidelity cinematic background assets.
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Built with intent by **Murshid**.
