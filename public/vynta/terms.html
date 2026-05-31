@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terms of Service — Vynta</title>
+<meta name="description" content="Review the Terms of Service for Vynta. Learn about eligibility, acceptable use, and intellectual property terms for our AI task scheduler.">
+<meta name="keywords" content="Vynta terms of service, Android task scheduler, user agreement, solo student developer">
+<meta name="author" content="Murshid R">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --coral: #FF6B35; --orange: #FF8C42;
+    --night: #0E0E0F; --surface: #1A1A1C; --elevated: #242427;
+    --text: #F0EDE8; --muted: #A09B93; --faint: #5C5852;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--night); color: var(--text); line-height: 1.7; }
+  nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 48px;
+    background: rgba(14,14,15,0.95);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .nav-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, #FFB347, #FF6B35, #C0311A);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-icon svg { width: 20px; height: 20px; }
+  .nav-name { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; color: var(--text); }
+  .nav-back { font-size: 14px; color: var(--muted); text-decoration: none; transition: color 0.2s; }
+  .nav-back:hover { color: var(--text); }
+
+  .container { max-width: 760px; margin: 0 auto; padding: 72px 24px 100px; }
+  .doc-label { font-size: 12px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--coral); margin-bottom: 16px; }
+  .doc-title { font-size: 42px; font-weight: 700; letter-spacing: -1px; margin-bottom: 12px; }
+  .doc-meta { font-size: 14px; color: var(--muted); margin-bottom: 56px; padding-bottom: 32px; border-bottom: 1px solid rgba(255,255,255,0.06); }
+
+  h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.3px; margin-top: 48px; margin-bottom: 16px; }
+  h3 { font-size: 17px; font-weight: 600; margin-top: 28px; margin-bottom: 10px; }
+  p { font-size: 15px; color: var(--muted); margin-bottom: 16px; }
+  ul { padding-left: 20px; margin-bottom: 16px; }
+  li { font-size: 15px; color: var(--muted); margin-bottom: 8px; }
+  a { color: var(--coral); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  .highlight-box {
+    background: rgba(255,107,53,0.08);
+    border: 1px solid rgba(255,107,53,0.2);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin: 32px 0;
+  }
+  .highlight-box p { color: var(--text); margin: 0; font-size: 15px; }
+
+  footer {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 32px 48px;
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 16px;
+  }
+  footer p { font-size: 13px; color: var(--faint); }
+  .footer-links { display: flex; gap: 20px; }
+  .footer-links a { font-size: 13px; color: var(--muted); text-decoration: none; }
+  .footer-links a:hover { color: var(--text); }
+
+  @media (max-width: 600px) {
+    nav { padding: 16px 20px; }
+    .container { padding: 48px 20px 80px; }
+    footer { padding: 24px 20px; flex-direction: column; }
+    .doc-title { font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="index.html">
+    <div class="nav-icon">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="2" y1="17" x2="22" y2="17" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M8 17 A4 4 0 0 1 16 17" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round"/>
+        <path d="M5 17 A7 7 0 0 1 19 17" fill="none" stroke="white" stroke-width="1.4" stroke-linecap="round"/>
+        <circle cx="12" cy="10" r="2.5" fill="white"/>
+        <line x1="12" y1="5.5" x2="12" y2="4" stroke="white" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <span class="nav-name">Vynta</span>
+  </a>
+  <a class="nav-back" href="index.html">← Back to home</a>
+</nav>
+
+<div class="container">
+  <p class="doc-label">Legal</p>
+  <h1 class="doc-title">Terms of Service</h1>
+  <p class="doc-meta">Last updated: May 31, 2026 &nbsp;·&nbsp; Effective: May 31, 2026</p>
+
+  <div class="highlight-box">
+    <p>By using Vynta, you agree to these terms. This is a beta app built by a solo student developer. It's provided as-is, free of charge, and currently in testing. Use it responsibly.</p>
+  </div>
+
+  <h2>1. About Vynta</h2>
+  <p>Vynta ("the App") is an AI-powered Android task scheduler developed and maintained by Murshid R ("Developer", "I", "we"). The App is currently in beta testing and is provided free of charge.</p>
+  <p>By downloading, installing, or using Vynta, you agree to be bound by these Terms of Service. If you do not agree, do not use the App.</p>
+
+  <h2>2. Eligibility</h2>
+  <p>To use Vynta, you must:</p>
+  <ul>
+    <li>Be at least 13 years of age</li>
+    <li>Have a valid Google account</li>
+    <li>Use an Android device running Android 8.0 (API 26) or higher</li>
+    <li>Agree to these Terms and our Privacy Policy</li>
+  </ul>
+
+  <h2>3. What Vynta Does</h2>
+  <p>Vynta is a task scheduling application that:</p>
+  <ul>
+    <li>Accepts natural language task descriptions from you</li>
+    <li>Uses AI (via Groq's API) to parse and schedule those tasks</li>
+    <li>Creates, reads, and manages events in your connected Google Calendar</li>
+    <li>Stores your tasks locally on your device</li>
+  </ul>
+
+  <h2>4. Google Account and Calendar Access</h2>
+  <p>Vynta requires you to sign in with a Google account and grant permission to access your Google Calendar. By granting this access, you authorise Vynta to:</p>
+  <ul>
+    <li>Read your calendar events to detect scheduling conflicts</li>
+    <li>Create new calendar events on your behalf</li>
+    <li>Edit or delete calendar events that were created through Vynta</li>
+  </ul>
+  <p>You can revoke this access at any time through your Google Account settings at <a href="https://myaccount.google.com/permissions" target="_blank">myaccount.google.com/permissions</a>.</p>
+
+  <h2>5. Beta Status and App Availability</h2>
+  <p>Vynta is currently in beta testing. This means:</p>
+  <ul>
+    <li>The App may contain bugs or incomplete features</li>
+    <li>Features may change, be added, or be removed without notice</li>
+    <li>The App may be unavailable during updates or maintenance</li>
+    <li>Access to the beta is currently limited to approved testers</li>
+  </ul>
+  <p>We make no guarantees about the App's continued availability, reliability, or feature set.</p>
+
+  <h2>6. Acceptable Use</h2>
+  <p>You agree to use Vynta only for lawful personal productivity purposes. You must not:</p>
+  <ul>
+    <li>Use the App for any unlawful purpose</li>
+    <li>Attempt to reverse engineer, decompile, or extract the source code</li>
+    <li>Use the App to spam, harass, or harm others</li>
+    <li>Attempt to gain unauthorised access to any systems connected to the App</li>
+    <li>Use the App in any way that could damage, disable, or impair it</li>
+  </ul>
+
+  <h2>7. Intellectual Property</h2>
+  <p>All intellectual property rights in Vynta — including the code, design, branding, logo, and name — belong to Murshid R. Vynta is proprietary software and is not open-source unless explicitly stated otherwise.</p>
+  <p>You are granted a limited, non-transferable, non-exclusive licence to use the App for personal purposes. This licence does not permit you to copy, modify, distribute, sell, or lease any part of the App.</p>
+
+  <h2>8. User-Generated Content</h2>
+  <p>Task titles, descriptions, and other content you create within Vynta remain yours. You retain all rights to your content. By using the App, you grant us no rights to your content except as necessary to operate the service (e.g., sending task text to Groq's AI for processing).</p>
+
+  <h2>9. Third-Party Services</h2>
+  <p>Vynta integrates with the following third-party services, each governed by their own terms:</p>
+  <ul>
+    <li><strong>Google Calendar API</strong> — governed by Google's Terms of Service</li>
+    <li><strong>Google Sign-In</strong> — governed by Google's Terms of Service</li>
+    <li><strong>Groq API</strong> — governed by Groq's Terms of Service</li>
+  </ul>
+  <p>We are not responsible for the availability or actions of these third-party services.</p>
+
+  <h2>10. Disclaimer of Warranties</h2>
+  <p>Vynta is provided "as is" and "as available" without warranties of any kind, either express or implied. To the fullest extent permitted by law, we disclaim all warranties including implied warranties of merchantability, fitness for a particular purpose, and non-infringement.</p>
+  <p>We do not warrant that:</p>
+  <ul>
+    <li>The App will be error-free or uninterrupted</li>
+    <li>AI-generated scheduling decisions will be accurate or optimal</li>
+    <li>Your data will never be lost (we recommend not relying solely on Vynta for critical scheduling)</li>
+  </ul>
+
+  <h2>11. Limitation of Liability</h2>
+  <p>To the maximum extent permitted by applicable law, Murshid R shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses, resulting from (i) your use of or inability to use the App; (ii) any unauthorized access to or use of our servers and/or any personal information stored therein; or (iii) any bugs, viruses, trojan horses, or the like that may be transmitted to or through our App by any third party.</p>
+
+  <h2>12. Governing Law</h2>
+  <p>These Terms shall be governed by and construed in accordance with the laws of India, without regard to its conflict of law principles. Any legal action or proceeding arising under these Terms will be brought exclusively in the courts located in Chennai, Tamil Nadu, India.</p>
+
+  <h2>13. Severability</h2>
+  <p>If any provision of these Terms is found to be unenforceable or invalid, that provision will be limited or eliminated to the minimum extent necessary so that these Terms will otherwise remain in full force and effect and enforceable.</p>
+
+  <h2>14. Changes to Terms</h2>
+  <p>We reserve the right to modify or replace these Terms at any time. We will notify you of any changes by posting the new Terms on this page and updating the "Last updated" date at the top of these Terms. Your continued use of the App following the posting of any changes constitutes acceptance of those changes.</p>
+
+  <h2>15. Contact Information</h2>
+  <p>If you have any questions about these Terms, please contact the developer at:</p>
+  <ul>
+    <li><strong>Developer:</strong> Murshid R</li>
+    <li><strong>Email:</strong> <a href="mailto:murshidreyas@gmail.com">murshidreyas@gmail.com</a></li>
+    <li><strong>Location:</strong> Chennai, India</li>
+  </ul>
+</div>
+
+<footer>
+  <p>© 2026 Murshid R. All Rights Reserved.</p>
+  <div class="footer-links">
+    <a href="index.html">Home</a>
+    <a href="privacy.html">Privacy Policy</a>
+    <a href="mailto:murshidreyas@gmail.com">Contact</a>
+  </div>
+</footer>
+
+</body>
+</html>

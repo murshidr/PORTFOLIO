@@ -9,51 +9,66 @@ import Image from "next/image";
 const projects = [
   {
     id: "01",
+    name: "Vynta",
+    subtitle: "AI-Powered Task Scheduler",
+    tagline: "Kotlin · Jetpack Compose · Material 3 · Groq API · Google Calendar API · Room Database",
+    description: "Describe what you need in plain English. Vynta's AI figures out the when, the where, and the how — scheduling events into your Google Calendar based on daily energy levels (Low, Medium, High).",
+    image: "/projects/vynta.jpg",
+    link: "/vynta/index.html"
+  },
+  {
+    id: "02",
     name: "SENTINEL",
     subtitle: "Execution Intelligence Platform",
     tagline: "Python · FastAPI · React 19 · Groq API · Llama 3.3 70B · Supabase",
     description: "Built end-to-end LLM-powered platform that extracts delivery commitments from Slack and Gmail, scores slip risk 0–100, and auto-alerts owners before deadlines are missed.",
-    image: "/projects/sentinel.png"
+    image: "/projects/sentinel.png",
+    link: "https://github.com/AA1-31-Murshid/Vynta" // Fallback to main profile / Vynta repo
   },
   {
-    id: "02",
+    id: "03",
     name: "Combustion AI",
     subtitle: "Instability Prediction — Hybrid Rocket Engines",
     tagline: "Python · PyTorch · Scikit-optimize · NumPy · MATLAB",
     description: "TCN model achieving 92% accuracy for early warning of combustion instability; outperformed LSTM baselines. 8-channel sensor fusion at 1000 Hz sampling rate.",
-    image: "/projects/combustion.png"
+    image: "/projects/combustion.png",
+    link: "https://github.com/AA1-31-Murshid/Vynta"
   },
   {
-    id: "03",
+    id: "04",
     name: "DocuMind",
     subtitle: "Mental State Prediction using Deep Learning",
     tagline: "Python · TensorFlow/Keras · LSTM · Scikit-learn",
     description: "Stacked LSTM for time-series classification of mental health states from social media and lifestyle metrics. Achieved 81% Recall on At_Risk class.",
-    image: "/projects/documind.png"
+    image: "/projects/documind.png",
+    link: "https://github.com/AA1-31-Murshid"
   },
   {
-    id: "04",
+    id: "05",
     name: "AIDEN AI",
     subtitle: "Intelligent Conversational Assistant",
     tagline: "Python · HuggingFace Transformers · Flask API · SQLite",
     description: "End-to-end conversational AI with NLP mood detection and RAG-style retrieval for adaptive academic guidance. Dual recommendation engine.",
-    image: "/projects/sentinel.png" // Placeholder
+    image: "/projects/sentinel.png", // Placeholder
+    link: "https://github.com/AA1-31-Murshid"
   },
   {
-    id: "05",
+    id: "06",
     name: "Ground Station",
     subtitle: "Real-Time Telemetry Dashboard",
     tagline: "Python · Flask/FastAPI · WebSockets · Plotly · SQLite",
     description: "Production-grade telemetry dashboard: 8+ sensor channels at 1000 Hz, <100ms latency. Selected for INSPACe Model Rocketry Competition national level.",
-    image: "/projects/combustion.png" // Placeholder
+    image: "/projects/combustion.png", // Placeholder
+    link: "https://github.com/AA1-31-Murshid"
   },
   {
-    id: "06",
+    id: "07",
     name: "CarbonCut",
     subtitle: "AI-Powered Waste Management",
     tagline: "Python · TensorFlow/Keras · React · Firebase",
     description: "CNN image recognition: 94% accuracy across 6+ waste categories with real-time smartphone integration. SIH 2025 national evaluation selection.",
-    image: "/projects/documind.png" // Placeholder
+    image: "/projects/documind.png", // Placeholder
+    link: "https://github.com/AA1-31-Murshid"
   },
 ];
 
@@ -90,7 +105,7 @@ export default function ProjectList() {
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-32 gap-8 relative z-10">
            <div className="flex items-center space-x-4">
               <div className="w-8 h-[1px] bg-clay" />
-              <span className="text-label text-clay">Cinematic Collection / 2025</span>
+              <span className="text-label text-clay">Cinematic Collection / 2026</span>
            </div>
            <h2 className="text-editorial-h2 text-espresso">The Archive.</h2>
         </div>
@@ -98,9 +113,12 @@ export default function ProjectList() {
 
       <div className="flex flex-col relative z-10">
         {projects.map((project, index) => (
-          <div
+          <a
             key={project.id}
-            className="group border-b border-sand/10 py-16 cursor-none relative"
+            href={project.link}
+            target={project.link.startsWith("http") ? "_blank" : "_self"}
+            rel="noopener noreferrer"
+            className="group border-b border-sand/10 py-16 cursor-none relative block text-decoration-none hover:text-current"
             onMouseEnter={() => setActiveProject(index)}
             onMouseLeave={() => setActiveProject(null)}
           >
@@ -150,7 +168,7 @@ export default function ProjectList() {
               />
               <div className="absolute inset-0 bg-espresso/20 mix-blend-overlay" />
             </motion.div>
-          </div>
+          </a>
         ))}
       </div>
     </section>
