@@ -56,9 +56,11 @@
     align-items: center;
     justify-content: space-between;
     padding: 20px 48px;
-    background: rgba(14,14,15,0.85);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    background: rgba(14,14,15,0.75);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 4px 32px rgba(0,0,0,0.4);
   }
 
   .nav-logo {
@@ -125,15 +127,26 @@
   }
 
   /* Sunrise glow bg */
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 100%, rgba(255,107,53,0.22) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 20% 60%, rgba(255,179,71,0.1) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 30% at 80% 40%, rgba(192,49,26,0.08) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
   .hero::after {
     content: '';
     position: absolute;
-    bottom: -100px;
+    bottom: -120px;
     left: 50%;
     transform: translateX(-50%);
-    width: 700px;
-    height: 400px;
-    background: radial-gradient(ellipse, rgba(255,107,53,0.18) 0%, transparent 70%);
+    width: 900px;
+    height: 500px;
+    background: radial-gradient(ellipse, rgba(255,107,53,0.2) 0%, rgba(255,140,66,0.08) 40%, transparent 70%);
     pointer-events: none;
   }
 
@@ -167,11 +180,11 @@
   }
 
   .hero h1 {
-    font-size: clamp(48px, 8vw, 88px);
-    font-weight: 700;
-    letter-spacing: -2px;
-    line-height: 1.0;
-    max-width: 800px;
+    font-size: clamp(52px, 9vw, 96px);
+    font-weight: 800;
+    letter-spacing: -3px;
+    line-height: 0.95;
+    max-width: 820px;
     animation: fadeUp 0.6s 0.1s ease both;
   }
 
@@ -558,37 +571,67 @@
   /* ── CTA BAND ── */
   .cta-band {
     margin: 0 48px 80px;
-    border-radius: 28px;
-    background: linear-gradient(135deg, rgba(255,179,71,0.15), rgba(255,107,53,0.15), rgba(192,49,26,0.15));
-    border: 1px solid rgba(255,107,53,0.2);
-    padding: 72px 48px;
+    border-radius: 32px;
+    background: linear-gradient(135deg,
+      rgba(255,179,71,0.12) 0%,
+      rgba(255,107,53,0.18) 40%,
+      rgba(192,49,26,0.12) 100%);
+    border: 1px solid rgba(255,107,53,0.25);
+    padding: 88px 64px;
     text-align: center;
     position: relative;
     overflow: hidden;
+    backdrop-filter: blur(8px);
   }
 
   .cta-band::before {
     content: '';
     position: absolute;
-    bottom: -60px;
+    bottom: -80px;
     left: 50%;
     transform: translateX(-50%);
-    width: 500px; height: 200px;
-    background: radial-gradient(ellipse, rgba(255,107,53,0.2) 0%, transparent 70%);
+    width: 600px; height: 300px;
+    background: radial-gradient(ellipse, rgba(255,107,53,0.25) 0%, transparent 70%);
+  }
+
+  .cta-band::after {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,179,71,0.15) 0%, transparent 70%);
   }
 
   .cta-band h2 {
-    font-size: clamp(28px, 4vw, 44px);
-    font-weight: 700;
-    letter-spacing: -1px;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    letter-spacing: -1.5px;
     margin-bottom: 16px;
+    position: relative; z-index: 1;
   }
 
   .cta-band p {
     color: var(--muted);
-    font-size: 16px;
-    margin-bottom: 36px;
+    font-size: 17px;
+    margin-bottom: 40px;
+    position: relative; z-index: 1;
   }
+
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    transition: color 0.2s;
+    position: relative; z-index: 1;
+  }
+
+  .back-link:hover { color: var(--coral); }
 
   /* ── FOOTER ── */
   footer {
@@ -627,11 +670,99 @@
     transform: translateY(0);
   }
 
+  /* ── INTERFACE SHOWCASE ── */
+  .showcase {
+    padding: 100px 48px;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .showcase-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-top: 56px;
+    overflow-x: auto;
+    padding-bottom: 24px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--coral) var(--surface);
+  }
+
+  .showcase-grid::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .showcase-grid::-webkit-scrollbar-thumb {
+    background: var(--coral);
+    border-radius: 10px;
+  }
+
+  .showcase-grid::-webkit-scrollbar-track {
+    background: var(--surface);
+  }
+
+  .showcase-card {
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 24px;
+    padding: 20px;
+    min-width: 250px;
+    transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .showcase-card:hover {
+    border-color: rgba(255,107,53,0.3);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(255,107,53,0.1);
+  }
+
+  .showcase-img-container {
+    width: 100%;
+    aspect-ratio: 9/19.5;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    background: var(--night);
+    border: 2px solid rgba(255,255,255,0.08);
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  }
+
+  .showcase-img-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+  }
+
+  .showcase-card:hover .showcase-img-container img {
+    transform: scale(1.05);
+  }
+
+  .showcase-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+
+  .showcase-card p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
   /* ── RESPONSIVE ── */
   @media (max-width: 768px) {
     nav { padding: 16px 20px; }
     .nav-links { display: none; }
-    .features, .how, .energy, .about { padding: 60px 20px; }
+    .features, .how, .showcase, .energy, .about { padding: 60px 20px; }
+    .showcase-grid { display: flex; gap: 16px; overflow-x: scroll; }
     .energy-cards { grid-template-columns: 1fr; }
     .about { grid-template-columns: 1fr; gap: 40px; }
     .cta-band { margin: 0 20px 60px; padding: 48px 24px; }
@@ -662,10 +793,11 @@
   <ul class="nav-links">
     <li><a href="#features">Features</a></li>
     <li><a href="#how">How it works</a></li>
+    <li><a href="#interface">Interface</a></li>
     <li><a href="#about">About</a></li>
     <li><a href="privacy.html">Privacy</a></li>
     <li><a href="terms.html">Terms</a></li>
-    <li><a href="mailto:murshidreyas@gmail.com" class="nav-cta">Contact</a></li>
+    <li><a href="https://murshid-r.vercel.app" class="nav-cta">← Portfolio</a></li>
   </ul>
 </nav>
 
@@ -680,7 +812,7 @@
     <a href="mailto:murshidreyas@gmail.com?subject=Vynta Beta Access" class="btn-primary">
       ↓ Request Beta Access
     </a>
-    <a href="https://github.com/AA1-31-Murshid/Vynta" target="_blank" class="btn-secondary">
+    <a href="https://github.com/quantumstack-labs/Vynta" target="_blank" rel="noopener noreferrer" class="btn-secondary">
       View on GitHub →
     </a>
   </div>
@@ -781,6 +913,50 @@
   </div>
 </section>
 
+<!-- INTERFACE SHOWCASE -->
+<section class="showcase" id="interface">
+  <p class="section-label reveal">Interface</p>
+  <h2 class="section-title reveal">Every screen, built with intention</h2>
+  <p style="margin-top:16px;font-size:15px;color:var(--muted);max-width:500px" class="reveal">Real screenshots from the beta build — Jetpack Compose Material 3 in action.</p>
+  <div class="showcase-grid">
+    <div class="showcase-card reveal">
+      <div class="showcase-img-container">
+        <img src="../projects/vynta/input.png" alt="Vynta – Natural Language Input" loading="lazy">
+      </div>
+      <h3>Natural Language Input</h3>
+      <p>Describe your task in plain English</p>
+    </div>
+    <div class="showcase-card reveal">
+      <div class="showcase-img-container">
+        <img src="../projects/vynta/schedule.jpg" alt="Vynta – AI Schedule" loading="lazy">
+      </div>
+      <h3>AI-Generated Schedule</h3>
+      <p>Energy-aware time blocks</p>
+    </div>
+    <div class="showcase-card reveal">
+      <div class="showcase-img-container">
+        <img src="../projects/vynta/briefing.png" alt="Vynta – Daily Briefing" loading="lazy">
+      </div>
+      <h3>Daily Briefing</h3>
+      <p>Morning overview of your day</p>
+    </div>
+    <div class="showcase-card reveal">
+      <div class="showcase-img-container">
+        <img src="../projects/vynta/logbook.png" alt="Vynta – Logbook" loading="lazy">
+      </div>
+      <h3>Productivity Logbook</h3>
+      <p>Track patterns over time</p>
+    </div>
+    <div class="showcase-card reveal">
+      <div class="showcase-img-container">
+        <img src="../projects/vynta/settings.png" alt="Vynta – Settings" loading="lazy">
+      </div>
+      <h3>Smart Settings</h3>
+      <p>Personalise your energy profile</p>
+    </div>
+  </div>
+</section>
+
 <!-- ENERGY LEVELS -->
 <section class="energy">
   <p class="section-label reveal">Energy system</p>
@@ -853,10 +1029,10 @@
     <p>Murshid R is a third year Computer Science student specialising in AI & Data Science at Dr. M.G.R Educational and Research Institute, Chennai. He also works as an AI Research Engineer at ACS Space Technology Centre.</p>
     <p style="margin-top:12px">Vynta started as a personal problem. Built in a semester break. Now in beta testing.</p>
     <div class="about-links">
-      <a href="https://linkedin.com/in/murshid-r-37088b272" target="_blank" class="about-link">LinkedIn</a>
-      <a href="https://github.com/AA1-31-Murshid" target="_blank" class="about-link">GitHub</a>
-      <a href="https://murshid-r.vercel.app" target="_blank" class="about-link">Portfolio</a>
-      <a href="mailto:murshidreyas@gmail.com" class="about-link">Email</a>
+      <a href="https://www.linkedin.com/in/murshid-r-37088b272" target="_blank" rel="noopener noreferrer" class="about-link">↗ LinkedIn</a>
+      <a href="https://github.com/quantumstack-labs" target="_blank" rel="noopener noreferrer" class="about-link">↗ GitHub</a>
+      <a href="https://murshid-r.vercel.app" target="_blank" rel="noopener noreferrer" class="about-link">↗ Portfolio</a>
+      <a href="mailto:murshidreyas@gmail.com" class="about-link">✉ Email</a>
     </div>
   </div>
   <div class="about-card reveal">
@@ -876,10 +1052,16 @@
 <!-- CTA BAND -->
 <div class="cta-band reveal">
   <h2>Want to try Vynta?</h2>
-  <p>It's in beta. DM me your Gmail ID and I'll add you to the testing console.</p>
-  <a href="mailto:murshidreyas@gmail.com?subject=Vynta Beta Access Request" class="btn-primary">
-    Request Access →
-  </a>
+  <p>It's in beta. Drop your Gmail ID and I'll add you to the testing console.</p>
+  <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;position:relative;z-index:1">
+    <a href="mailto:murshidreyas@gmail.com?subject=Vynta Beta Access Request" class="btn-primary">
+      ↓ Request Beta Access
+    </a>
+    <a href="https://github.com/quantumstack-labs/Vynta" target="_blank" rel="noopener noreferrer" class="btn-secondary">
+      View Source →
+    </a>
+  </div>
+  <a href="https://murshid-r.vercel.app" class="back-link" style="display:block;margin-top:32px">← Back to portfolio</a>
 </div>
 
 <!-- FOOTER -->
@@ -889,7 +1071,8 @@
     <a href="privacy.html">Privacy Policy</a>
     <a href="terms.html">Terms of Service</a>
     <a href="mailto:murshidreyas@gmail.com">Contact</a>
-    <a href="https://github.com/AA1-31-Murshid/Vynta" target="_blank">GitHub</a>
+    <a href="https://github.com/quantumstack-labs/Vynta" target="_blank" rel="noopener noreferrer">GitHub</a>
+    <a href="https://murshid-r.vercel.app">Portfolio</a>
   </div>
 </footer>
 

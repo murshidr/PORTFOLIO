@@ -23,7 +23,7 @@ const projects = [
     tagline: "Python · FastAPI · React 19 · Groq API · Llama 3.3 70B · Supabase",
     description: "Built end-to-end LLM-powered platform that extracts delivery commitments from Slack and Gmail, scores slip risk 0–100, and auto-alerts owners before deadlines are missed.",
     image: "/projects/sentinel.png",
-    link: "https://github.com/AA1-31-Murshid/Vynta" // Fallback to main profile / Vynta repo
+    link: "https://github.com/murshidr"
   },
   {
     id: "03",
@@ -32,7 +32,7 @@ const projects = [
     tagline: "Python · PyTorch · Scikit-optimize · NumPy · MATLAB",
     description: "TCN model achieving 92% accuracy for early warning of combustion instability; outperformed LSTM baselines. 8-channel sensor fusion at 1000 Hz sampling rate.",
     image: "/projects/combustion.png",
-    link: "https://github.com/AA1-31-Murshid/Vynta"
+    link: "https://github.com/murshidr"
   },
   {
     id: "04",
@@ -41,7 +41,7 @@ const projects = [
     tagline: "Python · TensorFlow/Keras · LSTM · Scikit-learn",
     description: "Stacked LSTM for time-series classification of mental health states from social media and lifestyle metrics. Achieved 81% Recall on At_Risk class.",
     image: "/projects/documind.png",
-    link: "https://github.com/AA1-31-Murshid"
+    link: "https://github.com/murshidr"
   },
   {
     id: "05",
@@ -49,8 +49,8 @@ const projects = [
     subtitle: "Intelligent Conversational Assistant",
     tagline: "Python · HuggingFace Transformers · Flask API · SQLite",
     description: "End-to-end conversational AI with NLP mood detection and RAG-style retrieval for adaptive academic guidance. Dual recommendation engine.",
-    image: "/projects/sentinel.png", // Placeholder
-    link: "https://github.com/AA1-31-Murshid"
+    image: "/projects/sentinel.png",
+    link: "https://github.com/murshidr"
   },
   {
     id: "06",
@@ -58,8 +58,8 @@ const projects = [
     subtitle: "Real-Time Telemetry Dashboard",
     tagline: "Python · Flask/FastAPI · WebSockets · Plotly · SQLite",
     description: "Production-grade telemetry dashboard: 8+ sensor channels at 1000 Hz, <100ms latency. Selected for INSPACe Model Rocketry Competition national level.",
-    image: "/projects/combustion.png", // Placeholder
-    link: "https://github.com/AA1-31-Murshid"
+    image: "/projects/combustion.png",
+    link: "https://github.com/murshidr"
   },
   {
     id: "07",
@@ -67,8 +67,8 @@ const projects = [
     subtitle: "AI-Powered Waste Management",
     tagline: "Python · TensorFlow/Keras · React · Firebase",
     description: "CNN image recognition: 94% accuracy across 6+ waste categories with real-time smartphone integration. SIH 2025 national evaluation selection.",
-    image: "/projects/documind.png", // Placeholder
-    link: "https://github.com/AA1-31-Murshid"
+    image: "/projects/documind.png",
+    link: "https://github.com/murshidr"
   },
 ];
 
