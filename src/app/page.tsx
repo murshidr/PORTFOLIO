@@ -6,6 +6,7 @@ import DetailedAbout from "@/components/DetailedAbout";
 import Contact from "@/components/Contact";
 import Magnetic from "@/components/Magnetic";
 import TechRadar from "@/components/TechRadar";
+import StickyFeatures from "@/components/StickyFeatures";
 
 const techStack = [
   "PyTorch", "Llama 3.3", "Groq", "FastAPI", "React 19", "TensorFlow", "Space Tech AI", "RAG Systems", "Agentic Workflows"
@@ -40,6 +41,9 @@ export default function Home() {
           </div>
         </ScrollReveal>
       </section>
+
+      {/* Sticky Features Section */}
+      <StickyFeatures />
 
       {/* Tech Radar Section */}
       <TechRadar />
