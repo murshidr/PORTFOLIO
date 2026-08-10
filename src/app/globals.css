@@ -66,6 +66,18 @@
     perspective: 1000px;
   }
 
+  .perspective-1200 {
+    perspective: 1200px;
+  }
+
+  .transform-style-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
   .border-hairline {
     border-width: 0.5px;
   }

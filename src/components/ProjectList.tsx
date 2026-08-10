@@ -1,12 +1,13 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import Image from "next/image";
 import Magnetic from "./Magnetic";
 import TextReveal from "./TextReveal";
+import ProjectModal, { ProjectData } from "./ProjectModal";
 
-const projects = [
+const projects: ProjectData[] = [
   {
     id: "01",
     name: "AI Automation SaaS",
@@ -83,6 +84,7 @@ const projects = [
 
 export default function ProjectList() {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const [activeProject, setActiveProject] = useState<ProjectData | null>(null);
 
   // Linear wheel redirection to scroll horizontally
   useEffect(() => {
@@ -90,7 +92,6 @@ export default function ProjectList() {
     if (!container) return;
 
     const handleWheel = (e: WheelEvent) => {
-      // Find limits
       const maxScroll = container.scrollWidth - container.clientWidth;
       const currentScroll = container.scrollLeft;
 
@@ -100,10 +101,8 @@ export default function ProjectList() {
       const canScrollLeft = isScrollingUp && currentScroll > 0;
       const canScrollRight = isScrollingDown && currentScroll < maxScroll;
 
-      // Only hijack the scroll if we can scroll horizontally in that direction
       if (canScrollLeft || canScrollRight) {
         e.preventDefault();
-        // Move container horizontally by the wheel's vertical delta
         container.scrollLeft += e.deltaY;
       }
     };
@@ -147,23 +146,54 @@ export default function ProjectList() {
             project={project}
             index={index}
             containerRef={containerRef}
+            onSelect={(proj) => setActiveProject(proj)}
           />
         ))}
       </div>
+
+      {/* Zajno Morphing Case-Study Modal */}
+      <ProjectModal
+        project={activeProject}
+        onClose={() => setActiveProject(null)}
+      />
     </section>
   );
 }
 
 interface ProjectCardProps {
-  project: typeof projects[number];
+  project: ProjectData;
   index: number;
   containerRef: React.RefObject<HTMLDivElement | null>;
+  onSelect: (project: ProjectData) => void;
 }
 
-function ProjectCard({ project, index, containerRef }: ProjectCardProps) {
+function ProjectCard({ project, index, containerRef, onSelect }: ProjectCardProps) {
   const cardRef = useRef<HTMLDivElement | null>(null);
   const imageRef = useRef<HTMLDivElement | null>(null);
   const [imageRevealed, setImageRevealed] = useState(false);
+
+  // 3D Spring Tilt Values
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const rotateX = useSpring(useTransform(mouseY, [-0.5, 0.5], [10, -10]), { damping: 20, stiffness: 200 });
+  const rotateY = useSpring(useTransform(mouseX, [-0.5, 0.5], [-10, 10]), { damping: 20, stiffness: 200 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const x = (e.clientX - rect.left) / width - 0.5;
+    const y = (e.clientY - rect.top) / height - 0.5;
+    mouseX.set(x);
+    mouseY.set(y);
+  };
+
+  const handleMouseLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+  };
 
   // Track the scroll progress of this specific card relative to the carousel viewport
   const { scrollXProgress } = useScroll({
@@ -198,25 +228,35 @@ function ProjectCard({ project, index, containerRef }: ProjectCardProps) {
   return (
     <motion.div
       ref={cardRef}
-      className="w-[85vw] sm:w-[500px] md:w-[580px] shrink-0 snap-center"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        rotateX,
+        rotateY,
+        transformStyle: "preserve-3d",
+      }}
+      className="w-[85vw] sm:w-[500px] md:w-[580px] shrink-0 snap-center perspective-1000"
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.8, delay: index * 0.05, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.8, delay: index * 0.05, ease: [0.16, 1, 0.3, 1] as const }}
     >
-      <a
-        href={project.link}
-        target={project.link.startsWith("http") ? "_blank" : "_self"}
-        rel="noopener noreferrer"
-        className="group block bg-surface/20 border border-sand/15 hover:border-clay/35 backdrop-blur-md p-6 md:p-8 rounded-2xl shadow-cinematic transition-colors duration-500 text-decoration-none hover:text-current"
+      <div
+        onClick={() => onSelect(project)}
+        data-cursor-text="INSPECT"
+        className="group block cursor-pointer bg-surface/20 border border-sand/15 hover:border-clay/40 backdrop-blur-md p-6 md:p-8 rounded-2xl shadow-cinematic hover:shadow-2xl transition-all duration-500 text-decoration-none"
       >
-        <div className="space-y-6 md:space-y-8">
+        <motion.div
+          layoutId={`project-container-${project.id}`}
+          className="space-y-6 md:space-y-8"
+        >
           {/* Parallax Image with Clip-Path Mask Reveal */}
           <div
             ref={imageRef}
             className={`relative h-[250px] md:h-[320px] rounded-xl overflow-hidden bg-espresso border border-sand/10 shadow-inner mask-reveal-scale ${imageRevealed ? "revealed" : ""}`}
           >
             <motion.div
+              layoutId={`project-image-${project.id}`}
               style={{ x: xImage, width: "120%", left: "-10%" }}
               className="absolute top-0 bottom-0 relative h-full"
             >
@@ -268,7 +308,7 @@ function ProjectCard({ project, index, containerRef }: ProjectCardProps) {
             <div className="pt-4 flex justify-end">
               <Magnetic strength={0.25}>
                 <div className="flex items-center space-x-3 text-clay text-xs uppercase tracking-widest font-bold">
-                  <span>View Project</span>
+                  <span>Inspect Case Study</span>
                   <motion.span
                     animate={{ x: [0, 4, 0] }}
                     transition={{ repeat: Infinity, duration: 1.5 }}
@@ -280,8 +320,9 @@ function ProjectCard({ project, index, containerRef }: ProjectCardProps) {
               </Magnetic>
             </div>
           </div>
-        </div>
-      </a>
+        </motion.div>
+      </div>
     </motion.div>
   );
 }
+

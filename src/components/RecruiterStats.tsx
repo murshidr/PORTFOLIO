@@ -67,11 +67,13 @@ export default function RecruiterStats() {
                 key={stat.label} 
                 direction="up" 
                 delay={0.2 + i * 0.1}
-                className="p-8 bg-cream border border-sand/20 rounded-2xl shadow-sm hover:shadow-xl hover:border-clay/30 transition-all duration-700 group"
+                className="p-8 bg-cream border border-sand/20 rounded-2xl shadow-sm hover:shadow-xl hover:border-clay/40 transition-all duration-700 group cursor-default"
               >
-                <stat.icon className="text-clay mb-6 group-hover:scale-110 transition-transform" size={24} />
-                <div className="text-4xl font-serif text-espresso mb-2">{stat.value}</div>
-                <div className="text-[10px] uppercase tracking-[0.2em] text-sand font-bold">{stat.label}</div>
+                <div data-cursor-text="METRIC">
+                  <stat.icon className="text-clay mb-6 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-500" size={24} />
+                  <div className="text-4xl font-serif text-espresso mb-2 group-hover:text-clay transition-colors">{stat.value}</div>
+                  <div className="text-[10px] uppercase tracking-[0.2em] text-sand font-bold">{stat.label}</div>
+                </div>
               </ScrollReveal>
             ))}
           </div>
