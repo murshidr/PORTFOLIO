@@ -30,7 +30,7 @@ export default function GuestbookList({ messages }: GuestbookListProps) {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ delay: i * 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ delay: i * 0.1, duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }}
           className="border-t border-sand/20 pt-8"
         >
           <div className="grid md:grid-cols-[1fr_3fr] gap-4 md:gap-12 items-start">

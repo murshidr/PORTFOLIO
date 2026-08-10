@@ -53,8 +53,8 @@ export default function Contact() {
           <ScrollReveal direction="up" delay={0.6} className="md:text-right">
             <div className="space-y-2 text-[10px] uppercase tracking-[0.2em] text-sand font-medium">
               <p>© {currentYear} Murshid R.</p>
-              <p>Built with Next.js & Soul</p>
-              <p>Chennai, India</p>
+              <p>Built with Next.js & AI Precision</p>
+              <p>Chennai, Tamil Nadu, India</p>
             </div>
           </ScrollReveal>
         </div>

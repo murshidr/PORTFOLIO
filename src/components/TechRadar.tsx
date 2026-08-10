@@ -5,18 +5,18 @@ import ScrollReveal from "./ScrollReveal";
 
 const techGroups = [
   {
-    category: "AI / ML",
-    skills: ["PyTorch", "Llama 3.3", "Groq API", "TensorFlow", "FastAPI"],
+    category: "AI & Deep Learning",
+    skills: ["PyTorch", "TensorFlow", "Keras", "Llama 3.3", "Groq API"],
     color: "bg-clay"
   },
   {
-    category: "Web / Product",
-    skills: ["React 19", "Next.js", "TypeScript", "Tailwind 4", "Supabase"],
+    category: "Applications & Web",
+    skills: ["FastAPI", "Flask", "React 19", "TypeScript", "Supabase"],
     color: "bg-walnut"
   },
   {
-    category: "Engineering",
-    skills: ["Python", "MATLAB", "Scikit-learn", "NumPy", "C++"],
+    category: "Languages & Core",
+    skills: ["Python", "C++", "Kotlin", "Pandas", "Scikit-learn"],
     color: "bg-sand"
   }
 ];

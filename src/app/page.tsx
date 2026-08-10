@@ -9,7 +9,7 @@ import TechRadar from "@/components/TechRadar";
 import StickyFeatures from "@/components/StickyFeatures";
 
 const techStack = [
-  "PyTorch", "Llama 3.3", "Groq", "FastAPI", "React 19", "TensorFlow", "Space Tech AI", "RAG Systems", "Agentic Workflows"
+  "PyTorch", "TensorFlow", "TCN Models", "Llama 3.3", "Groq API", "FastAPI", "Computer Vision", "NLP & OCR", "Hyperspectral AI", "Digital Twins", "Agentic Systems"
 ];
 
 export default function Home() {

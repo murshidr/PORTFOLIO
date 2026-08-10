@@ -4,23 +4,30 @@ import Image from "next/image";
 import ScrollReveal from "./ScrollReveal";
 
 const skills = {
-  "AI / ML Frameworks": ["PyTorch", "TensorFlow", "Keras", "Scikit-learn", "HuggingFace Transformers", "LangChain"],
-  "LLM & Architecture": ["RAG", "MCP", "LLM Prompting & Fine-tuning", "Groq API", "Llama 3.3 70B", "Agentic Systems"],
-  "ML Architectures": ["TCN", "LSTM", "CNN", "Bayesian Optimization", "Collaborative Filtering"],
-  "Backend & APIs": ["FastAPI", "Flask", "WebSockets", "REST API Design", "JWT", "OAuth 2.0"],
-  "Frontend": ["React 19", "TypeScript", "Tailwind CSS", "Framer Motion", "TanStack Query"],
-  "Databases & Infra": ["Supabase", "PostgreSQL", "SQLite", "Redis", "Vercel", "Docker"],
+  "Programming": ["Python", "C++", "C", "Java", "Kotlin", "JavaScript", "TypeScript", "SQL", "HTML", "CSS"],
+  "AI & Machine Learning": ["PyTorch", "TensorFlow", "Keras", "Scikit-learn", "Deep Learning", "CNNs", "LSTMs", "TCNs", "Time-Series Classification"],
+  "AI Applications": ["Computer Vision", "NLP", "LLM Applications", "Prompt Engineering", "AI-powered Automation", "Predictive Analytics"],
+  "Data & Processing": ["Pandas", "NumPy", "Data Cleaning", "Data Preprocessing", "Feature Engineering", "Sensor/Data Fusion"],
+  "Development & Deployment": ["FastAPI", "Flask", "REST APIs", "WebSockets", "Git/GitHub", "Linux/WSL", "SQLite", "PostgreSQL", "Supabase", "Redis", "MATLAB"],
 };
 
 const experience = [
   {
     role: "AI Research Engineer",
-    company: "Dr. M.G.R ACS Space Technology Centre",
+    company: "Dr. M.G.R ACS Space Technology Centre, Chennai",
     period: "2024 – Present",
     points: [
-      "Led AI-driven combustion instability prediction research achieving 92% accuracy.",
-      "Engineered end-to-end payload integration workflows for CubeSat missions.",
-      "Reduced chamber pressure prediction error by 18% through behavior analysis."
+      "Developed machine learning workflows for combustion-instability prediction using Python, TCN models, Bayesian Optimization, and sensor-data processing.",
+      "Worked with multi-channel real-time sensor data, data fusion, model evaluation, and digital-twin pipelines for aerospace research applications.",
+      "Led avionics and flight-software development for an IN-SPACe national rocketry competition, integrating sensors, telemetry, and live visualization."
+    ]
+  },
+  {
+    role: "Mathematics & Chemistry Instructor",
+    company: "B.L Learning Institute, Chennai",
+    period: "2023 – 2024",
+    points: [
+      "Taught mathematics and chemistry to 50+ students, designed structured problem sets, and supported measurable improvement in student performance."
     ]
   }
 ];
@@ -41,17 +48,14 @@ export default function DetailedAbout() {
             </div>
             <h2 className="text-editorial-h2 text-espresso">
               AI Research Engineer <br />
-              <span className="text-editorial-display text-clay">Applied Systems.</span>
+              <span className="text-editorial-display text-clay">Applied Systems & Data Science.</span>
             </h2>
             <div className="grid md:grid-cols-2 gap-12 pt-8">
                <p className="text-xl font-light text-espresso leading-relaxed">
-                  B.Tech CS (Data Science & AI) student with a focus on deep learning for aerospace, 
-                  LLM-powered agentic systems, and real-time AI pipelines.
+                  B.Tech CS (Data Science & AI) student at Dr. M.G.R Educational and Research Institute (CGPA 8.60/10.00) with hands-on experience building applied AI, machine learning, and deep learning systems.
                </p>
                <p className="text-espresso/70 font-light leading-relaxed">
-                  I've spent my time building SENTINEL—an LLM commitment extraction platform—and developing 
-                  Temporal Convolutional Networks that predict combustion instability in rocket engines. 
-                  I think at the intersection of intelligence and performance.
+                  Experienced across aerospace TCN models, computer vision, NLP, and LLM-powered applications like SENTINEL and Quantumstacks Lab SaaS. Focused on Document Intelligence, OCR, and practical AI solutions that turn complex data into intent.
                </p>
             </div>
           </div>
@@ -91,8 +95,8 @@ export default function DetailedAbout() {
               <ScrollReveal key={i} direction="up" delay={0.2}>
                 <div className="grid md:grid-cols-[1fr_2fr] gap-12 md:gap-24 items-start border-t border-sand/20 pt-12">
                   <div>
-                    <h3 className="text-3xl font-serif text-espresso leading-none">{exp.company}</h3>
-                    <p className="text-sand text-[10px] uppercase tracking-[0.2em] mt-4 font-bold">{exp.role}</p>
+                    <h3 className="text-3xl font-serif text-espresso leading-tight">{exp.role}</h3>
+                    <p className="text-sand text-[10px] uppercase tracking-[0.2em] mt-3 font-bold">{exp.company}</p>
                     <p className="text-sand text-[10px] mt-2 italic">{exp.period}</p>
                   </div>
                   <ul className="space-y-6">
@@ -136,3 +140,4 @@ export default function DetailedAbout() {
     </div>
   );
 }
+

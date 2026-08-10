@@ -14,7 +14,7 @@ export default function UsesItem({ name, description, category }: UsesItemProps)
       initial={{ opacity: 0, y: 10 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] as const }}
       className="group border-b border-sand/20 py-8 last:border-0"
     >
       <div className="grid md:grid-cols-[1fr_2fr] gap-4 md:gap-12 items-baseline">

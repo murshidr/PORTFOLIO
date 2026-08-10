@@ -1,25 +1,26 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
 import Magnetic from "./Magnetic";
+import TextReveal from "./TextReveal";
 
 const projects = [
   {
     id: "01",
-    name: "Vynta",
-    subtitle: "AI-Powered Task Scheduler",
-    tagline: "Kotlin · Jetpack Compose · Groq API · Google Calendar API",
-    description: "Describe what you need in plain English. Vynta's AI figures out the when, the where, and the how — scheduling events into your Google Calendar based on daily energy levels.",
-    image: "/projects/vynta.jpg",
-    link: "/vynta/index.html"
+    name: "AI Automation SaaS",
+    subtitle: "Quantumstacks Lab Workflow Platform",
+    tagline: "Python · Groq API · Google OAuth · REST APIs · Export Engine",
+    description: "Web-based SaaS application for organizing & analyzing automation tasks. Integrated Groq API for AI-powered summaries and recommendations, with Google OAuth, session management, and CSV/JSON/PDF output generation.",
+    image: "/projects/sentinel.png",
+    link: "https://github.com/murshidr"
   },
   {
     id: "02",
     name: "SENTINEL",
-    subtitle: "Execution Intelligence Platform",
-    tagline: "Python · FastAPI · React 19 · Llama 3.3 70B · Supabase",
+    subtitle: "Execution Intelligence Platform — AMD Slingshot Hackathon",
+    tagline: "Python · FastAPI · React 19 · Llama 3.3 70B · Groq · Supabase · Redis",
     description: "Built end-to-end LLM-powered platform that extracts delivery commitments from Slack and Gmail, scores slip risk 0–100, and auto-alerts owners before deadlines are missed.",
     image: "/projects/sentinel.png",
     link: "https://github.com/murshidr"
@@ -27,47 +28,56 @@ const projects = [
   {
     id: "03",
     name: "Combustion AI",
-    subtitle: "Instability Prediction — Hybrid Rocket Engines",
-    tagline: "Python · PyTorch · Scikit-optimize · NumPy · MATLAB",
-    description: "TCN model achieving 92% accuracy for early warning of combustion instability; outperformed LSTM baselines. 8-channel sensor fusion at 1000 Hz sampling rate.",
+    subtitle: "Instability Prediction — Aerospace Rocket Engines",
+    tagline: "Python · PyTorch · TCN · Bayesian Optimization · Sensor Fusion",
+    description: "Developed machine learning workflows for combustion instability prediction using TCN models and Bayesian Optimization. 8-channel real-time sensor fusion achieving 92% accuracy, outperforming LSTM baselines.",
     image: "/projects/combustion.png",
     link: "https://github.com/murshidr"
   },
   {
     id: "04",
-    name: "DocuMind",
-    subtitle: "Mental State Prediction",
-    tagline: "Python · TensorFlow/Keras · LSTM · Scikit-learn",
-    description: "Stacked LSTM for time-series classification of mental health states from social media and lifestyle metrics. Achieved 81% Recall on At_Risk class.",
-    image: "/projects/documind.png",
+    name: "CardioTwin-H",
+    subtitle: "AI-Driven Cardiovascular Digital Twin",
+    tagline: "Python · Machine Learning · Explainability · Real-World Data",
+    description: "Cardiovascular digital twin combining ML risk prediction, explainability, physiological data acquisition, and real-world data processing. Awarded Novel Contribution Award at National Conference.",
+    image: "/projects/combustion.png",
     link: "https://github.com/murshidr"
   },
   {
     id: "05",
-    name: "AIDEN AI",
-    subtitle: "Intelligent Conversational Assistant",
-    tagline: "Python · HuggingFace Transformers · Flask API · SQLite",
-    description: "End-to-end conversational AI with NLP mood detection and RAG-style retrieval for adaptive academic guidance. Dual recommendation engine.",
-    image: "/projects/sentinel.png",
+    name: "Crop Health Monitoring",
+    subtitle: "Hyperspectral AI Analytics Pipeline",
+    tagline: "Python · Random Forest · SVM · Hyperspectral Image Processing",
+    description: "End-to-end hyperspectral image processing pipeline for automated crop health assessment. Built an ML ensemble using Random Forest and SVM, achieving 89% disease prediction accuracy.",
+    image: "/projects/documind.png",
     link: "https://github.com/murshidr"
   },
   {
     id: "06",
-    name: "Ground Station",
-    subtitle: "Real-Time Telemetry Dashboard",
-    tagline: "Python · Flask/FastAPI · WebSockets · Plotly · SQLite",
-    description: "Production-grade telemetry dashboard: 8+ sensor channels at 1000 Hz, <100ms latency. Selected for INSPACe Model Rocketry Competition national level.",
-    image: "/projects/combustion.png",
+    name: "DocuMind",
+    subtitle: "Deep Learning Time-Series Classification",
+    tagline: "Python · TensorFlow/Keras · Stacked LSTM · Feature Engineering",
+    description: "Deep learning time-series classification workflow for real-world applications with severe class imbalance. Data preprocessing, feature engineering, and model evaluation.",
+    image: "/projects/documind.png",
     link: "https://github.com/murshidr"
   },
   {
     id: "07",
     name: "CarbonCut",
-    subtitle: "AI-Powered Waste Management",
-    tagline: "Python · TensorFlow/Keras · React · Firebase",
-    description: "CNN image recognition: 94% accuracy across 6+ waste categories with real-time smartphone integration. SIH 2025 national evaluation selection.",
+    subtitle: "AI-Powered Sustainability & Waste Management",
+    tagline: "Python · TensorFlow/Keras · CNN · Computer Vision",
+    description: "Engineered CNN-based image recognition system achieving 94% accuracy in waste classification across 6+ categories with automated preprocessing pipelines.",
     image: "/projects/documind.png",
     link: "https://github.com/murshidr"
+  },
+  {
+    id: "08",
+    name: "Vynta v2.0",
+    subtitle: "AI Task Scheduler for Android",
+    tagline: "Kotlin · Jetpack Compose · Groq/Llama · Google Calendar API · Room DB",
+    description: "AI-powered Android productivity application mapping natural language task prompts into Google Calendar based on daily predicted energy levels.",
+    image: "/projects/vynta.jpg",
+    link: "/vynta/index.html"
   }
 ];
 
@@ -152,6 +162,8 @@ interface ProjectCardProps {
 
 function ProjectCard({ project, index, containerRef }: ProjectCardProps) {
   const cardRef = useRef<HTMLDivElement | null>(null);
+  const imageRef = useRef<HTMLDivElement | null>(null);
+  const [imageRevealed, setImageRevealed] = useState(false);
 
   // Track the scroll progress of this specific card relative to the carousel viewport
   const { scrollXProgress } = useScroll({
@@ -161,9 +173,27 @@ function ProjectCard({ project, index, containerRef }: ProjectCardProps) {
     offset: ["start end", "end start"]
   });
 
-  // Calculate horizontal parallax translation for the card's inner image
-  // Moves in the opposite direction of the scroll to create a sliding depth effect
+  // Horizontal parallax translation for the card's inner image
   const xImage = useTransform(scrollXProgress, [0, 1], [-40, 40]);
+
+  // Trigger clip-path mask reveal when image scrolls into view
+  useEffect(() => {
+    const el = imageRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setImageRevealed(true);
+          observer.unobserve(el);
+        }
+      },
+      { threshold: 0.2 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <motion.div
@@ -172,7 +202,7 @@ function ProjectCard({ project, index, containerRef }: ProjectCardProps) {
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      transition={{ duration: 0.8, delay: index * 0.05 }}
+      transition={{ duration: 0.8, delay: index * 0.05, ease: [0.16, 1, 0.3, 1] }}
     >
       <a
         href={project.link}
@@ -181,8 +211,11 @@ function ProjectCard({ project, index, containerRef }: ProjectCardProps) {
         className="group block bg-surface/20 border border-sand/15 hover:border-clay/35 backdrop-blur-md p-6 md:p-8 rounded-2xl shadow-cinematic transition-colors duration-500 text-decoration-none hover:text-current"
       >
         <div className="space-y-6 md:space-y-8">
-          {/* Parallax Image Mask */}
-          <div className="relative h-[250px] md:h-[320px] rounded-xl overflow-hidden bg-espresso border border-sand/10 shadow-inner">
+          {/* Parallax Image with Clip-Path Mask Reveal */}
+          <div
+            ref={imageRef}
+            className={`relative h-[250px] md:h-[320px] rounded-xl overflow-hidden bg-espresso border border-sand/10 shadow-inner mask-reveal-scale ${imageRevealed ? "revealed" : ""}`}
+          >
             <motion.div
               style={{ x: xImage, width: "120%", left: "-10%" }}
               className="absolute top-0 bottom-0 relative h-full"
@@ -191,11 +224,11 @@ function ProjectCard({ project, index, containerRef }: ProjectCardProps) {
                 src={project.image}
                 alt={project.name}
                 fill
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
+                className="object-cover transition-transform duration-[1.4s] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
                 sizes="(max-width: 768px) 100vw, 580px"
               />
             </motion.div>
-            <div className="absolute inset-0 bg-espresso/15 mix-blend-overlay group-hover:opacity-0 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-t from-espresso/20 via-transparent to-transparent group-hover:opacity-0 transition-opacity duration-700" />
             
             {/* Top-Right Project ID Badge */}
             <span className="absolute top-4 right-4 bg-cream/90 backdrop-blur-sm px-3 py-1.5 rounded-full border border-sand/25 text-[10px] uppercase font-bold text-espresso/70 tracking-widest tabular-nums shadow-sm">
@@ -210,7 +243,7 @@ function ProjectCard({ project, index, containerRef }: ProjectCardProps) {
                 {project.subtitle}
               </span>
               <h3 className="text-2xl md:text-3xl font-serif text-espresso leading-none group-hover:text-clay transition-colors duration-500">
-                {project.name}
+                <TextReveal text={project.name} />
               </h3>
             </div>
 

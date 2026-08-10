@@ -3,13 +3,14 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import VectorWaves from "./VectorWaves";
+import KineticBlob from "./KineticBlob";
+import TextReveal from "./TextReveal";
 
 export default function Hero() {
   const [wordIndex, setWordIndex] = useState(0);
   const [typingFinished, setTypingFinished] = useState(false);
 
   useEffect(() => {
-    // Start typing after a short delay
     const startTimeout = setTimeout(() => {
       let index = 0;
       const interval = setInterval(() => {
@@ -19,7 +20,7 @@ export default function Hero() {
           clearInterval(interval);
           setTypingFinished(true);
         }
-      }, 500); // 500ms per word for deliberate, premium pacing
+      }, 500);
 
       return () => clearInterval(interval);
     }, 400);
@@ -42,10 +43,24 @@ export default function Hero() {
           <div className="space-y-8 md:space-y-12 min-h-[clamp(8rem,20vw,24rem)] flex items-end">
             <h1 className="text-editorial-h1 text-espresso select-none flex items-baseline flex-wrap">
               {wordIndex >= 1 && (
-                <span className="mr-[0.2em]">Murshid</span>
+                <motion.span
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                  className="mr-[0.2em]"
+                >
+                  Murshid
+                </motion.span>
               )}
               {wordIndex >= 2 && (
-                <span className="text-editorial-display text-clay mr-[0.1em]">R.</span>
+                <motion.span
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                  className="text-editorial-display text-clay mr-[0.1em]"
+                >
+                  R.
+                </motion.span>
               )}
               {/* Blinking Cursor */}
               <motion.span
@@ -57,28 +72,44 @@ export default function Hero() {
             </h1>
           </div>
 
-          {/* Sub-headlines staggered fade-in */}
-          <div className="md:text-right space-y-6 md:pb-8">
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={typingFinished ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              className="text-sand font-serif italic text-xl md:text-2xl max-w-xs md:ml-auto leading-relaxed"
+          {/* Right Side: Kinetic Blob + Sub-headlines */}
+          <div className="md:text-right space-y-6 md:pb-8 flex flex-col items-end">
+            {/* Interactive Kinetic Morphing Blob */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={typingFinished ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+              transition={{ duration: 1.4, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="hidden md:flex items-center justify-center -mr-8 -mb-4"
             >
-              "Building systems that don't just process data, but understand intent."
-            </motion.p>
-            
+              <KineticBlob />
+            </motion.div>
+
+            {/* Sub-headlines: TextReveal on tagline */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={typingFinished ? { opacity: 1 } : { opacity: 0 }}
-              transition={{ duration: 0.8, delay: 1.0 }}
-              className="h-[0.5px] bg-sand/30 w-24 md:ml-auto"
+              transition={{ duration: 1, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="max-w-xs md:ml-auto"
+            >
+              <p className="text-sand font-serif italic text-xl md:text-2xl leading-relaxed">
+                <TextReveal
+                  text={`"Building systems that don't just process data, but understand intent."`}
+                  delay={0.6}
+                />
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scaleX: 0 }}
+              animate={typingFinished ? { opacity: 1, scaleX: 1 } : { opacity: 0, scaleX: 0 }}
+              transition={{ duration: 1.2, delay: 1.0, ease: [0.16, 1, 0.3, 1] }}
+              className="h-[0.5px] bg-sand/30 w-24 md:ml-auto origin-right"
             />
-            
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={typingFinished ? { opacity: 0.6, y: 0 } : { opacity: 0, y: 20 }}
-              transition={{ duration: 0.8, delay: 1.0, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.8, delay: 1.0, ease: [0.16, 1, 0.3, 1] }}
               className="text-label text-espresso space-y-1"
             >
               <p>AI Research Engineer</p>
@@ -88,11 +119,11 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* Scroll Indicator staggered fade-in */}
+      {/* Scroll Indicator */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={typingFinished ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-        transition={{ duration: 0.8, delay: 1.5, ease: "easeOut" }}
+        transition={{ duration: 0.8, delay: 1.5, ease: [0.16, 1, 0.3, 1] }}
         className="absolute bottom-12 left-6 md:left-12"
       >
         <div className="flex items-center space-x-6">

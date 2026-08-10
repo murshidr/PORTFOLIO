@@ -6,10 +6,10 @@ import Magnetic from "./Magnetic";
 import { Download, Calendar, ArrowRight, Zap, Target, Award } from "lucide-react";
 
 const stats = [
-  { label: "Years Experience", value: "05+", icon: Calendar },
-  { label: "Successful Projects", value: "12+", icon: Target },
-  { label: "Innovation Awards", value: "02", icon: Award },
-  { label: "Tech Proficiency", value: "95%", icon: Zap },
+  { label: "B.Tech CGPA (Sem 4)", value: "8.60", icon: Calendar },
+  { label: "AI & ML Projects", value: "08+", icon: Target },
+  { label: "Awards & Honors", value: "06", icon: Award },
+  { label: "Model Evaluation", value: "94%", icon: Zap },
 ];
 
 export default function RecruiterStats() {
